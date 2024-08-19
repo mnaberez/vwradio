@@ -604,7 +604,7 @@ mem_fe65 = 0xfe65
 mem_fe66 = 0xfe66
 mem_fe67 = 0xfe67
 mem_fe68 = 0xfe68
-mem_fe69 = 0xfe69
+mem_fe69 = 0xfe69           ;Bit 1: 0=use I2C high-speed mode, 1: use I2C standard mode
 mem_fe6a = 0xfe6a
 mem_fe6b = 0xfe6b
 mem_fe6c = 0xfe6c
@@ -797,6 +797,36 @@ brgc0_value = 0x39          ;Baud rate used for KWP1281:
                             ;  0x4b = 4800 baud   KWP1281 has been found to work reliably
                             ;  0x5b = 2400 baud   on this radio at all of these baud rates.
                             ;  0x6b = 1200 baud
+
+            ;IIC Control Register 0 (IICC0) Bits
+iice0 = 7   ;  I2C Operation enable
+lrel0 = 6   ;  Exit from communications
+wrel0 = 5   ;  Cancel wait
+spie0 = 4   ;  Enable/disable stop condition interrupt
+wtim0 = 3   ;  Control of wait and interrupt request generation
+acke0 = 2   ;  Acknowledge control
+stt0  = 1   ;  Start condition trigger
+spt0  = 0   ;  Stop condition trigger
+
+            ;IIC Status Register 0 (IICS0) Bits
+msts0 = 7   ;  Master device status
+ald0  = 6   ;  Detection of arbitration loss
+exc0  = 5   ;  Detection of extension code reception 
+coi0  = 4   ;  Detection of matching addresses
+trc0  = 3   ;  Detection of transmit/receive status
+ackd0 = 2   ;  Detection of ACK
+std0  = 1   ;  Detection of start condition
+spd0  = 0   ;  Detection of stop condition
+
+            ;IIC Transfer Clock Selection Register 0 (IICCL0) Bits
+            ;  Bit 7 is unused
+            ;  Bit 6 is unused
+cld0  = 5   ;  Detection of SCL0 line level
+dad0  = 4   ;  Detection of SDA0 line level
+smc0  = 3   ;  Operation mode switching
+dfc0  = 2   ;  Control of digital filter operation
+cl01  = 1   ;  Selection of transfer rate bit 1
+cl00  = 0   ;  Selection of transfer rate bit 0
 
 ;Command bytes to send to CDC
 cdc_scan = 0x05
@@ -1071,7 +1101,7 @@ callt_30_vect:
 callt_31_vect:
     .word badisr_0d75       ;007e  75 0d       VECTOR CALLT #31
 
-mem_0080:
+mem_0080_ee_0010_defaults:
 ;Defaults written to EEPROM area in RAM: mem_f1b3_ee_0010 - mem_f1e6_ee_0043 (52 bytes)
     .byte 0x1d  ;0080  -> mem_f1b3_ee_0010          EEPROM 0010
     .byte 0x1d  ;0081  -> mem_f1b4_ee_0011          EEPROM 0011
@@ -1126,7 +1156,7 @@ mem_0080:
     .byte 0x03  ;00b2  -> mem_f1e5_ee_0042          EEPROM 0042
     .byte 0x30  ;00b3  -> mem_f1e6_ee_0043          EEPROM 0043
 
-mem_00b4:
+mem_00b4_ee_0046_defaults:
 ;Defaults written to EEPROM area in RAM: mem_f1e7_ee_0046_region - mem_f1f8_ee_0057 (18 bytes)
     .byte 0x00  ;00b4 -> mem_f1e7_ee_0046_region    EEPROM 0046
     .byte 0xaa  ;00b5 -> mem_f1e8_ee_0047           EEPROM 0047
@@ -1147,19 +1177,19 @@ mem_00b4:
     .ascii ' '  ;00c4 -> mem_f1f7_ee_0056           EEPROM 0056
     .ascii ' '  ;00c5 -> mem_f1f8_ee_0057           EEPROM 0057
 
-mem_00c6:
+mem_00c6_ee_0058_defaults:
 ;Defaults written to EEPROM area in RAM: mem_f1f9_ee_0058_softcode_hi - mem_f201_ee_0060 (9 bytes)
-    .byte 0x03  ;00c6 -> mem_f1f9_ee_0058_softcode_hi           EEPROM 0058   (Protected) KWP1281 Soft Coding in binary, high byte
-    .byte 0x20  ;00c7 -> mem_f1fa_ee_0059_softcode_lo           EEPROM 0059   (Protected) KWP1281 Soft Coding in binary, low byte
-    .byte 0x00  ;00c8 -> mem_f1fb_ee_005a_workshp_hi           EEPROM 005A   (Protected) KWP1281 Workshop Code, high byte
-    .byte 0x00  ;00c9 -> mem_f1fc_ee_005b_workshp_lo           EEPROM 005B   (Protected) KWP1281 Workshop Code, low byte
-    .byte 0x00  ;00ca -> mem_f1fd_ee_005c           EEPROM 005C   (Protected)
-    .byte 0x00  ;00cb -> mem_f1fe_ee_005d           EEPROM 005D   (Protected)
-    .byte 0x04  ;00cc -> mem_f1ff_ee_005e           EEPROM 005E   (Protected)
-    .byte 0x00  ;00cd -> mem_f200_ee_005f           EEPROM 005F   (Protected)
-    .byte 0x00  ;00ce -> mem_f201_ee_0060           EEPROM 0060   (Protected)
+    .byte 0x03  ;00c6 -> mem_f1f9_ee_0058_softcode_hi   EEPROM 0058   (Protected) KWP1281 Soft Coding in binary, high byte
+    .byte 0x20  ;00c7 -> mem_f1fa_ee_0059_softcode_lo   EEPROM 0059   (Protected) KWP1281 Soft Coding in binary, low byte
+    .byte 0x00  ;00c8 -> mem_f1fb_ee_005a_workshp_hi    EEPROM 005A   (Protected) KWP1281 Workshop Code, high byte
+    .byte 0x00  ;00c9 -> mem_f1fc_ee_005b_workshp_lo    EEPROM 005B   (Protected) KWP1281 Workshop Code, low byte
+    .byte 0x00  ;00ca -> mem_f1fd_ee_005c               EEPROM 005C   (Protected)
+    .byte 0x00  ;00cb -> mem_f1fe_ee_005d               EEPROM 005D   (Protected)
+    .byte 0x04  ;00cc -> mem_f1ff_ee_005e               EEPROM 005E   (Protected)
+    .byte 0x00  ;00cd -> mem_f200_ee_005f               EEPROM 005F   (Protected)
+    .byte 0x00  ;00ce -> mem_f201_ee_0060               EEPROM 0060   (Protected)
 
-mem_00cf:
+mem_00cf_ee_0063_defaults:
 ;Defaults written to EEPROM area in RAM: mem_f206_ee_0063 - mem_f224_ee_0081 (31 bytes)
 ;Corresponds to addresses EEPROM 0063 - 0081
     .byte 0x00  ;00cf -> mem_f206_ee_0063             EEPROM 0063   
@@ -1194,7 +1224,7 @@ mem_00cf:
     .byte 0x00  ;00ec -> mem_f223_ee_0080             EEPROM 0080   
     .byte 0x00  ;00ed -> mem_f224_ee_0081             EEPROM 0081   
 
-mem_00ee:
+mem_00ee_ee_0082_defaults:
 ;Defaults written to EEPROM area in RAM: mem_f225_ee_0082 - mem_f26b_ee_00c8 (71 bytes)
 ;Corresponds to EEPROM addresses 0082 - 00C8
     .byte 0x04  ;00ee -> mem_f225_ee_0082           EEPROM 0082   FM1 Current Frequency Index = 88.3 MHz
@@ -1242,8 +1272,8 @@ mem_00ee:
     .byte 0x06  ;0118 -> mem_f24f_ee_00ac           EEPROM 00AC   
     .byte 0x06  ;0119 -> mem_f250_ee_00ad           EEPROM 00AD   
     .byte 0x06  ;011a -> mem_f251_ee_00ae           EEPROM 00AE   
-    .byte 0x00  ;011b -> mem_f252_ee_00af_fm1_fm2           EEPROM 00AF   FM1/FM2 = 0x00=FM1
-    .byte 0x01  ;011c -> mem_f253_ee_00b0_mode           EEPROM 00B0   Mode = 0x01=FM1/FM2
+    .byte 0x00  ;011b -> mem_f252_ee_00af_fm1_fm2   EEPROM 00AF   FM1/FM2 = 0x00=FM1
+    .byte 0x01  ;011c -> mem_f253_ee_00b0_mode      EEPROM 00B0   Mode = 0x01=FM1/FM2
     .byte 0x42  ;011d -> mem_f254_ee_00b1_onvol     EEPROM 00B1   ONVOL = 33
     .byte 0x00  ;011e -> mem_f255_ee_00b2           EEPROM 00B2   
     .byte 0x01  ;011f -> mem_f256_ee_00b3           EEPROM 00B3   
@@ -1449,22 +1479,22 @@ sub_026e:
     incw hl                 ;0270  86
 
 lab_0271:
-    dec a                   ;0271  51
-    mov c,a                 ;0272  72
-    call !sub_0314          ;0273  9a 14 03
-    push psw                ;0276  22
-    push de                 ;0277  b5
-    pop hl                  ;0278  b6
-    callf !add_b_to_hl      ;0279  5c 6d        HL = HL + B
-    mov x,#0x00             ;027b  a0 00
-    mov a,[hl]              ;027d  87
-    pop psw                 ;027e  23
-    bc lab_028b             ;027f  8d 0a
-    movw de,ax              ;0281  d4
-    mov a,[hl+0x01]         ;0282  ae 01
-    movw hl,ax              ;0284  d6
-    call !sub_02af          ;0285  9a af 02
-    addw ax,#mem_0080       ;0288  ca 80 00
+    dec a                               ;0271  51
+    mov c,a                             ;0272  72
+    call !sub_0314                      ;0273  9a 14 03
+    push psw                            ;0276  22
+    push de                             ;0277  b5
+    pop hl                              ;0278  b6
+    callf !add_b_to_hl                  ;0279  5c 6d        HL = HL + B
+    mov x,#0x00                         ;027b  a0 00
+    mov a,[hl]                          ;027d  87
+    pop psw                             ;027e  23
+    bc lab_028b                         ;027f  8d 0a
+    movw de,ax                          ;0281  d4
+    mov a,[hl+0x01]                     ;0282  ae 01
+    movw hl,ax                          ;0284  d6
+    call !sub_02af                      ;0285  9a af 02
+    addw ax,#mem_0080_ee_0010_defaults  ;0288  ca 80 00
 
 lab_028b:
     ret                     ;028b  af
@@ -1703,7 +1733,7 @@ lab_086f:
     mov !mem_fb63,a         ;0875  9e 63 fb
     ret                     ;0878  af
 
-sub_0879:
+sub_0879_ret:
 ;Just returns
     ret                     ;0879  af
 
@@ -2027,10 +2057,10 @@ lab_09db:
 subtr_f1b3_from_f202:
 ;Subtract RAM locations corresponding to EEPROM 0010 - 0060
 ;HL = #mem_f1b3_ee_0010, DE = #mem_f202_ee_0061_csum1_lo, A = DE - HL
-    movw hl,#mem_f1b3_ee_0010       ;09e6  16 b3 f1
-    movw de,#mem_f202_ee_0061_csum1_lo       ;09e9  14 02 f2
-    callf !subtr_hl_from_de ;09ec  1c ef      Subtract HL from DE, return A=low, X=high
-    ret                     ;09ee  af
+    movw hl,#mem_f1b3_ee_0010               ;09e6  16 b3 f1
+    movw de,#mem_f202_ee_0061_csum1_lo      ;09e9  14 02 f2
+    callf !subtr_hl_from_de                 ;09ec  1c ef      Subtract HL from DE, return A=low, X=high
+    ret                                     ;09ee  af
 
 subtr_hl_from_de:
 ;Subtract HL from DE, return A=low, X=high
@@ -2080,34 +2110,34 @@ eeram_f206_get_size:
 
 eeram_copy_all_defaults:
 ;Copy all of the EEPROM defaults from ROM into the checksummed EEPROM area in RAM
-;ROM tables copied: mem_0080, mem_00b4, mem_00c6, mem_00cf, mem_00ee
+;ROM tables copied: mem_0080_ee_0010_defaults, mem_00b4_ee_0046_defaults, mem_00c6_ee_0058_defaults, mem_00cf_ee_0063_defaults, mem_00ee_ee_0082_defaults
 ;
-;Copy 0x4F bytes from mem_0080 to mem_f1b3_ee_0010
-;Copy 0x66 bytes from mem_00cf to mem_f206_ee_0063
-    callf !eeram_copy_f1b3_defaults     ;0a17  2c 1c        Copy 0x4F bytes from mem_0080 to mem_f1b3_ee_0010 (EEPROM 0010- )
-    callf !eeram_copy_f206_defaults     ;0a19  2c 2c        Copy 0x66 bytes from mem_00cf to mem_f206_ee_0063 (EEPROM 0063- )
+;Copy 0x4F bytes from mem_0080_ee_0010_defaults to mem_f1b3_ee_0010
+;Copy 0x66 bytes from mem_00cf_ee_0063_defaults to mem_f206_ee_0063
+    callf !eeram_copy_f1b3_defaults     ;0a17  2c 1c        Copy 0x4F bytes from mem_0080_ee_0010_defaults to mem_f1b3_ee_0010 (EEPROM 0010- )
+    callf !eeram_copy_f206_defaults     ;0a19  2c 2c        Copy 0x66 bytes from mem_00cf_ee_0063_defaults to mem_f206_ee_0063 (EEPROM 0063- )
     ret                                 ;0a1b  af
 
 eeram_copy_f1b3_defaults:
 ;Copy some EEPROM defaults from ROM into the checksummed EEPROM area in RAM (1 of 2)
-;ROM tables copied: mem_0080, mem_00b4, mem_00c6
+;ROM tables copied: mem_0080_ee_0010_defaults, mem_00b4_ee_0046_defaults, mem_00c6_ee_0058_defaults
 ;
-;Copy 0x4F bytes from mem_0080 to mem_f1b3_ee_0010
+;Copy 0x4F bytes from mem_0080_ee_0010_defaults to mem_f1b3_ee_0010
     movw hl,#mem_f1b3_ee_0010           ;0a1c  16 b3 f1
     movw de,#mem_f202_ee_0061_csum1_lo  ;0a1f  14 02 f2
     callf !subtr_hl_from_de             ;0a22  1c ef        Subtract HL from DE, return A=low, X=high
                                         ;                   Results in A=0x4F
-    movw hl,#mem_0080                   ;0a24  16 80 00     HL = source address
+    movw hl,#mem_0080_ee_0010_defaults  ;0a24  16 80 00     HL = source address
     movw de,#mem_f1b3_ee_0010           ;0a27  14 b3 f1     DE = destination address
     br lab_0a34                         ;0a2a  fa 08        Branch to Copy A bytes from [HL] to [DE] and return
 
 eeram_copy_f206_defaults:
 ;Copy some EEPROM defaults from ROM into the checksummed EEPROM area in RAM (2 of 2)
-;ROM tables copied: mem_00cf, mem_00ee
+;ROM tables copied: mem_00cf_ee_0063_defaults, mem_00ee_ee_0082_defaults
 ;
-;Copy 0x66 bytes from mem_00cf to mem_f206_ee_0063
+;Copy 0x66 bytes from mem_00cf_ee_0063_defaults to mem_f206_ee_0063
     callf !eeram_f206_get_size          ;0a2c  2c 0d        A = Number of bytes in checksummed EEPROM area (always 0x66)
-    movw hl,#mem_00cf                   ;0a2e  16 cf 00     HL = source address
+    movw hl,#mem_00cf_ee_0063_defaults  ;0a2e  16 cf 00     HL = source address
     movw de,#mem_f206_ee_0063           ;0a31  14 06 f2     DE = destination address (mem_f206_ee_0063 = EEPROM 0063)
 
 lab_0a34:
@@ -2174,8 +2204,8 @@ eeram_f206_copy_presets_and_sound_data_if_needed:
     mov a,!mem_f207_ee_0064             ;0a64  8e 07 f2     A = mem_f207_ee_0064 (EEPROM 0064)
     bf a.6,lab_0a7e_ret                 ;0a67  31 6f 14
 
-    ;Copy 0x47 bytes from mem_00ee to mem_f225_ee_0082
-    movw hl,#mem_00ee                   ;0a6a  16 ee 00     HL = source address
+    ;Copy 0x47 bytes from mem_00ee_ee_0082_defaults to mem_f225_ee_0082
+    movw hl,#mem_00ee_ee_0082_defaults  ;0a6a  16 ee 00     HL = source address
     movw de,#mem_f225_ee_0082           ;0a6d  14 25 f2     DE = destination address (mem_f225_ee_0082 = EEPROM 0082)
     movw ax,#mem_f26c_ee_00c9_csum2_lo  ;0a70  10 6c f2     AX = #mem_f26c_ee_00c9_csum2_lo
     subw ax,#mem_f225_ee_0082           ;0a73  da 25 f2     AX = #mem_f26c_ee_00c9_csum2_lo - #mem_f225_ee_0082 = 0x47
@@ -2645,9 +2675,10 @@ eeram_csum_update:
 ;
 ;Call with:
 ;  HL = Starting RAM address that mirrors EEPROM data
-;  DE = Checksum location (checksum is 2 bytes)
+;  DE = Checksum address (checksum is 2 bytes)
 ;   A = Number of bytes
-; PSW = Carry set: update checksum in RAM, clear: do not update
+;   X = Initial value for checksum (0x55 is always passed in)
+; PSW = Carry set: update checksum at address in DE, clear: do not update
 ; mem_fe31.0 = Influences end compare
 ;
 ;Returns:
@@ -2667,26 +2698,28 @@ lab_0c1a_loop:
     addc a,#0x00            ;0c21  2d 00
     dbnz b,lab_0c1a_loop    ;0c23  8b f5
 
-    ;AX now contains some calculated value
-    ;Save it in mem_fede to recall it below
+    ;AX now contains the calculated checksum
+    ;Store it in mem_fede/mem_fedf
     movw mem_fede,ax        ;0c25  99 de
 
-    ;HL = DE
+    ;HL = DE (address of original checksum passed in on entry)
     movw ax,de              ;0c27  c4
     movw hl,ax              ;0c28  d6
 
-    ;Get original checksum
-    ;mem_fedc/mem_fedd = word at DE
+    ;Get original checksum value
+    ;Store it in mem_fedc/mem_fedd
     mov a,[hl]              ;0c29  87
     xch a,x                 ;0c2a  30
     mov a,[hl+0x01]         ;0c2b  ae 01
     movw mem_fedc,ax        ;0c2d  99 dc
 
-    ;AX = recall calculated value saved above
+    ;AX = recall calculated checksum saved above
     movw ax,mem_fede        ;0c2f  89 de
 
     pop psw                 ;0c31  23       Recall PSW saved on entry
     bc lab_0c39_no_update   ;0c32  8d 05
+
+    ;Update checksum with the calculated one
     xch a,x                 ;0c34  30
     mov [hl],a              ;0c35  97
     xch a,x                 ;0c36  30
@@ -4258,16 +4291,17 @@ lab_150c_br_lab_12d7_task_00_exit:
 lab_150f_task_03_i2c_related:
     mov mem_fe28,#0x80                                  ;150f  11 28 80
     bf mem_fe69.0,lab_1534_br_lab_12d7_task_00_exit     ;1512  31 03 69 1e
-    mov iiccl0,#0b00001100                              ;1516  13 aa 0c
-    clr1 iicc0.6                                        ;1519  71 6b a8
-    clr1 iicc0.4                                        ;151c  71 4b a8
+    mov iiccl0,#(1<<smc0|1<<dfc0)                       ;1516  13 aa 0c     SMC0=1 (Operation in high-speed mode)
+                                                        ;                   DFC0=1 (Digital filter on)
+    clr1 iicc0.lrel0                                    ;1519  71 6b a8     LREL=0 (Normal operation)
+    clr1 iicc0.spie0                                    ;151c  71 4b a8     SPIE=0 (Stop condition interrupt disabled)
     clr1 shadow_p7.2                                    ;151f  2b d1        P72=0 (I2C SCL)
     mov a,shadow_p7                                     ;1521  f0 d1
     mov p7,a                                            ;1523  f2 07
     clr1 shadow_p7.1                                    ;1525  1b d1        P71=0 (I2C SDA)
     mov a,shadow_p7                                     ;1527  f0 d1
     mov p7,a                                            ;1529  f2 07
-    set1 iicc0.7                                        ;152b  71 7a a8
+    set1 iicc0.iice0                                    ;152b  71 7a a8     IICE0=1 (I2C operation enabled)
     clr1 pm7.2                                          ;152e  71 2b 27     PM72=output (I2C SCL)
     clr1 pm7.1                                          ;1531  71 1b 27     PM71=output (I2C SDA)
 
@@ -8019,77 +8053,77 @@ recode:
 ;Returns:
 ;  Nothing.  There's no indication of whether recoding succeeded or not.
 ;
-    call !sub_2d35          ;29b4  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
+    call !sub_2d35                          ;29b4  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
 
     ;AX = requested coding in binary
-    mov a,!kwp_rx_buf+4     ;29b7  8e 8e f0     A = KWP1281 rx buffer byte 4 (coding in binary, low byte)
-    mov x,a                 ;29ba  70           Copy it to X
-    mov a,!kwp_rx_buf+3     ;29bb  8e 8d f0     A = KWP1281 rx buffer byte 3 (coding in binary, high byte)
+    mov a,!kwp_rx_buf+4                     ;29b7  8e 8e f0     A = KWP1281 rx buffer byte 4 (coding in binary, low byte)
+    mov x,a                                 ;29ba  70           Copy it to X
+    mov a,!kwp_rx_buf+3                     ;29bb  8e 8d f0     A = KWP1281 rx buffer byte 3 (coding in binary, high byte)
 
     ;AX = AX >> 1
-    clr1 cy                 ;29be  21
-    rorc a,1                ;29bf  25
-    xch a,x                 ;29c0  30
-    rorc a,1                ;29c1  25
-    xch a,x                 ;29c2  30
+    clr1 cy                                 ;29be  21
+    rorc a,1                                ;29bf  25
+    xch a,x                                 ;29c0  30
+    rorc a,1                                ;29c1  25
+    xch a,x                                 ;29c2  30
 
-    call !coding_bin_to_bcd ;29c3  9a 44 2d     Convert 16-bit binary number in AX to BCD in mem_fed4-mem_fed6
-    call !check_coding_bcd  ;29c6  9a 6e 2d     Check that requested coding in BCD is valid
-    bc lab_29ce             ;29c9  8d 03        Branch if valid
+    call !coding_bin_to_bcd                 ;29c3  9a 44 2d     Convert 16-bit binary number in AX to BCD in mem_fed4-mem_fed6
+    call !check_coding_bcd                  ;29c6  9a 6e 2d     Check that requested coding in BCD is valid
+    bc lab_29ce                             ;29c9  8d 03        Branch if valid
 
     ;Requested coding is invalid
-    br !lab_2ab9_ret        ;29cb  9b b9 2a     Branch to just return
+    br !lab_2ab9_ret                        ;29cb  9b b9 2a     Branch to just return
 
 lab_29ce:
     ;Requested coding is valid
-    mov a,mem_fed4          ;29ce  f0 d4
-    and a,!mem_f1fd_ee_005c         ;29d0  58 fd f1
-    mov b,a                 ;29d3  73           B = mem_fed4 & mem_f1fd_ee_005c
-    bt a.0,lab_29df         ;29d4  31 0e 08     Branch to skip clearing antenna fault
+    mov a,mem_fed4                          ;29ce  f0 d4
+    and a,!mem_f1fd_ee_005c                 ;29d0  58 fd f1
+    mov b,a                                 ;29d3  73           B = mem_fed4 & mem_f1fd_ee_005c
+    bt a.0,lab_29df                         ;29d4  31 0e 08     Branch to skip clearing antenna fault
 
     ;mem_fed4.0 & mem_f1fd_ee_005c.0 = 0
-    movw hl,#mem_f215_ee_0072       ;29d7  16 15 f2     HL = pointer to faults buffer #2 "00856 - Radio Antenna"
-    mov a,#0x88             ;29da  a1 88        A = 0x88 (fault elaboration for "no fault")
-    call !eeram_f206_wr_byte_hl  ;29dc  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
+    movw hl,#mem_f215_ee_0072               ;29d7  16 15 f2     HL = pointer to faults buffer #2 "00856 - Radio Antenna"
+    mov a,#0x88                             ;29da  a1 88        A = 0x88 (fault elaboration for "no fault")
+    call !eeram_f206_wr_byte_hl             ;29dc  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 lab_29df:
-    mov a,b                 ;29df  63           A = recall result of mem_fed4 & mem_f1fd_ee_005c
-    bt a.1,lab_29eb         ;29e0  31 1e 08
+    mov a,b                                 ;29df  63           A = recall result of mem_fed4 & mem_f1fd_ee_005c
+    bt a.1,lab_29eb                         ;29e0  31 1e 08
 
     ;mem_fed4.1 & mem_f1fd_ee_005c.1 = 0
-    movw hl,#mem_f214_ee_0071       ;29e3  16 14 f2     HL = pointer to faults buffer #2 "00855 - Connection to CD changer"
-    mov a,#0x88             ;29e6  a1 88        A = 0x88 (fault elaboration for "no fault")
-    call !eeram_f206_wr_byte_hl  ;29e8  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
+    movw hl,#mem_f214_ee_0071               ;29e3  16 14 f2     HL = pointer to faults buffer #2 "00855 - Connection to CD changer"
+    mov a,#0x88                             ;29e6  a1 88        A = 0x88 (fault elaboration for "no fault")
+    call !eeram_f206_wr_byte_hl             ;29e8  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 lab_29eb:
-    mov a,b                 ;29eb  63           A = recall result of mem_fed4 & mem_f1fd_ee_005c
-    bt a.2,lab_29f7         ;29ec  31 2e 08
+    mov a,b                                 ;29eb  63           A = recall result of mem_fed4 & mem_f1fd_ee_005c
+    bt a.2,lab_29f7                         ;29ec  31 2e 08
 
     ;mem_fed4.2 & mem_f1fd_ee_005c.2 = 0
-    movw hl,#mem_f213_ee_0070       ;29ef  16 13 f2     HL = pointer to faults buffer #2 "00854 - Radio Display Output in Dash Panel Insert"
-    mov a,#0x88             ;29f2  a1 88        A = 0x88 (fault elaboration for "no fault")
-    call !eeram_f206_wr_byte_hl  ;29f4  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
+    movw hl,#mem_f213_ee_0070               ;29ef  16 13 f2     HL = pointer to faults buffer #2 "00854 - Radio Display Output in Dash Panel Insert"
+    mov a,#0x88                             ;29f2  a1 88        A = 0x88 (fault elaboration for "no fault")
+    call !eeram_f206_wr_byte_hl             ;29f4  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 lab_29f7:
-    mov a,mem_fed5          ;29f7  f0 d5
-    and a,#0b00001111       ;29f9  5d 0f
-    cmp a,!mem_f1ff_ee_005e         ;29fb  48 ff f1
-    bz lab_2a10             ;29fe  ad 10
+    mov a,mem_fed5                          ;29f7  f0 d5
+    and a,#0b00001111                       ;29f9  5d 0f
+    cmp a,!mem_f1ff_ee_005e                 ;29fb  48 ff f1
+    bz lab_2a10                             ;29fe  ad 10
 
     ;mem_fed5 & 0b00001111 != 0
-    movw hl,#mem_f211_ee_006e       ;2a00  16 11 f2     HL = pointer to faults buffer #2 "00852 - Loudspeaker(s); Front"
-    mov a,#0x88             ;2a03  a1 88        A = 0x88 (fault elaboration for "no fault")
-    call !eeram_f206_wr_byte_hl  ;2a05  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
+    movw hl,#mem_f211_ee_006e               ;2a00  16 11 f2     HL = pointer to faults buffer #2 "00852 - Loudspeaker(s); Front"
+    mov a,#0x88                             ;2a03  a1 88        A = 0x88 (fault elaboration for "no fault")
+    call !eeram_f206_wr_byte_hl             ;2a05  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
-    movw hl,#mem_f212_ee_006f       ;2a08  16 12 f2     HL = pointer to faults buffer #2 "00853 - Loudspeaker(s); Rear"
-    mov a,#0x88             ;2a0b  a1 88        A = 0x88 (fault elaboration for "no fault")
-    call !eeram_f206_wr_byte_hl  ;2a0d  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
+    movw hl,#mem_f212_ee_006f               ;2a08  16 12 f2     HL = pointer to faults buffer #2 "00853 - Loudspeaker(s); Rear"
+    mov a,#0x88                             ;2a0b  a1 88        A = 0x88 (fault elaboration for "no fault")
+    call !eeram_f206_wr_byte_hl             ;2a0d  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 lab_2a10:
-    movw hl,#mem_f1f9_ee_0058_softcode_hi       ;2a10  16 f9 f1     HL = pointer to buffer to sum
-    mov a,#0x09             ;2a13  a1 09        A = 9 bytes to sum
-    call !sub_2de6          ;2a15  9a e6 2d     AX = sum of A bytes in buffer [HL]
-    push ax                 ;2a18  b1           Push sum of 9 bytes at mem_f1f9_ee_0058_softcode_hi
+    movw hl,#mem_f1f9_ee_0058_softcode_hi   ;2a10  16 f9 f1     HL = pointer to buffer to sum
+    mov a,#0x09                             ;2a13  a1 09        A = 9 bytes to sum
+    call !sub_2de6                          ;2a15  9a e6 2d     AX = sum of A bytes in buffer [HL]
+    push ax                                 ;2a18  b1           Push sum of 9 bytes at mem_f1f9_ee_0058_softcode_hi
 
     ;Copy coding and workshop from KWP rx buffer:
     ;  kwp_rx_buf+3 -> mem_f1f9_ee_0058_softcode_hi (Soft coding in binary, high byte)
@@ -8097,208 +8131,208 @@ lab_2a10:
     ;  kwp_rx_buf+5 -> mem_f1fb_ee_005a_workshp_hi (Workshop code, high byte)
     ;  kwp_rx_buf+6 -> mem_f1fc_ee_005b_workshp_lo (Workshop code, low byte)
 
-    movw hl,#kwp_rx_buf+3   ;2a19  16 8d f0     HL = source address (KWP1281 rx buffer byte 3)
-    movw de,#mem_f1f9_ee_0058_softcode_hi       ;2a1c  14 f9 f1     DE = destination address
-    mov a,#0x04             ;2a1f  a1 04        A = 4 bytes to copy
-    callf !copy             ;2a21  4c 9e        Copy A bytes from [HL] to [DE]
+    movw hl,#kwp_rx_buf+3                   ;2a19  16 8d f0     HL = source address (KWP1281 rx buffer byte 3)
+    movw de,#mem_f1f9_ee_0058_softcode_hi   ;2a1c  14 f9 f1     DE = destination address
+    mov a,#0x04                             ;2a1f  a1 04        A = 4 bytes to copy
+    callf !copy                             ;2a21  4c 9e        Copy A bytes from [HL] to [DE]
 
-    mov a,mem_fed4          ;2a23  f0 d4
-    and a,#0x0f             ;2a25  5d 0f
-    mov !mem_f1fd_ee_005c,a         ;2a27  9e fd f1
+    mov a,mem_fed4                          ;2a23  f0 d4
+    and a,#0x0f                             ;2a25  5d 0f
+    mov !mem_f1fd_ee_005c,a                 ;2a27  9e fd f1
 
-    mov a,mem_fed4          ;2a2a  f0 d4
-    and a,#0xf0             ;2a2c  5d f0
-    callf !ror_a_4          ;2a2e  2c 9e        A = A >> 4
-    mov !mem_f1fe_ee_005d,a         ;2a30  9e fe f1     TODO coding, monsoon related
+    mov a,mem_fed4                          ;2a2a  f0 d4
+    and a,#0xf0                             ;2a2c  5d f0
+    callf !ror_a_4                          ;2a2e  2c 9e        A = A >> 4
+    mov !mem_f1fe_ee_005d,a                 ;2a30  9e fe f1     TODO coding, monsoon related
 
-    mov a,mem_fed5          ;2a33  f0 d5
-    and a,#0x0f             ;2a35  5d 0f
-    mov !mem_f1ff_ee_005e,a         ;2a37  9e ff f1
+    mov a,mem_fed5                          ;2a33  f0 d5
+    and a,#0x0f                             ;2a35  5d 0f
+    mov !mem_f1ff_ee_005e,a                 ;2a37  9e ff f1
 
-    mov a,mem_fed5          ;2a3a  f0 d5
-    and a,#0xf0             ;2a3c  5d f0
-    callf !ror_a_4          ;2a3e  2c 9e        A = A >> 4
-    mov !mem_f200_ee_005f,a         ;2a40  9e 00 f2
+    mov a,mem_fed5                          ;2a3a  f0 d5
+    and a,#0xf0                             ;2a3c  5d f0
+    callf !ror_a_4                          ;2a3e  2c 9e        A = A >> 4
+    mov !mem_f200_ee_005f,a                 ;2a40  9e 00 f2
 
-    mov a,mem_fed6          ;2a43  f0 d6
-    and a,#0x0f             ;2a45  5d 0f
-    mov !mem_f201_ee_0060,a         ;2a47  9e 01 f2
+    mov a,mem_fed6                          ;2a43  f0 d6
+    and a,#0x0f                             ;2a45  5d 0f
+    mov !mem_f201_ee_0060,a                 ;2a47  9e 01 f2
 
-    set1 mem_fe73.5         ;2a4a  5a 73
+    set1 mem_fe73.5                         ;2a4a  5a 73
 
-    movw hl,#mem_f1f9_ee_0058_softcode_hi       ;2a4c  16 f9 f1     HL = pointer to buffer to sum
-    mov a,#0x09             ;2a4f  a1 09        A = 9 bytes to sum (2 Soft Coding + 2 Workshop Code + 5 more)
-    call !sub_2de6          ;2a51  9a e6 2d     AX = sum of A bytes in buffer [HL]
-    movw de,ax              ;2a54  d4
-    movw mem_fed4,ax        ;2a55  99 d4
+    movw hl,#mem_f1f9_ee_0058_softcode_hi   ;2a4c  16 f9 f1     HL = pointer to buffer to sum
+    mov a,#0x09                             ;2a4f  a1 09        A = 9 bytes to sum (2 Soft Coding + 2 Workshop Code + 5 more)
+    call !sub_2de6                          ;2a51  9a e6 2d     AX = sum of A bytes in buffer [HL]
+    movw de,ax                              ;2a54  d4
+    movw mem_fed4,ax                        ;2a55  99 d4
 
-    pop bc                  ;2a57  b2           BC = Pop sum of 9 bytes at mem_f1f9_ee_0058_softcode_hi
-    movw hl,#mem_f202_ee_0061_csum1_lo       ;2a58  16 02 f2
-    call !sub_2df8          ;2a5b  9a f8 2d     Word [HL] = Word [HL] - BC + DE
+    pop bc                                  ;2a57  b2           BC = Pop sum of 9 bytes at mem_f1f9_ee_0058_softcode_hi
+    movw hl,#mem_f202_ee_0061_csum1_lo      ;2a58  16 02 f2
+    call !sub_2df8                          ;2a5b  9a f8 2d     Word [HL] = Word [HL] - BC + DE
 
 lab_2a5e:
-    call !eeprom_guard      ;2a5e  9a 17 62     Check if EEPROM is available for use(?)
-    bc lab_2a65             ;2a61  8d 02        Branch if available
-    br lab_2a5e             ;2a63  fa f9        Repeat until available
+    call !eeprom_guard                      ;2a5e  9a 17 62     Check if EEPROM is available for use(?)
+    bc lab_2a65                             ;2a61  8d 02        Branch if available
+    br lab_2a5e                             ;2a63  fa f9        Repeat until available
 
 lab_2a65:
     ;Read 9 bytes from EEPROM at 0x0058 into mem_fed6
     ;These 9 EEPROM addresses 0x0058-0x0060 are protected in lab_2c60
     ;(Soft Coding and Workshop Code related)
-    movw hl,#0x0058         ;2a65  16 58 00     HL = EEPROM address 0x0058
-    movw de,#mem_fed6       ;2a68  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
-    mov a,#0x09             ;2a6b  a1 09        A = 9 bytes to read from EEPROM
-    call !eeprom_read       ;2a6d  9a 38 62     Read A bytes from EEPROM address HL into [DE]
-    bc lab_2a74_success     ;2a70  8d 02        Branch if EEPROM read succeeded
-    br lab_2ab9_ret         ;2a72  fa 45        Branch to just return on failure
+    movw hl,#0x0058                         ;2a65  16 58 00     HL = EEPROM address 0x0058
+    movw de,#mem_fed6                       ;2a68  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
+    mov a,#0x09                             ;2a6b  a1 09        A = 9 bytes to read from EEPROM
+    call !eeprom_read                       ;2a6d  9a 38 62     Read A bytes from EEPROM address HL into [DE]
+    bc lab_2a74_success                     ;2a70  8d 02        Branch if EEPROM read succeeded
+    br lab_2ab9_ret                         ;2a72  fa 45        Branch to just return on failure
 
 lab_2a74_success:
     ;Reading the 9 bytes from EEPROM at 0x0058 succeeded
     ;Now compute BC = sum of the 9 bytes
-    movw hl,#mem_fed6       ;2a74  16 d6 fe     HL = pointer to buffer to sum
-    mov a,#0x09             ;2a77  a1 09        A = 9 bytes to sum
-    call !sub_2de6          ;2a79  9a e6 2d     AX = sum of A bytes in buffer [HL]
-    movw bc,ax              ;2a7c  d2           Save the sum in BC
+    movw hl,#mem_fed6                       ;2a74  16 d6 fe     HL = pointer to buffer to sum
+    mov a,#0x09                             ;2a77  a1 09        A = 9 bytes to sum
+    call !sub_2de6                          ;2a79  9a e6 2d     AX = sum of A bytes in buffer [HL]
+    movw bc,ax                              ;2a7c  d2           Save the sum in BC
 
     ;Read 2 bytes from EEPROM at 0x0061 into mem_fed6 (Soft Coding and Workshop Code related)
-    movw hl,#0x0061         ;2a7d  16 61 00     HL = EEPROM address 0x0061
-    movw de,#mem_fed6       ;2a80  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
-    mov a,#0x02             ;2a83  a1 02        A = 2 bytes to read from EEPROM
-    call !eeprom_read       ;2a85  9a 38 62     Read A bytes from EEPROM address HL into [DE]
-    bc lab_2a8c_success     ;2a88  8d 02        Branch if EEPROM read succeeded
-    br lab_2ab9_ret         ;2a8a  fa 2d        Branch to just return on failure
-
+    movw hl,#0x0061                         ;2a7d  16 61 00     HL = EEPROM address 0x0061
+    movw de,#mem_fed6                       ;2a80  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
+    mov a,#0x02                             ;2a83  a1 02        A = 2 bytes to read from EEPROM
+    call !eeprom_read                       ;2a85  9a 38 62     Read A bytes from EEPROM address HL into [DE]
+    bc lab_2a8c_success                     ;2a88  8d 02        Branch if EEPROM read succeeded
+    br lab_2ab9_ret                         ;2a8a  fa 2d        Branch to just return on failure
+                
 lab_2a8c_success:
     ;Reading the 2 bytes from EEPROM at 0x0061 succeeded
-    movw ax,mem_fed4        ;2a8c  89 d4        AX = sum of 9 bytes at mem_f1f9_ee_0058_softcode_hi computed near 2a51 above
-    movw de,ax              ;2a8e  d4
-    movw hl,#mem_fed6       ;2a8f  16 d6 fe     HL = pointer to buffer to write to EEPROM
-    call !sub_2df8          ;2a92  9a f8 2d     Word [HL] = Word [HL] - BC + DE
-
-    movw de,#0x0061         ;2a95  14 61 00     DE = EEPROM address 0x0061
-    mov a,#0x02             ;2a98  a1 02        A = 2 bytes to write to EEPROM
-    call !eeprom_write      ;2a9a  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
-    bnc lab_2ab9_ret        ;2a9d  9d 1a        Branch if write failed
+    movw ax,mem_fed4                        ;2a8c  89 d4        AX = sum of 9 bytes at mem_f1f9_ee_0058_softcode_hi computed near 2a51 above
+    movw de,ax                              ;2a8e  d4
+    movw hl,#mem_fed6                       ;2a8f  16 d6 fe     HL = pointer to buffer to write to EEPROM
+    call !sub_2df8                          ;2a92  9a f8 2d     Word [HL] = Word [HL] - BC + DE
+                
+    movw de,#0x0061                         ;2a95  14 61 00     DE = EEPROM address 0x0061
+    mov a,#0x02                             ;2a98  a1 02        A = 2 bytes to write to EEPROM
+    call !eeprom_write                      ;2a9a  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
+    bnc lab_2ab9_ret                        ;2a9d  9d 1a        Branch if write failed
     ;Fall through on success
 
 lab_2a9f_loop:
-    call !eeprom_guard      ;2a9f  9a 17 62     Check if EEPROM is available for use(?)
-    bnc lab_2a9f_loop       ;2aa2  9d fb        Repeat until available
+    call !eeprom_guard                      ;2a9f  9a 17 62     Check if EEPROM is available for use(?)
+    bnc lab_2a9f_loop                       ;2aa2  9d fb        Repeat until available
 
-    movw hl,#mem_f1f9_ee_0058_softcode_hi       ;2aa4  16 f9 f1     HL = pointer to buffer to write to EEPROM
+    movw hl,#mem_f1f9_ee_0058_softcode_hi   ;2aa4  16 f9 f1     HL = pointer to buffer to write to EEPROM
     ;These 9 EEPROM addresses 0x0058-0x0060 are protected in lab_2c60
     ;(Soft Coding and Workshop Code related)
-    movw de,#0x0058         ;2aa7  14 58 00     DE = EEPROM address 0x0058
-    mov a,#0x09             ;2aaa  a1 09        A = 9 bytes to write to EEPROM (2 Soft Coding + 2 Workshop Code + 5 more)
-    call !eeprom_write      ;2aac  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
-    bnc lab_2ab9_ret        ;2aaf  9d 08        Branch if write failed
+    movw de,#0x0058                         ;2aa7  14 58 00     DE = EEPROM address 0x0058
+    mov a,#0x09                             ;2aaa  a1 09        A = 9 bytes to write to EEPROM (2 Soft Coding + 2 Workshop Code + 5 more)
+    call !eeprom_write                      ;2aac  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
+    bnc lab_2ab9_ret                        ;2aaf  9d 08        Branch if write failed
 
-    movw hl,#mem_f216_ee_0073       ;2ab1  16 16 f2     HL = pointer to faults buffer #2 "01044 - Control Module Incorrectly Coded"
-    mov a,#0x88             ;2ab4  a1 88        A = 0x88 (fault elaboration for "no fault")
-    call !eeram_f206_wr_byte_hl  ;2ab6  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
+    movw hl,#mem_f216_ee_0073               ;2ab1  16 16 f2     HL = pointer to faults buffer #2 "01044 - Control Module Incorrectly Coded"
+    mov a,#0x88                             ;2ab4  a1 88        A = 0x88 (fault elaboration for "no fault")
+    call !eeram_f206_wr_byte_hl             ;2ab6  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 lab_2ab9_ret:
-    ret                     ;2ab9  af
+    ret                                     ;2ab9  af
 
 
 login_56_success:
 ;Login on address 0x56 has just been authenticated
 ;Process the successful login
-    call !sub_2d35          ;2aba  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
+    call !sub_2d35                          ;2aba  9a 35 2d     Clear bits in mem_fe5f and mem_fe60
 
     ;Sum the 9 bytes before making any changes
 
-    movw hl,#mem_f1f9_ee_0058_softcode_hi       ;2abd  16 f9 f1     HL = pointer to buffer to sum
-    mov a,#0x09             ;2ac0  a1 09        A = 9 bytes to sum (2 Soft Coding + 2 Workshop Code + 5 more)
-    call !sub_2de6          ;2ac2  9a e6 2d     AX = sum of A bytes in buffer [HL]
-    push ax                 ;2ac5  b1           Push sum of 9 bytes at mem_f1f9_ee_0058_softcode_hi
+    movw hl,#mem_f1f9_ee_0058_softcode_hi   ;2abd  16 f9 f1     HL = pointer to buffer to sum
+    mov a,#0x09                             ;2ac0  a1 09        A = 9 bytes to sum (2 Soft Coding + 2 Workshop Code + 5 more)
+    call !sub_2de6                          ;2ac2  9a e6 2d     AX = sum of A bytes in buffer [HL]
+    push ax                                 ;2ac5  b1           Push sum of 9 bytes at mem_f1f9_ee_0058_softcode_hi
 
     ;Replace bit 0 in the Soft Coding low byte with bit 0 from
     ;KWP1281 rx buffer byte 5 (Unknown byte).  TODO: what does this do?
 
-    mov a,!kwp_rx_buf+5     ;2ac6  8e 8f f0     A = KWP1281 rx buffer byte 5 (Unknown byte)
-    and a,#0b00000001       ;2ac9  5d 01        Mask to leave only bit 0
-    mov x,a                 ;2acb  70           Move it to X
+    mov a,!kwp_rx_buf+5                     ;2ac6  8e 8f f0     A = KWP1281 rx buffer byte 5 (Unknown byte)
+    and a,#0b00000001                       ;2ac9  5d 01        Mask to leave only bit 0
+    mov x,a                                 ;2acb  70           Move it to X
 
-    mov a,!mem_f1fa_ee_0059_softcode_lo         ;2acc  8e fa f1     A = Soft coding in binary, low byte
-    and a,#0b11111110       ;2acf  5d fe        Clear bit 0 of existing soft coding low byte
-    or a,x                  ;2ad1  61 68        Replace bit 0 with bit 0 from KWP1281 rx buffer byte 5 (Unknown byte)
-    mov !mem_f1fa_ee_0059_softcode_lo,a         ;2ad3  9e fa f1     Store as Soft coding in binary, low byte
+    mov a,!mem_f1fa_ee_0059_softcode_lo     ;2acc  8e fa f1     A = Soft coding in binary, low byte
+    and a,#0b11111110                       ;2acf  5d fe        Clear bit 0 of existing soft coding low byte
+    or a,x                                  ;2ad1  61 68        Replace bit 0 with bit 0 from KWP1281 rx buffer byte 5 (Unknown byte)
+    mov !mem_f1fa_ee_0059_softcode_lo,a     ;2ad3  9e fa f1     Store as Soft coding in binary, low byte
 
     ;Store Workshop Code from KWP1281 rx buffer
 
-    mov a,!kwp_rx_buf+6     ;2ad6  8e 90 f0     KWP1281 rx buffer byte 6
-    mov !mem_f1fb_ee_005a_workshp_hi,a         ;2ad9  9e fb f1     Store as Workshop Code (high byte)
-    mov a,!kwp_rx_buf+7     ;2adc  8e 91 f0     KWP1281 rx buffer byte 7
-    mov !mem_f1fc_ee_005b_workshp_lo,a         ;2adf  9e fc f1     Store as Workshop Code (low byte)
+    mov a,!kwp_rx_buf+6                     ;2ad6  8e 90 f0     KWP1281 rx buffer byte 6
+    mov !mem_f1fb_ee_005a_workshp_hi,a      ;2ad9  9e fb f1     Store as Workshop Code (high byte)
+    mov a,!kwp_rx_buf+7                     ;2adc  8e 91 f0     KWP1281 rx buffer byte 7
+    mov !mem_f1fc_ee_005b_workshp_lo,a      ;2adf  9e fc f1     Store as Workshop Code (low byte)
 
     ;Sum the 9 bytes again now that the changes have been made
 
-    movw hl,#mem_f1f9_ee_0058_softcode_hi       ;2ae2  16 f9 f1     HL = pointer to buffer to sum
-    mov a,#0x09             ;2ae5  a1 09        A = 9 bytes to sum (2 Soft Coding + 2 Workshop Code + 5 more)
-    call !sub_2de6          ;2ae7  9a e6 2d     AX = sum of A bytes in buffer [HL]
+    movw hl,#mem_f1f9_ee_0058_softcode_hi   ;2ae2  16 f9 f1     HL = pointer to buffer to sum
+    mov a,#0x09                             ;2ae5  a1 09        A = 9 bytes to sum (2 Soft Coding + 2 Workshop Code + 5 more)
+    call !sub_2de6                          ;2ae7  9a e6 2d     AX = sum of A bytes in buffer [HL]
 
-    movw de,ax              ;2aea  d4
-    movw mem_fed4,ax        ;2aeb  99 d4
-    pop bc                  ;2aed  b2           Pop sum of 9 bytes at mem_f1f9_ee_0058_softcode_hi
-    movw hl,#mem_f202_ee_0061_csum1_lo       ;2aee  16 02 f2
-    call !sub_2df8          ;2af1  9a f8 2d     Word [HL] = Word [HL] - BC + DE
+    movw de,ax                              ;2aea  d4
+    movw mem_fed4,ax                        ;2aeb  99 d4
+    pop bc                                  ;2aed  b2           Pop sum of 9 bytes at mem_f1f9_ee_0058_softcode_hi
+    movw hl,#mem_f202_ee_0061_csum1_lo      ;2aee  16 02 f2
+    call !sub_2df8                          ;2af1  9a f8 2d     Word [HL] = Word [HL] - BC + DE
 
 lab_2af4_loop:
-    call !eeprom_guard      ;2af4  9a 17 62     Check if EEPROM is available for use(?)
-    bc lab_2afb_success     ;2af7  8d 02        Branch if available
-    br lab_2af4_loop        ;2af9  fa f9        Repeat until available
+    call !eeprom_guard                      ;2af4  9a 17 62     Check if EEPROM is available for use(?)
+    bc lab_2afb_success                     ;2af7  8d 02        Branch if available
+    br lab_2af4_loop                        ;2af9  fa f9        Repeat until available
 
 lab_2afb_success:
     ;These 9 EEPROM addresses 0x0058-0x0060 are protected in lab_2c60
     ;(Soft Coding and Workshop Code related)
-    movw hl,#0x0058         ;2afb  16 58 00     HL = EEPROM address 0x0058
-    movw de,#mem_fed6       ;2afe  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
-    mov a,#0x09             ;2b01  a1 09        A = 9 bytes to read from EEPROM
-    call !eeprom_read       ;2b03  9a 38 62     Read A bytes from EEPROM address HL into [DE]
-    bc lab_2b0a_success     ;2b06  8d 02        Branch if EEPROM read succeeded
-    br lab_2b45_ret         ;2b08  fa 3b        Branch to just return on failure
+    movw hl,#0x0058                         ;2afb  16 58 00     HL = EEPROM address 0x0058
+    movw de,#mem_fed6                       ;2afe  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
+    mov a,#0x09                             ;2b01  a1 09        A = 9 bytes to read from EEPROM
+    call !eeprom_read                       ;2b03  9a 38 62     Read A bytes from EEPROM address HL into [DE]
+    bc lab_2b0a_success                     ;2b06  8d 02        Branch if EEPROM read succeeded
+    br lab_2b45_ret                         ;2b08  fa 3b        Branch to just return on failure
 
 lab_2b0a_success:
-    movw hl,#mem_fed6       ;2b0a  16 d6 fe     HL = pointer to buffer to sum
-    mov a,#0x09             ;2b0d  a1 09        A = 9 bytes to sum
-    call !sub_2de6          ;2b0f  9a e6 2d     AX = sum of A bytes in buffer [HL]
-    movw bc,ax              ;2b12  d2           Save the sum in BC
-
-    movw hl,#0x0061         ;2b13  16 61 00     HL = EEPROM address 0x0061
-    movw de,#mem_fed6       ;2b16  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
-    mov a,#0x02             ;2b19  a1 02        A = 2 bytes to read from EEPROM
-    call !eeprom_read       ;2b1b  9a 38 62     Read A bytes from EEPROM address HL into [DE]
-
-    bc lab_2b22_success     ;2b1e  8d 02        Branch if EEPROM read succeeded
-    br lab_2b45_ret         ;2b20  fa 23        Branch to just return on failure
-
-lab_2b22_success:
-    movw ax,mem_fed4        ;2b22  89 d4
-    movw de,ax              ;2b24  d4
-    movw hl,#mem_fed6       ;2b25  16 d6 fe     HL = pointer to buffer to write to EEPROM
-    call !sub_2df8          ;2b28  9a f8 2d     Word [HL] = Word [HL] - BC + DE
-    movw de,#0x0061         ;2b2b  14 61 00     DE = EEPROM address 0x0061
-    mov a,#0x02             ;2b2e  a1 02        A = 2 bytes to write to EEPROM
-    call !eeprom_write      ;2b30  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
-    bnc lab_2b45_ret        ;2b33  9d 10        Branch to just return if write failed
+    movw hl,#mem_fed6                       ;2b0a  16 d6 fe     HL = pointer to buffer to sum
+    mov a,#0x09                             ;2b0d  a1 09        A = 9 bytes to sum
+    call !sub_2de6                          ;2b0f  9a e6 2d     AX = sum of A bytes in buffer [HL]
+    movw bc,ax                              ;2b12  d2           Save the sum in BC
+                
+    movw hl,#0x0061                         ;2b13  16 61 00     HL = EEPROM address 0x0061
+    movw de,#mem_fed6                       ;2b16  14 d6 fe     DE = pointer to buffer to receive EEPROM contents
+    mov a,#0x02                             ;2b19  a1 02        A = 2 bytes to read from EEPROM
+    call !eeprom_read                       ;2b1b  9a 38 62     Read A bytes from EEPROM address HL into [DE]
+                
+    bc lab_2b22_success                     ;2b1e  8d 02        Branch if EEPROM read succeeded
+    br lab_2b45_ret                         ;2b20  fa 23        Branch to just return on failure
+                
+lab_2b22_success:               
+    movw ax,mem_fed4                        ;2b22  89 d4
+    movw de,ax                              ;2b24  d4
+    movw hl,#mem_fed6                       ;2b25  16 d6 fe     HL = pointer to buffer to write to EEPROM
+    call !sub_2df8                          ;2b28  9a f8 2d     Word [HL] = Word [HL] - BC + DE
+    movw de,#0x0061                         ;2b2b  14 61 00     DE = EEPROM address 0x0061
+    mov a,#0x02                             ;2b2e  a1 02        A = 2 bytes to write to EEPROM
+    call !eeprom_write                      ;2b30  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
+    bnc lab_2b45_ret                        ;2b33  9d 10        Branch to just return if write failed
     ;Fall through to success
 
 lab_2b35_success:
-    call !eeprom_guard      ;2b35  9a 17 62     Check if EEPROM is available for use(?)
-    bnc lab_2b35_success    ;2b38  9d fb        Repeat until available
+    call !eeprom_guard                      ;2b35  9a 17 62     Check if EEPROM is available for use(?)
+    bnc lab_2b35_success                    ;2b38  9d fb        Repeat until available
 
-    movw hl,#mem_f1fa_ee_0059_softcode_lo       ;2b3a  16 fa f1     HL = pointer to buffer to write to EEPROM
-                            ;                        (Soft coding in binary, low byte)
-    movw de,#0x0059         ;2b3d  14 59 00     DE = EEPROM address 0x0059
-    mov a,#0x03             ;2b40  a1 03        A = 3 bytes to write to EEPROM:
-                            ;                         0x0059 = mem_f1fa_ee_0059_softcode_lo Soft coding in binary, low byte
-                            ;                         0x005a = mem_f1fb_ee_005a_workshp_hi Workshop code, high byte
-                            ;                         0x005c = mem_f1fc_ee_005b_workshp_lo Workshop code, low byte
-    call !eeprom_write      ;2b42  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
+    movw hl,#mem_f1fa_ee_0059_softcode_lo   ;2b3a  16 fa f1     HL = pointer to buffer to write to EEPROM
+                                            ;                        (Soft coding in binary, low byte)
+    movw de,#0x0059                         ;2b3d  14 59 00     DE = EEPROM address 0x0059
+    mov a,#0x03                             ;2b40  a1 03        A = 3 bytes to write to EEPROM:
+                                            ;                         0x0059 = mem_f1fa_ee_0059_softcode_lo Soft coding in binary, low byte
+                                            ;                         0x005a = mem_f1fb_ee_005a_workshp_hi Workshop code, high byte
+                                            ;                         0x005c = mem_f1fc_ee_005b_workshp_lo Workshop code, low byte
+    call !eeprom_write                      ;2b42  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
 
 lab_2b45_ret:
-    ret                     ;2b45  af
+    ret                                     ;2b45  af
 
 get_coding:
 ;Get the Soft Coding (in binary) into AX
@@ -11518,7 +11552,7 @@ intp2_3acc:
 
 sub_3acf:
 ;Disable I2C, disable timers, set many pins to inputs
-    call !sub_6078          ;3acf  9a 78 60   Disable I2C, set SCL and SDA pins to inputs
+    call !i2c_teardown      ;3acf  9a 78 60   Disable I2C, set SCL and SDA pins to inputs
     call !sub_4d63          ;3ad2  9a 63 4d   Disable timers and their interrupts, set uPD16432B pins to inputs
 
     ;P24/RXD0 connects to L9637D
@@ -12182,17 +12216,17 @@ lab_3efb:
     bf rb0_b.6,lab_3f2f     ;3efb  31 63 fb 30
     clr1 mem_fe63.6         ;3eff  6b 63
     call !eeprom_guard      ;3f01  9a 17 62     Check if EEPROM is available for use(?)
-    bnc lab_3f2e            ;3f04  9d 28        Branch to just return if not available
+    bnc lab_3f2e_ret        ;3f04  9d 28        Branch to just return if not available
 
 lab_3f06:
-    mov a,!mem_fb9a         ;3f06  8e 9a fb
-    cmp a,#0x55             ;3f09  4d 55
-    bz lab_3f26             ;3f0b  ad 19
-    call !sub_4109          ;3f0d  9a 09 41     TODO Reads from EEPROM, checksum related
-    bt mem_fe63.4,lab_3f2e  ;3f10  cc 63 1b     Branch to just return
-    mov a,!mem_fb9a         ;3f13  8e 9a fb
-    cmp a,#0x55             ;3f16  4d 55
-    bz lab_3f22             ;3f18  ad 08
+    mov a,!mem_fb9a             ;3f06  8e 9a fb
+    cmp a,#0x55                 ;3f09  4d 55
+    bz lab_3f26                 ;3f0b  ad 19
+    call !sub_4109              ;3f0d  9a 09 41     TODO Reads from EEPROM, checksum related
+    bt mem_fe63.4,lab_3f2e_ret  ;3f10  cc 63 1b     Branch to just return
+    mov a,!mem_fb9a             ;3f13  8e 9a fb
+    cmp a,#0x55                 ;3f16  4d 55
+    bz lab_3f22                 ;3f18  ad 08
 
 lab_3f1a:
     call !eeprom_guard      ;3f1a  9a 17 62     Check if EEPROM is available for use(?)
@@ -12209,7 +12243,7 @@ lab_3f26:
     mov a,#0x40             ;3f2b  a1 40
     callt [0x0042]          ;3f2d  c3           Calls sub_09b9
 
-lab_3f2e:
+lab_3f2e_ret:
     ret                     ;3f2e  af
 
 lab_3f2f:
@@ -12217,11 +12251,13 @@ lab_3f2f:
     mov !mem_fb9a,a         ;3f31  9e 9a fb
 
     call !eeprom_guard      ;3f34  9a 17 62     Check if EEPROM is available for use(?)
-    bnc lab_3f2e            ;3f37  9d f5        Branch to just return if not available
+    bnc lab_3f2e_ret        ;3f37  9d f5        Branch to just return if not available
 
     callf !sub_099c              ;3f39  1c 9c
     callf !subtr_f1b3_from_f202  ;3f3b  1c e6   Subtract RAM locations corresponding to EEPROM 0010 - 0060     
-                                 ;              HL = #mem_f1b3_ee_0010 (EEPROM 0010), DE = #mem_f202_ee_0061_csum1_lo (EEPROM 0060+1), A = DE - HL
+                                 ;              HL = #mem_f1b3_ee_0010 (EEPROM 0010), 
+                                 ;              DE = #mem_f202_ee_0061_csum1_lo (EEPROM 0060+1), 
+                                 ;              A = DE - HL
     callf !eeram_csum_no_update  ;3f3d  4c 0d
     bz lab_3f43                  ;3f3f  ad 02
     br lab_3f06                  ;3f41  fa c3
@@ -12268,19 +12304,19 @@ lab_3f70_failed:
     ret                     ;3f75  af
 
 sub_3f76:
-    clr1 mem_fe63.2         ;3f76  2b 63
-    mov a,#0x00             ;3f78  a1 00
-    mov !mem_fb96,a         ;3f7a  9e 96 fb
-    set1 mem_fe63.7         ;3f7d  7a 63
-    mov a,#0x05             ;3f7f  a1 05
-    mov !mem_fb97,a         ;3f81  9e 97 fb
-    mov !mem_fb98,a         ;3f84  9e 98 fb
-    bt mem_fe63.5,lab_3f96  ;3f87  dc 63 0c
-    mov a,#0x01             ;3f8a  a1 01
-    xch a,!mem_fb55         ;3f8c  ce 55 fb
-    cmp a,#0x00             ;3f8f  4d 00
-    bz lab_3f96             ;3f91  ad 03
-    bt mem_fe63.6,lab_3f2e  ;3f93  ec 63 98     Branch to just return
+    clr1 mem_fe63.2             ;3f76  2b 63
+    mov a,#0x00                 ;3f78  a1 00
+    mov !mem_fb96,a             ;3f7a  9e 96 fb
+    set1 mem_fe63.7             ;3f7d  7a 63
+    mov a,#0x05                 ;3f7f  a1 05
+    mov !mem_fb97,a             ;3f81  9e 97 fb
+    mov !mem_fb98,a             ;3f84  9e 98 fb
+    bt mem_fe63.5,lab_3f96      ;3f87  dc 63 0c
+    mov a,#0x01                 ;3f8a  a1 01
+    xch a,!mem_fb55             ;3f8c  ce 55 fb
+    cmp a,#0x00                 ;3f8f  4d 00
+    bz lab_3f96                 ;3f91  ad 03
+    bt mem_fe63.6,lab_3f2e_ret  ;3f93  ec 63 98     Branch to just return
 
 lab_3f96:
     set1 mem_fe63.5             ;3f96  5a 63
@@ -12331,14 +12367,14 @@ lab_3fcb:
     mov c,#0x00             ;3fdf  a2 00
 
 lab_3fe1:
-    movw hl,#i2c_buf        ;3fe1  16 db fb
-    mov a,[hl+c]            ;3fe4  aa
-    movw hl,#mem_f206_ee_0063       ;3fe5  16 06 f2
-    cmp a,[hl+b]            ;3fe8  31 4b
-    bnz lab_3ff6            ;3fea  bd 0a
-    inc b                   ;3fec  43
-    inc c                   ;3fed  42
-    dbnz mem_fed4,lab_3fe1  ;3fee  04 d4 f0
+    movw hl,#i2c_buf            ;3fe1  16 db fb
+    mov a,[hl+c]                ;3fe4  aa
+    movw hl,#mem_f206_ee_0063   ;3fe5  16 06 f2
+    cmp a,[hl+b]                ;3fe8  31 4b
+    bnz lab_3ff6                ;3fea  bd 0a
+    inc b                       ;3fec  43
+    inc c                       ;3fed  42
+    dbnz mem_fed4,lab_3fe1      ;3fee  04 d4 f0
 
 lab_3ff1:
     mov a,b                 ;3ff1  63
@@ -12407,10 +12443,10 @@ lab_4040_failed:
 
 lab_4042_nonzero:
 ;sub_0a37 returned nonzero
-    mov a,mem_fed6              ;4042  f0 d6        A = number of bytes to copy
-    movw hl,#mem_00cf           ;4044  16 cf 00     HL = source address
-                                ;                   DE already contains destination (mem_f206_ee_0063)
-    callf !copy                 ;4047  4c 9e        Copy A bytes from [HL] to [DE]
+    mov a,mem_fed6                      ;4042  f0 d6        A = number of bytes to copy
+    movw hl,#mem_00cf_ee_0063_defaults  ;4044  16 cf 00     HL = source address
+                                        ;                   DE already contains destination (mem_f206_ee_0063)
+    callf !copy                         ;4047  4c 9e        Copy A bytes from [HL] to [DE]
 
 lab_4049_done_success:
     call !eeram_csum_f206_update;4049  9a 53 40
@@ -12484,22 +12520,23 @@ eeram_f206_wr_byte_hl:
 ;Called with:
 ;  HL = an address in RAM that maps to the EEPROM
 ;  A = value
-    push bc                 ;4092  b3
-    mov b,#0x00             ;4093  a3 00
+    push bc                         ;4092  b3
+    mov b,#0x00                     ;4093  a3 00
+
     ;Fall through into eeram_f206_range_checked_write
 
 eeram_f206_range_checked_write:
-    cmp a,[hl+b]            ;4095  31 4b
-    bz lab_40d4_done        ;4097  ad 3b        If [HL+B] = A then branch (nothing to do)
+    cmp a,[hl+b]                    ;4095  31 4b
+    bz lab_40d4_done                ;4097  ad 3b        If [HL+B] = A then branch (nothing to do)
 
-    push ax                 ;4099  b1           Push value to write to [HL+B]
+    push ax                         ;4099  b1           Push value to write to [HL+B]
 
     ;Compute AX = HL+B to test if HL+B is in range
-    mov x,#0x00             ;409a  a0 00
-    mov a,b                 ;409c  63
-    add a,l                 ;409d  61 0e
-    xch a,x                 ;409f  30
-    addc a,h                ;40a0  61 2f
+    mov x,#0x00                     ;409a  a0 00
+    mov a,b                         ;409c  63
+    add a,l                         ;409d  61 0e
+    xch a,x                         ;409f  30
+    addc a,h                        ;40a0  61 2f
 
     ;Check if HL+B would be in range #mem_f206_ee_0063 - #mem_f26b_ee_00c8 (EEPROM 0063 - 00C8) (inclusive)
     ;This range corresponds to EEPROM addresses 0063 - 00C8.
@@ -12511,9 +12548,9 @@ eeram_f206_range_checked_write:
 
 lab_40ac_out_of_range:
 ;HL+B is out of range
-    callf !sub_0879         ;40ac  0c 79        Just returns
-    pop ax                  ;40ae  b0
-    br lab_40d4_done        ;40af  fa 23        Branch to pop bc and ret
+    callf !sub_0879_ret             ;40ac  0c 79        Just returns
+    pop ax                          ;40ae  b0
+    br lab_40d4_done                ;40af  fa 23        Branch to pop bc and ret
 
 lab_40b1_in_range:
 ;HL+B is within range of #mem_f206_ee_0063 - #mem_f26b_ee_00c8 (EEPROM 0063 - 00C8) (inclusive)
@@ -12628,7 +12665,7 @@ lab_4114:
     call !eeprom_range_into_ram         ;4135  9a df 40     Read range from physical EEPROM into RAM
     push ax                             ;4138  b1
 
-    movw hl,#0x0044                     ;4139  16 44 00     HL = Source address in EEPROm
+    movw hl,#0x0044                     ;4139  16 44 00     HL = Source address in EEPROM
     movw de,#mem_fed7                   ;413c  14 d7 fe     DE = Destination address in RAM
     mov a,#0x02                         ;413f  a1 02
     call !eeprom_range_into_ram         ;4141  9a df 40     Read range from physical EEPROM into RAM
@@ -12640,8 +12677,9 @@ lab_4114:
     callf !eeram_csum_no_update         ;4149  4c 0d
     pop ax                              ;414b  b0
     bz lab_4165                         ;414c  ad 17
+
     set1 mem_fe62.0                     ;414e  0a 62
-    movw hl,#mem_0080                   ;4150  16 80 00     HL = source address
+    movw hl,#mem_0080_ee_0010_defaults  ;4150  16 80 00     HL = source address
     movw de,#mem_f1b3_ee_0010           ;4153  14 b3 f1     DE = destination address (EEPROM 0010)
     callf !copy                         ;4156  4c 9e        Copy A bytes from [HL] to [DE]
     mov a,!mem_fb97                     ;4158  8e 97 fb
@@ -12671,7 +12709,7 @@ lab_4165:
     
 lab_4187:
     push ax                             ;4187  b1
-    movw hl,#mem_00b4                   ;4188  16 b4 00     HL = source address
+    movw hl,#mem_00b4_ee_0046_defaults  ;4188  16 b4 00     HL = source address
     movw de,#mem_f1e7_ee_0046_region    ;418b  14 e7 f1     DE = destination address
     callf !copy                         ;418e  4c 9e        Copy A bytes from [HL] to [DE]
     pop ax                              ;4190  b0
@@ -12688,7 +12726,9 @@ lab_41a1:
     mov a,#0x55                         ;41a3  a1 55
     mov !mem_fb9a,a                     ;41a5  9e 9a fb
     callf !subtr_f1b3_from_f202         ;41a8  1c e6        Subtract RAM locations corresponding to EEPROM 0010 - 0060
-                                        ;                   HL = #mem_f1b3_ee_0010 (EEPROM 0010), DE = #mem_f202_ee_0061_csum1_lo (EEPROM 0060+1), A = DE - HL
+                                        ;                   HL = #mem_f1b3_ee_0010 (EEPROM 0010), 
+                                        ;                   DE = #mem_f202_ee_0061_csum1_lo (EEPROM 0060+1), 
+                                        ;                   A = DE - HL
     callf !eeram_csum_update            ;41aa  4c 12        Calculate checksum of RAM area mirroring EEPROM, update checksum
     movw hl,#mem_f202_ee_0061_csum1_lo  ;41ac  16 02 f2     HL = pointer to first buffer
     movw de,#mem_f204                   ;41af  14 04 f2     DE = pointer to second buffer
@@ -12750,7 +12790,7 @@ sub_41ed:
     movw hl,#0x0058                         ;41ef  16 58 00
     movw de,#0x0061                         ;41f2  14 61 00
     callf !subtr_hl_from_de                 ;41f5  1c ef        Subtract HL from DE, return A=low, X=high (0x0061 - 0x0058 = 9)
-    movw hl,#mem_00c6                       ;41f7  16 c6 00
+    movw hl,#mem_00c6_ee_0058_defaults      ;41f7  16 c6 00
     movw de,#mem_f1f9_ee_0058_softcode_hi   ;41fa  14 f9 f1
     callf !copy                             ;41fd  4c 9e        Copy A bytes from [HL] to [DE]
 
@@ -13551,7 +13591,7 @@ sub_46ad:
     and a,#0x07             ;46b0  5d 07
     mov mem_fe31,a          ;46b2  f2 31
     mov a,#0x03             ;46b4  a1 03        A = 3 bytes to copy
-    call !sub_486f          ;46b6  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
+    call !copy_to_mem_fb9b          ;46b6  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
     mov a,#0x03             ;46b9  a1 03
     mov !mem_fbaf,a         ;46bb  9e af fb     mem_fbaf = 3
     ret                     ;46be  af
@@ -13614,7 +13654,7 @@ sub_46fc:
     mov a,x                 ;4705  60
     mov !mem_fb9e,a         ;4706  9e 9e fb
     mov a,#0x02             ;4709  a1 02        A = 2 bytes to copy
-    call !sub_486f          ;470b  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
+    call !copy_to_mem_fb9b  ;470b  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
     bf mem_fe65.0,lab_4724  ;470e  31 03 65 12
 
 lab_4712:
@@ -13647,7 +13687,7 @@ sub_4731:
     bf a.7,lab_474e         ;4738  31 7f 13
     mov a,#0x08             ;473b  a1 08        A = 8 bytes to copy
     mov !mem_fbaf,a         ;473d  9e af fb
-    call !sub_486f          ;4740  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
+    call !copy_to_mem_fb9b  ;4740  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
     movw de,#mem_fba7       ;4743  14 a7 fb
 
 sub_4746:
@@ -13659,7 +13699,7 @@ lab_474d:
     ret                     ;474d  af
 
 lab_474e:
-    set1 mem_fe69.1         ;474e  1a 69
+    set1 mem_fe69.1         ;474e  1a 69        Bit set = I2C will operate in standard (not high-speed) mode
     mov mem_fed4,#0xc0      ;4750  11 d4 c0
     and a,#0x07             ;4753  5d 07
     bz sub_4797             ;4755  ad 40
@@ -13679,7 +13719,7 @@ lab_475d:
 
 lab_476e:
     mov a,#0x03             ;476e  a1 03        A = 3 bytes to copy
-    call !sub_486f          ;4770  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
+    call !copy_to_mem_fb9b  ;4770  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
     pop ax                  ;4773  b0
     add a,#0x03             ;4774  0d 03
     mov !mem_fbaf,a         ;4776  9e af fb
@@ -13698,7 +13738,7 @@ lab_476e:
     br lab_4795             ;4790  fa 03
 
 lab_4792:
-    call !sub_5ee8          ;4792  9a e8 5e     TODO perform I2C read?
+    call !i2c_read          ;4792  9a e8 5e     Perform I2C read
 
 lab_4795:
     set1 cy                 ;4795  20
@@ -13707,7 +13747,7 @@ lab_4795:
 sub_4797:
     mov a,#0x08             ;4797  a1 08        A = 8 bytes to copy
     mov !mem_fbaf,a         ;4799  9e af fb
-    call !sub_486f          ;479c  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
+    call !copy_to_mem_fb9b  ;479c  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
     movw de,#i2c_buf        ;479f  14 db fb
     call !sub_4746          ;47a2  9a 46 47
     mov a,#0x05             ;47a5  a1 05        A = 5 bytes to copy
@@ -13735,7 +13775,7 @@ lab_47ba:
     br lab_47d0             ;47cb  fa 03
 
 lab_47cd:
-    call !sub_5f51          ;47cd  9a 51 5f     TODO perform I2C write?
+    call !i2c_write         ;47cd  9a 51 5f     Perform I2C write
 
 lab_47d0:
     clr1 cy                 ;47d0  21
@@ -13747,7 +13787,7 @@ sub_47d2:
 ;Replies with data
     mov a,#0x08             ;47d2  a1 08        A = 8 bytes to copy
     mov !mem_fbaf,a         ;47d4  9e af fb
-    call !sub_486f          ;47d7  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
+    call !copy_to_mem_fb9b  ;47d7  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
     call !sub_4835          ;47da  9a 35 48     Reads rx buffer bytes 5,6 and
                             ;                     does something with mem_fe65.0
     bc lab_47f5             ;47dd  8d 16        Branch if failed
@@ -13760,8 +13800,8 @@ sub_47d2:
     and a,#0x03             ;47ea  5d 03
     mov !mem_fb9f,a         ;47ec  9e 9f fb
     movw hl,#kwp_rx_buf+8   ;47ef  16 92 f0     KWP1281 rx buffer byte 8
-    call !sub_4862          ;47f2  9a 62 48     EEPROM write related(?) gated by mem_fe65
-
+    call !copy_to_ee_or_ram ;47f2  9a 62 48     Copy A bytes from [HL] to EEPROM address or RAM address DE
+                            ;                     mem_fe65.0=copy to RAM, mem_fe65.1=write to EEPROM
 lab_47f5:
     ret                     ;47f5  af
 
@@ -13785,7 +13825,7 @@ sub_47fb:
     mov !mem_fbaf,a         ;47fd  9e af fb
 
     mov a,#0x02             ;4800  a1 02        A = 2 bytes to copy
-    call !sub_486f          ;4802  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
+    call !copy_to_mem_fb9b  ;4802  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to mem_fb9b
                             ;                   XXX these two bytes are never used.
 
     movw hl,#rst_vect       ;4805  16 00 00     HL = start address (beginning of this ROM)
@@ -13873,8 +13913,10 @@ sub_485a:
     mov c,a                 ;4860  72
     ret                     ;4861  af
 
-sub_4862:
-    bf mem_fe65.0,lab_486c  ;4862  31 03 65 06
+;Copy A bytes from [HL] to EEPROM address or RAM address DE
+;mem_fe65.0=copy to RAM, mem_fe65.1=write to EEPROM
+copy_to_ee_or_ram:
+    bf mem_fe65.0,lab_486c  ;4862  31 03 65 06  If bit is off, copy to RAM.
 
 lab_4866:
     call !eeprom_write      ;4866  9a 8e 62     Write A bytes to EEPROM address DE from [HL]
@@ -13885,7 +13927,7 @@ lab_486c:
     callf !copy             ;486c  4c 9e        Copy A bytes from [HL] to [DE]
     ret                     ;486e  af
 
-sub_486f:
+copy_to_mem_fb9b:
 ;Copy A bytes from kwp_rx_buf+3 to mem_fb9b
     push de                 ;486f  b5
     push hl                 ;4870  b7
@@ -18694,86 +18736,87 @@ lab_5ec9:
     pop bc                  ;5ee6  b2
     ret                     ;5ee7  af
 
-sub_5ee8:
-;TODO perform I2C read?
+;Perform I2C read
 ;Returns carry clear on success, carry set on failure
-    push ax                 ;5ee8  b1
-    and a,#0b00111111       ;5ee9  5d 3f
-    cmp a,#0x22             ;5eeb  4d 22
-    pop ax                  ;5eed  b0
-    bc lab_5ef2             ;5eee  8d 02      Branch if less
-    set1 cy                 ;5ef0  20         Set carry to indicate failure
-    ret                     ;5ef1  af
+;
+i2c_read:
+    push ax                         ;5ee8  b1
+    and a,#0b00111111               ;5ee9  5d 3f
+    cmp a,#0x22                     ;5eeb  4d 22        TODO 0x22 = TDA7476 address?
+    pop ax                          ;5eed  b0
+    bc lab_5ef2                     ;5eee  8d 02        Branch if less
+    set1 cy                         ;5ef0  20           Set carry to indicate failure
+    ret                             ;5ef1  af
 
 lab_5ef2:
-    push bc                 ;5ef2  b3
-    mov c,a                 ;5ef3  72
-    and a,#0x80             ;5ef4  5d 80
-    bz lab_5f05             ;5ef6  ad 0d
-    inc a                   ;5ef8  41
-    push hl                 ;5ef9  b7
-    movw hl,#rb0_x          ;5efa  16 f8 fe
-    call !sub_5f51          ;5efd  9a 51 5f     TODO perform I2C write?
-    pop hl                  ;5f00  b6
-    bnc lab_5f05            ;5f01  9d 02        Branch if success
-    br lab_5f45             ;5f03  fa 40
+    push bc                         ;5ef2  b3
+    mov c,a                         ;5ef3  72
+    and a,#0x80                     ;5ef4  5d 80
+    bz lab_5f05                     ;5ef6  ad 0d
+    inc a                           ;5ef8  41
+    push hl                         ;5ef9  b7
+    movw hl,#rb0_x                  ;5efa  16 f8 fe
+    call !i2c_write                 ;5efd  9a 51 5f     Perform I2C write
+    pop hl                          ;5f00  b6
+    bnc lab_5f05                    ;5f01  9d 02        Branch if success
+    br lab_5f45                     ;5f03  fa 40
 
 lab_5f05:
-    clr1 mem_fe68.5         ;5f05  5b 68
-    bf rb0_c.6,lab_5f0d     ;5f07  31 63 fa 02
-    set1 mem_fe68.5         ;5f0b  5a 68
+    clr1 mem_fe68.5                 ;5f05  5b 68
+    bf rb0_c.6,lab_5f0d             ;5f07  31 63 fa 02
+    set1 mem_fe68.5                 ;5f0b  5a 68
 
 lab_5f0d:
-    and rb0_c,#0x3f         ;5f0d  d8 fa 3f
-    mov a,c                 ;5f10  62
-    mov b,a                 ;5f11  73
-    set1 iicc0.2            ;5f12  71 2a a8
-    decw hl                 ;5f15  96
+    and rb0_c,#0x3f                 ;5f0d  d8 fa 3f
+    mov a,c                         ;5f10  62
+    mov b,a                         ;5f11  73
+    set1 iicc0.acke0                ;5f12  71 2a a8     ACKE0=1 (Acknowledge enabled)
+    decw hl                         ;5f15  96
 
 lab_5f16:
-    bt mem_fe61.7,lab_5f4b  ;5f16  fc 61 32     Branch if INTP2 occurred
-    dec b                   ;5f19  53
-    bnz lab_5f26            ;5f1a  bd 0a
-    bf mem_fe68.5,lab_5f26  ;5f1c  31 53 68 06
-    bt mem_fe69.3,lab_5f26  ;5f20  bc 69 03
-    clr1 iicc0.2            ;5f23  71 2b a8
+    bt mem_fe61.7,lab_5f4b          ;5f16  fc 61 32     Branch if INTP2 occurred
+    dec b                           ;5f19  53
+    bnz lab_5f26                    ;5f1a  bd 0a
+    bf mem_fe68.5,lab_5f26          ;5f1c  31 53 68 06
+    bt mem_fe69.3,lab_5f26          ;5f20  bc 69 03
+    clr1 iicc0.acke0                ;5f23  71 2b a8     ACKE0=0 (Acknowledge disabled)
 
 lab_5f26:
-    set1 iicc0.5            ;5f26  71 5a a8
-    inc b                   ;5f29  43
-    incw hl                 ;5f2a  86
-    mov c,#0x50             ;5f2b  a2 50
+    set1 iicc0.wrel0                ;5f26  71 5a a8     WREL=1 (Wait canceled)
+    inc b                           ;5f29  43
+    incw hl                         ;5f2a  86
+    mov c,#0x50                     ;5f2b  a2 50
 
 lab_5f2d:
-    bt if0h.6,lab_5f35      ;5f2d  31 66 e1 04  Branch if IICIF0 (INTIIC0 interrupt flag) is set
-    dbnz c,lab_5f2d         ;5f31  8a fa
-    callf !sub_0879         ;5f33  0c 79        Just returns
+    bt if0h.6,lab_5f35              ;5f2d  31 66 e1 04  Branch if IICIF0 (INTIIC0 interrupt flag) is set
+    dbnz c,lab_5f2d                 ;5f31  8a fa
+    callf !sub_0879_ret             ;5f33  0c 79        Just returns
 
 lab_5f35:
-    clr1 if0h.6             ;5f35  71 6b e1     Clear IICIF0 (INTIIC0 interrupt flag)
-    mov a,iic0              ;5f38  f0 1f
-    mov [hl],a              ;5f3a  97
-    dbnz b,lab_5f16         ;5f3b  8b d9
+    clr1 if0h.6                     ;5f35  71 6b e1     Clear IICIF0 (INTIIC0 interrupt flag)
+    mov a,iic0                      ;5f38  f0 1f        A = I2C Shift Register
+    mov [hl],a                      ;5f3a  97
+    dbnz b,lab_5f16                 ;5f3b  8b d9
     bf mem_fe68.5,lab_5f44_success  ;5f3d  31 53 68 03
-    set1 iicc0.0            ;5f41  71 0a a8
+    set1 iicc0.spt0                 ;5f41  71 0a a8     STP0=1 (Stop condition generated)
 
 lab_5f44_success:
-    clr1 cy                 ;5f44  21
+    clr1 cy                         ;5f44  21
 
 lab_5f45:
-    pop bc                  ;5f45  b2
-    clr1 mem_fe69.1         ;5f46  1b 69
-    set1 mem_fe68.6         ;5f48  6a 68
-    ret                     ;5f4a  af
+    pop bc                          ;5f45  b2
+    clr1 mem_fe69.1                 ;5f46  1b 69        Bit clear = I2C will operate in high-speed mode
+    set1 mem_fe68.6                 ;5f48  6a 68
+    ret                             ;5f4a  af
 
 lab_5f4b:
-    br !lab_5feb            ;5f4b  9b eb 5f
+    br !lab_5feb                    ;5f4b  9b eb 5f
 
 lab_5f4e:
-    movw hl,#mem_fed4       ;5f4e  16 d4 fe
+    movw hl,#mem_fed4               ;5f4e  16 d4 fe
 
-sub_5f51:
-;TODO perform I2C write?
+i2c_write:
+;Perform I2C write
 ;
 ;Always called with something in A
 ;and a pointer to a buffer in HL
@@ -18781,7 +18824,7 @@ sub_5f51:
 ;Returns carry clear on success, carry set on failure
     bt mem_fe69.0,lab_5f64  ;5f51  8c 69 10
     bf mem_fe2d.0,lab_5f5f  ;5f54  31 03 2d 07
-    call !sub_5ff5          ;5f58  9a f5 5f
+    call !i2c_setup         ;5f58  9a f5 5f     Set up hardware for an I2C transfer
     set1 mem_fe69.0         ;5f5b  0a 69
     br lab_5f64             ;5f5d  fa 05
 
@@ -18790,12 +18833,12 @@ lab_5f5f:
     br !lab_5fef            ;5f61  9b ef 5f
 
 lab_5f64:
-    mov1 cy,mem_fe69.1      ;5f64  71 14 69
-    not1 cy                 ;5f67  01
-    mov1 iiccl0.3,cy        ;5f68  71 39 aa
+    mov1 cy,mem_fe69.1      ;5f64  71 14 69     CY=0: use high-speed mode, CY=1: use standard mode
+    not1 cy                 ;5f67  01           Invert carry to become SMC0
+    mov1 iiccl0.smc0,cy     ;5f68  71 39 aa     SMC0=CY (CY=0: standard mode, CY=1: high-speed mode)
     push ax                 ;5f6b  b1
-    and a,#0x3f             ;5f6c  5d 3f
-    cmp a,#0x22             ;5f6e  4d 22
+    and a,#0b00111111       ;5f6c  5d 3f
+    cmp a,#0x22             ;5f6e  4d 22        TODO 0x22 = TDA7476 address?
     pop ax                  ;5f70  b0
     bc lab_5f75             ;5f71  8d 02
     set1 cy                 ;5f73  20
@@ -18809,26 +18852,26 @@ lab_5f75:
     set1 mem_fe68.5         ;5f7d  5a 68
 
 lab_5f7f:
-    set1 iicc0.3            ;5f7f  71 3a a8
+    set1 iicc0.wtim0        ;5f7f  71 3a a8     WTIM0=1 (Interrupt request generated at 9th clock's falling edge)
     bf a.7,lab_5fa9         ;5f82  31 7f 24
     bf mem_fe68.6,lab_5fa0  ;5f85  31 63 68 17
-    bt iiccl0.4,lab_5f8f    ;5f89  31 46 aa 02
+    bt iiccl0.dad0,lab_5f8f ;5f89  31 46 aa 02  Branch if DAD0=1 (SDA0 line was detected at high level)
     br lab_5f93             ;5f8d  fa 04
 
 lab_5f8f:
-    bt iiccl0.5,lab_5fa0    ;5f8f  31 56 aa 0d
+    bt iiccl0.cld0,lab_5fa0 ;5f8f  31 56 aa 0d  Branch if CLD0=1 (SCL0 line was detected at high level)
 
 lab_5f93:
-    call !sub_5ff5          ;5f93  9a f5 5f
-    bt iiccl0.4,lab_5fa0    ;5f96  31 46 aa 06
-    call !sub_602d          ;5f9a  9a 2d 60
-    call !sub_5ff5          ;5f9d  9a f5 5f
+    call !i2c_setup         ;5f93  9a f5 5f     Set up hardware for an I2C transfer
+    bt iiccl0.dad0,lab_5fa0 ;5f96  31 46 aa 06  Branch if DAD0=1 (SDA0 line was detected at high level)
+    call !i2c_recover       ;5f9a  9a 2d 60     Disable I2C then recover the I2C bus by toggling SCL 9 times
+    call !i2c_setup         ;5f9d  9a f5 5f     Set up hardware for an I2C transfer
 
 lab_5fa0:
-    set1 iicc0.1            ;5fa0  71 1a a8
+    set1 iicc0.stt0         ;5fa0  71 1a a8     STT0=1 (Start condition is generated)
+
     push bc                 ;5fa3  b3
     mov b,#0x01             ;5fa4  a3 01
-
 lab_5fa6:
     dbnz b,lab_5fa6         ;5fa6  8b fe
     pop bc                  ;5fa8  b2
@@ -18836,12 +18879,13 @@ lab_5fa6:
 lab_5fa9:
     and a,#0x3f             ;5fa9  5d 3f
     bz lab_5feb             ;5fab  ad 3e
+
     mov b,a                 ;5fad  73
 
 lab_5fae:
     bt mem_fe61.7,lab_5feb  ;5fae  fc 61 3a     Branch if INTP2 occurred
     mov a,[hl]              ;5fb1  87
-    mov iic0,a              ;5fb2  f2 1f
+    mov iic0,a              ;5fb2  f2 1f        I2C Shift Register = A
     incw hl                 ;5fb4  86
     bf mem_fe69.2,lab_5fbc  ;5fb5  31 23 69 03
     clr1 mem_fe69.2         ;5fb9  2b 69
@@ -18857,139 +18901,168 @@ lab_5fc0:
 lab_5fc2:
     bt if0h.6,lab_5fca      ;5fc2  31 66 e1 04  Branch if IICIF0 (INTIIC0 interrupt flag) is set
     dbnz c,lab_5fc2         ;5fc6  8a fa
-    callf !sub_0879         ;5fc8  0c 79        Just returns
+    callf !sub_0879_ret     ;5fc8  0c 79        Just returns
 
 lab_5fca:
     clr1 if0h.6             ;5fca  71 6b e1     Clear IICIF0 (INTIIC0 interrupt flag)
-    cmp a,iic0              ;5fcd  4e 1f
+    cmp a,iic0              ;5fcd  4e 1f        Compare A to I2C Shift Register
     bnz lab_5feb            ;5fcf  bd 1a
-    mov1 cy,iics0.2         ;5fd1  71 2c a9
+    mov1 cy,iics0.ackd0     ;5fd1  71 2c a9     CY = Detection of ACK (0=not detected, 1=detected)
     dbnz b,lab_5fae         ;5fd4  8b d8
     bf mem_fe68.5,lab_5fdd  ;5fd6  31 53 68 03
-    set1 iicc0.0            ;5fda  71 0a a8
+    set1 iicc0.spt0         ;5fda  71 0a a8     SPT0=1 (Stop condition is generated)
 
 lab_5fdd:
     mov1 cy,mem_fe68.5      ;5fdd  71 54 68
     mov1 mem_fe68.6,cy      ;5fe0  71 61 68
     pop bc                  ;5fe3  b2
-    clr1 mem_fe69.1         ;5fe4  1b 69
+    clr1 mem_fe69.1         ;5fe4  1b 69        Bit clear = I2C will use high-speed mode
     bt mem_fe68.7,lab_5ff3  ;5fe6  fc 68 0a
     clr1 cy                 ;5fe9  21
     ret                     ;5fea  af
 
 lab_5feb:
-    set1 iicc0.0            ;5feb  71 0a a8
+    set1 iicc0.spt0         ;5feb  71 0a a8     SPT0=1 (Stop condition is generated)
     pop bc                  ;5fee  b2
 
 lab_5fef:
-    clr1 mem_fe69.1         ;5fef  1b 69
+    clr1 mem_fe69.1         ;5fef  1b 69        Bit clear = I2C will use high-speed mode
     set1 mem_fe68.6         ;5ff1  6a 68
 
 lab_5ff3:
     set1 cy                 ;5ff3  20
     ret                     ;5ff4  af
 
-sub_5ff5:
-    mov iiccl0,#0b00001100  ;5ff5  13 aa 0c
-    bf mem_fe69.1,lab_5fff  ;5ff8  31 13 69 03
-    clr1 iiccl0.3           ;5ffc  71 3b aa
+;Set up hardware for an I2C transfer
+;
+i2c_setup:
+    mov iiccl0,#(1<<smc0|1<<dfc0)   ;5ff5  13 aa 0c     SMC0=1 (Operation in high-speed mode)
+                                    ;                   DFC0=1 (Digital filter on)
+    bf mem_fe69.1,lab_5fff          ;5ff8  31 13 69 03  Branch if bit is off, meaning I2C will operate in high-speed mode
+    clr1 iiccl0.smc0                ;5ffc  71 3b aa     SMC0=0 (Operation in standard mode)
 
 lab_5fff:
-    mov iicc0,#0x0c         ;5fff  13 a8 0c
-    push ax                 ;6002  b1
-    clr1 iicc0.7            ;6003  71 7b a8
-    clr1 shadow_p7.2        ;6006  2b d1        P72=0 (I2C SCL)
-    mov a,shadow_p7         ;6008  f0 d1
-    mov p7,a                ;600a  f2 07
-    clr1 shadow_p7.1        ;600c  1b d1        P71=0 (I2C SDA)
-    mov a,shadow_p7         ;600e  f0 d1
-    mov p7,a                ;6010  f2 07
-    set1 iicc0.7            ;6012  71 7a a8
-    clr1 pm7.2              ;6015  71 2b 27     PM72=output (I2C SCL)
-    clr1 pm7.1              ;6018  71 1b 27     PM71=output (I2C SDA)
-    set1 iicc0.0            ;601b  71 0a a8
-    mov c,#0x50             ;601e  a2 50
+    mov iicc0,#(1<<wtim0|1<<acke0)  ;5fff  13 a8 0c     WTIM0=1 (Interrupt request generated at 9th clock's falling edge)
+                                    ;                   ACKE0=1 (Acknowledgement enabled)
+    push ax                         ;6002  b1
+    clr1 iicc0.iice0                ;6003  71 7b a8     IICE0=0 (I2C operation disabled)
+    clr1 shadow_p7.2                ;6006  2b d1        P72=0 (I2C SCL)
+    mov a,shadow_p7                 ;6008  f0 d1
+    mov p7,a                        ;600a  f2 07
+    clr1 shadow_p7.1                ;600c  1b d1        P71=0 (I2C SDA)
+    mov a,shadow_p7                 ;600e  f0 d1
+    mov p7,a                        ;6010  f2 07
+    set1 iicc0.iice0                ;6012  71 7a a8     IICE0=1 (I2C operation enabled)
+    clr1 pm7.2                      ;6015  71 2b 27     PM72=output (I2C SCL)
+    clr1 pm7.1                      ;6018  71 1b 27     PM71=output (I2C SDA)
+    set1 iicc0.spt0                 ;601b  71 0a a8     SPT0=1 (Stop condition is generated)
 
-lab_6020:
-    bt if0h.6,lab_6028      ;6020  31 66 e1 04  Branch if IICIF0 (INTIIC0 interrupt flag) is set
-    dbnz c,lab_6020         ;6024  8a fa
-    callf !sub_0879         ;6026  0c 79        Just returns
+    mov c,#0x50                     ;601e  a2 50
+lab_6020_loop:
+    bt if0h.6,lab_6028_intiic0_set  ;6020  31 66 e1 04  Branch if IICIF0 (INTIIC0 interrupt flag) is set
+    dbnz c,lab_6020_loop            ;6024  8a fa
 
-lab_6028:
-    clr1 if0h.6             ;6028  71 6b e1     Clear IICIF0 (INTIIC0 interrupt flag)
-    pop ax                  ;602b  b0
-    ret                     ;602c  af
+    callf !sub_0879_ret             ;6026  0c 79        Just returns
 
-sub_602d:
-    push ax                 ;602d  b1
-    push bc                 ;602e  b3
-    clr1 iicc0.7            ;602f  71 7b a8
-    mov c,#0x09             ;6032  a2 09
-    set1 shadow_p7.1        ;6034  1a d1        P71=1 (I2C SDA)
-    set1 pm7.1              ;6036  71 1a 27     PM71=input (I2C SDA)
-    clr1 shadow_p7.2        ;6039  2b d1        P72=0 (I2C SCL)
-    mov a,shadow_p7         ;603b  f0 d1
-    mov p7,a                ;603d  f2 07
-    clr1 pm7.2              ;603f  71 2b 27     PM72=output (I2C SCL)
+lab_6028_intiic0_set:
+    clr1 if0h.6                     ;6028  71 6b e1     Clear IICIF0 (INTIIC0 interrupt flag)
+    pop ax                          ;602b  b0
+    ret                             ;602c  af
 
-lab_6042:
-    cmp rb0_b,#0x00         ;6042  c8 fb 00
-    cmp rb0_b,#0x00         ;6045  c8 fb 00
-    nop                     ;6048  00
-    nop                     ;6049  00
-    nop                     ;604a  00
-    set1 shadow_p7.2        ;604b  2a d1        P72=1 (I2C SCL)
-    set1 pm7.2              ;604d  71 2a 27     PM72=input (I2C SCL)
-    push bc                 ;6050  b3
-    mov b,#0x01             ;6051  a3 01
+;Disable I2C then recover the I2C bus by toggling SCL 9 times
+;
+i2c_recover:
+    push ax                ;602d  b1
+    push bc                ;602e  b3 
+    clr1 iicc0.iice0       ;602f  71 7b a8     IICE0=0 (I2C operation disabled)
+    mov c,#0x09            ;6032  a2 09        C = toggle SCL 9 times
+    set1 shadow_p7.1       ;6034  1a d1        P71=1 (I2C SDA)
+    set1 pm7.1             ;6036  71 1a 27     PM71=input (I2C SDA)
+    clr1 shadow_p7.2       ;6039  2b d1        P72=0 (I2C SCL)
+    mov a,shadow_p7        ;603b  f0 d1
+    mov p7,a               ;603d  f2 07
+    clr1 pm7.2             ;603f  71 2b 27     PM72=output (I2C SCL)
 
-lab_6053:
-    dbnz b,lab_6053         ;6053  8b fe
-    pop bc                  ;6055  b2
-    clr1 pm7.2              ;6056  71 2b 27     PM72=output (I2C SCL)
-    dbnz c,lab_6042         ;6059  8a e7
-    clr1 shadow_p7.1        ;605b  1b d1        P71=0 (I2C SDA)
-    mov a,shadow_p7         ;605d  f0 d1
-    mov p7,a                ;605f  f2 07
-    clr1 pm7.1              ;6061  71 1b 27     PM71=output (I2C SDA)
-    set1 shadow_p7.2        ;6064  2a d1        P72=1 (I2C SCL)
-    set1 pm7.2              ;6066  71 2a 27     PM72=input (I2C SCL)
-    push bc                 ;6069  b3
-    mov b,#0x01             ;606a  a3 01
+    ;SDA is now an input, SCL is now an output low
+    ;With I2C pull-ups: SDA=high, SCL=low
 
-lab_606c:
-    dbnz b,lab_606c         ;606c  8b fe
-    pop bc                  ;606e  b2
-    set1 shadow_p7.1        ;606f  1a d1        P71=1 (I2C SDA)
-    set1 pm7.1              ;6071  71 1a 27     PM71=input (I2C SDA)
-    clr1 cy                 ;6074  21
-    pop bc                  ;6075  b2
-    pop ax                  ;6076  b0
-    ret                     ;6077  af
+lab_6042_scl:
+    cmp rb0_b,#0x00        ;6042  c8 fb 00     Waste time
+    cmp rb0_b,#0x00        ;6045  c8 fb 00       ...
+    nop                    ;6048  00             ...
+    nop                    ;6049  00             ...
+    nop                    ;604a  00             ...
+    set1 shadow_p7.2       ;604b  2a d1        P72=1 (I2C SCL)
+    set1 pm7.2             ;604d  71 2a 27     PM72=input (I2C SCL)
 
-sub_6078:
+    ;SDA is still an input, SCL is now an input
+    ;With I2C pull-ups: SDA=high, SCL=high
+
+    push bc                ;6050  b3           Push number of times to toggle SCL
+    mov b,#0x01            ;6051  a3 01
+lab_6053_delay:
+    dbnz b,lab_6053_delay  ;6053  8b fe
+    pop bc                 ;6055  b2           Pop number of times to toggle SCL
+
+    clr1 pm7.2             ;6056  71 2b 27     PM72=output (I2C SCL)
+
+    ;SDA is still an input, SCL is now an output high
+    ;With I2C pull-ups: SDA=high, SCL=high
+
+    dbnz c,lab_6042_scl    ;6059  8a e7        Loop to toggle SCL 9 times until C=0
+
+    clr1 shadow_p7.1       ;605b  1b d1        P71=0 (I2C SDA)
+    mov a,shadow_p7        ;605d  f0 d1
+    mov p7,a               ;605f  f2 07
+    clr1 pm7.1             ;6061  71 1b 27     PM71=output (I2C SDA)
+    set1 shadow_p7.2       ;6064  2a d1        P72=1 (I2C SCL)
+    set1 pm7.2             ;6066  71 2a 27     PM72=input (I2C SCL)
+
+    ;SDA is now an output low, SCL is now an input
+    ;With I2C pull-ups: SDA=low, SCL=high
+
+    push bc                ;6069  b3
+    mov b,#0x01            ;606a  a3 01
+lab_6042_delay:
+    dbnz b,lab_6042_delay  ;606c  8b fe
+    pop bc                 ;606e  b2
+
+    set1 shadow_p7.1       ;606f  1a d1        P71=1 (I2C SDA)
+    set1 pm7.1             ;6071  71 1a 27     PM71=input (I2C SDA)
+
+    ;SDA is now an input, SCL is still an input
+    ;With I2C pull-ups: SDA=high, SCL=high 
+
+    clr1 cy                ;6074  21
+    pop bc                 ;6075  b2
+    pop ax                 ;6076  b0
+    ret                    ;6077  af
+
 ;Disable I2C, set SCL and SDA pins to inputs
+;
+i2c_teardown:
     clr1 mem_fe69.0         ;6078  0b 69
-    clr1 iicc0.7            ;607a  71 7b a8
+    clr1 iicc0.iice0        ;607a  71 7b a8     IICE0=0 (I2C operation disabled)
     set1 shadow_p7.2        ;607d  2a d1        P72=1 (I2C SCL)
     set1 pm7.2              ;607f  71 2a 27     PM72=input (I2C SCL)
     set1 shadow_p7.1        ;6082  1a d1        P71=1 (I2C SDA)
     set1 pm7.1              ;6084  71 1a 27     PM71=input (I2C SDA)
     ret                     ;6087  af
 
+;XXX lab_6088 appears unused
 lab_6088:
-    set1 mem_fe69.4         ;6088  4a 69
-    br !sub_60ac            ;608a  9b ac 60
+    set1 mem_fe69.4             ;6088  4a 69
+    br !sub_60ac                ;608a  9b ac 60
 
 sub_608d:
-    set1 mem_fe69.4         ;608d  4a 69
-    bf mem_fe69.5,lab_609d  ;608f  31 53 69 0a
-    bf mem_fe2d.2,lab_609d  ;6093  31 23 2d 06
-    call !sub_60ac          ;6097  9a ac 60
-    call !sub_6162          ;609a  9a 62 61
+    set1 mem_fe69.4             ;608d  4a 69
+    bf mem_fe69.5,lab_609d_ret  ;608f  31 53 69 0a
+    bf mem_fe2d.2,lab_609d_ret  ;6093  31 23 2d 06
+    call !sub_60ac              ;6097  9a ac 60
+    call !sub_6162              ;609a  9a 62 61
 
-lab_609d:
-    ret                     ;609d  af
+lab_609d_ret:
+    ret                         ;609d  af
 
 sub_609e:
     clr1 mem_fe5d.2         ;609e  2b 5d
@@ -19018,11 +19091,11 @@ sub_60ac:
     rorc a,1                ;60c6  25
 
 lab_60c7:
-    add a,x                 ;60c7  61 08
-    movw hl,#mem_b3d2+1     ;60c9  16 d3 b3
-    movw de,#mem_f1b9_ee_0016       ;60cc  14 b9 f1
-    mov mem_fed4,a          ;60cf  f2 d4
-    call !sub_026e          ;60d1  9a 6e 02
+    add a,x                     ;60c7  61 08
+    movw hl,#mem_b3d2+1         ;60c9  16 d3 b3
+    movw de,#mem_f1b9_ee_0016   ;60cc  14 b9 f1
+    mov mem_fed4,a              ;60cf  f2 d4
+    call !sub_026e              ;60d1  9a 6e 02
 
 lab_60d4:
     btclr mem_fe5d.2,lab_60dd ;60d4  31 21 5d 05
@@ -19084,27 +19157,27 @@ lab_611f:
     mov mem_fed6,a          ;611f  f2 d6
     mov a,x                 ;6121  60
     mov mem_fed5,a          ;6122  f2 d5
-    set1 mem_fe69.1         ;6124  1a 69
+    set1 mem_fe69.1         ;6124  1a 69        Bit set = I2C will operate in standard (not high-speed) mode
     mov mem_fed4,#0xc2      ;6126  11 d4 c2
     call !sub_0800_mode     ;6129  9a 00 08     Return mem_f253_ee_00b0_mode in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
 
 lab_612c:
-    mov b,a                 ;612c  73           B = mem_f253_ee_00b0_mode mode
-    movw hl,#mem_f1be_ee_001b       ;612d  16 be f1
-    mov a,[hl+b]            ;6130  ab
-    mov mem_fed8,a          ;6131  f2 d8
-    movw hl,#mem_f1c0_ee_001d       ;6133  16 c0 f1
-    mov a,[hl+b]            ;6136  ab
-    mov mem_fed9,a          ;6137  f2 d9
-    movw hl,#mem_f1c2_ee_001f       ;6139  16 c2 f1
-    mov a,[hl+b]            ;613c  ab
-    mov mem_feda,a          ;613d  f2 da
-    mov a,#0xc7             ;613f  a1 c7
-    push bc                 ;6141  b3
-    call !sub_5e27          ;6142  9a 27 5e
-    pop bc                  ;6145  b2
-    mov mem_fe22,#0x00      ;6146  11 22 00
-    ret                     ;6149  af
+    mov b,a                     ;612c  73           B = mem_f253_ee_00b0_mode mode
+    movw hl,#mem_f1be_ee_001b   ;612d  16 be f1
+    mov a,[hl+b]                ;6130  ab
+    mov mem_fed8,a              ;6131  f2 d8
+    movw hl,#mem_f1c0_ee_001d   ;6133  16 c0 f1
+    mov a,[hl+b]                ;6136  ab
+    mov mem_fed9,a              ;6137  f2 d9
+    movw hl,#mem_f1c2_ee_001f   ;6139  16 c2 f1
+    mov a,[hl+b]                ;613c  ab
+    mov mem_feda,a              ;613d  f2 da
+    mov a,#0xc7                 ;613f  a1 c7
+    push bc                     ;6141  b3
+    call !sub_5e27              ;6142  9a 27 5e
+    pop bc                      ;6145  b2
+    mov mem_fe22,#0x00          ;6146  11 22 00
+    ret                         ;6149  af
 
 sub_614a:
     call !sub_61a6          ;614a  9a a6 61
@@ -19146,7 +19219,7 @@ lab_617d:
     clr1 mem_fe5b.7         ;617d  7b 5b
     movw hl,#mem_fed4       ;617f  16 d4 fe
     mov a,#0xc1             ;6182  a1 c1
-    set1 mem_fe69.1         ;6184  1a 69
+    set1 mem_fe69.1         ;6184  1a 69        Bit set = I2C will operate in standard (not high-speed) mode
     mov x,#0xc3             ;6186  a0 c3
     call !sub_5d99          ;6188  9a 99 5d
     call !sub_0800_mode     ;618b  9a 00 08     Return mem_f253_ee_00b0_mode in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
@@ -19331,7 +19404,7 @@ lab_624f_attempt:
     push ax                 ;625c  b1
     mov a,#0x82             ;625d  a1 82
     movw hl,#i2c_buf        ;625f  16 db fb
-    call !sub_5f51          ;6262  9a 51 5f     TODO perform I2C write?
+    call !i2c_write         ;6262  9a 51 5f     Perform I2C write
     pop ax                  ;6265  b0
 
     set1 a.0                ;6266  61 8a
@@ -19340,7 +19413,7 @@ lab_624f_attempt:
     or a,#0xc0              ;626c  6d c0
     pop hl                  ;626e  b6
     push hl                 ;626f  b7
-    call !sub_5ee8          ;6270  9a e8 5e     TODO perform I2C read?
+    call !i2c_read          ;6270  9a e8 5e     Perform I2C read
     bc lab_627b             ;6273  8d 06        Branch if failed
 
 lab_6275_success:
@@ -19471,7 +19544,7 @@ lab_62c6_attempt:
     movw hl,#i2c_buf        ;62e0  16 db fb
     mov a,!mem_fc10         ;62e3  8e 10 fc
     add a,#0xc2             ;62e6  0d c2
-    call !sub_5f51          ;62e8  9a 51 5f     TODO perform I2C write?
+    call !i2c_write         ;62e8  9a 51 5f     Perform I2C write
     bc lab_628b_failed      ;62eb  8d 9e        Failed; branch to clear carry, pop registers, and return
 
     ;TODO I2C write? succeeded
@@ -23015,7 +23088,7 @@ lab_771a:
     mov !i2c_buf,a          ;7721  9e db fb
     mov a,#0xc1             ;7724  a1 c1
     movw hl,#i2c_buf        ;7726  16 db fb
-    call !sub_5f51          ;7729  9a 51 5f     TODO perform I2C write?
+    call !i2c_write         ;7729  9a 51 5f     Perform I2C write
     clr1 mem_fe40.0         ;772c  0b 40
     bc lab_7734             ;772e  8d 04        Branch if failed
     set1 mem_fe40.0         ;7730  0a 40
@@ -23037,7 +23110,7 @@ sub_7735:
     set1 mem_fe69.3         ;7748  3a 69
 
 lab_774a:
-    call !sub_5ee8          ;774a  9a e8 5e     TODO perform I2C read?
+    call !i2c_read          ;774a  9a e8 5e     Perform I2C read
     clr1 mem_fe69.3         ;774d  3b 69
     bnc lab_7761            ;774f  9d 10        Branch if succeeded
     mov a,!mem_fc14         ;7751  8e 14 fc
@@ -28860,16 +28933,16 @@ sub_9e8e:
     mov !i2c_buf+4,a        ;9e9f  9e df fb
     mov a,#0x85             ;9ea2  a1 85
     movw hl,#i2c_buf        ;9ea4  16 db fb
-    call !sub_5f51          ;9ea7  9a 51 5f     TODO perform I2C write?
+    call !i2c_write         ;9ea7  9a 51 5f     Perform I2C write
     mov a,#0x02             ;9eaa  a1 02
     movw hl,#i2c_buf+3      ;9eac  16 de fb
-    call !sub_5f51          ;9eaf  9a 51 5f     TODO perform I2C write?
+    call !i2c_write         ;9eaf  9a 51 5f     Perform I2C write
     mov a,#0x02             ;9eb2  a1 02
     movw hl,#i2c_buf+3      ;9eb4  16 de fb
-    call !sub_5f51          ;9eb7  9a 51 5f     TODO perform I2C write?
+    call !i2c_write         ;9eb7  9a 51 5f     Perform I2C write
     mov a,#0x42             ;9eba  a1 42
     movw hl,#i2c_buf+3      ;9ebc  16 de fb
-    call !sub_5f51          ;9ebf  9a 51 5f     TODO perform I2C write?
+    call !i2c_write         ;9ebf  9a 51 5f     Perform I2C write
     mov a,#0x0b             ;9ec2  a1 0b
     br !sub_9f9f            ;9ec4  9b 9f 9f
 
@@ -28886,10 +28959,10 @@ lab_9ed1:
     mov !i2c_buf,a          ;9eda  9e db fb
     mov a,#0x83             ;9edd  a1 83
     movw hl,#i2c_buf        ;9edf  16 db fb
-    call !sub_5f51          ;9ee2  9a 51 5f     TODO perform I2C write?
+    call !i2c_write         ;9ee2  9a 51 5f     Perform I2C write
     mov a,#0x4e             ;9ee5  a1 4e
     movw hl,#mem_f022       ;9ee7  16 22 f0
-    call !sub_5f51          ;9eea  9a 51 5f     TODO perform I2C write?
+    call !i2c_write         ;9eea  9a 51 5f     Perform I2C write
     movw hl,#mem_ba94       ;9eed  16 94 ba
     bf mem_fe73.7,lab_9ef7  ;9ef0  31 73 73 03
     movw hl,#mem_ba9a       ;9ef4  16 9a ba
@@ -28921,7 +28994,7 @@ sub_9f12:
     call !sub_9f9f          ;9f1f  9a 9f 9f
     or a,#0xc0              ;9f22  6d c0
     movw hl,#i2c_buf        ;9f24  16 db fb
-    br !sub_5f51            ;9f27  9b 51 5f     TODO perform I2C write?
+    br !i2c_write           ;9f27  9b 51 5f     Perform I2C write
 
 sub_9f2a:
     call !sub_9f8a          ;9f2a  9a 8a 9f
@@ -28979,7 +29052,7 @@ lab_9f70:
     or a,#0x40              ;9f74  6d 40
 
 lab_9f76:
-    br !sub_5f51            ;9f76  9b 51 5f     TODO perform I2C write?
+    br !i2c_write           ;9f76  9b 51 5f     Perform I2C write
 
 lab_9f79:
     push hl                 ;9f79  b7
@@ -28990,7 +29063,7 @@ lab_9f79:
     call !sub_9f9f          ;9f81  9a 9f 9f
     or a,#0x40              ;9f84  6d 40
     pop hl                  ;9f86  b6
-    br !sub_5f51            ;9f87  9b 51 5f     TODO perform I2C write?
+    br !i2c_write           ;9f87  9b 51 5f     Perform I2C write
 
 sub_9f8a:
     mov a,#0x1C<<1          ;9f8a  a1 38        0x1C = SAA7705H I2C address
@@ -29108,11 +29181,11 @@ sub_a04d:
     mov !i2c_buf,a          ;a056  9e db fb
     mov a,#0x83             ;a059  a1 83
     movw hl,#i2c_buf        ;a05b  16 db fb
-    call !sub_5f51          ;a05e  9a 51 5f     TODO perform I2C write?
+    call !i2c_write         ;a05e  9a 51 5f     Perform I2C write
     mov x,#0x39             ;a061  a0 39
     movw hl,#mem_fed4       ;a063  16 d4 fe
     mov a,#0xc3             ;a066  a1 c3
-    br !sub_5ee8            ;a068  9b e8 5e     TODO perform I2C read?
+    br !i2c_read            ;a068  9b e8 5e     Perform I2C read
 
 sub_a06b:
     mov a,#0x32             ;a06b  a1 32
