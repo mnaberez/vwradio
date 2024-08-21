@@ -407,7 +407,7 @@ mem_fb98 = 0xfb98
 mem_fb99 = 0xfb99
 mem_fb9a = 0xfb9a
 kwp_cu_buf = 0xfb9b         ;KWP1281 title 0x1b custom usage data buffer (8 bytes)
-mem_fba7 = 0xfba7
+kwp_cu_unk_buf = 0xfba7     ;KWP1281 title 0x1b custom usage unknown buffer (5 bytes)
 mem_fbac = 0xfbac
 mem_fbad = 0xfbad
 mem_fbae = 0xfbae
@@ -597,7 +597,7 @@ mem_fe61 = 0xfe61
 mem_fe62 = 0xfe62
 mem_fe63 = 0xfe63
 mem_fe64 = 0xfe64           ;Bit 7: off=no login, on=successful OCLED login
-mem_fe65 = 0xfe65           ;Bit 0: off=write to RAM, on=write to EEPROM
+mem_fe65 = 0xfe65           ;Bit 0: off=address in internal memory, on=address in EEPROM
 mem_fe66 = 0xfe66
 mem_fe67 = 0xfe67
 mem_fe68 = 0xfe68
@@ -3131,7 +3131,7 @@ badisr_0d75:
 ;Handles any unexpected interrupt, unexpected CALLT, or the BRK instruction
 ;Handles watchdog interrupt INTWDT
 ;Handles watch timer interrupt INTWTN0 (should never occur)
-;kwp_7c_1b_2f also branches here
+;kwp_7c_1b_2f_br_badisr also branches here
     clr1 shadow_p9.7        ;0d75  7b d3
     clr1 pm9.7              ;0d77  71 7b 29
     mov a,shadow_p9         ;0d7a  f0 d3
@@ -8543,14 +8543,14 @@ sub_2bd4:
     mov l,a                 ;2be2  76           HL = number of bytes to read
     mov h,#0x00             ;2be3  a7 00
 
-    movw ax,!mem_f002       ;2be5  02 02 f0
-    call !sub_2cdf          ;2be8  9a df 2c     Check if a region in memory or EEPROM is valid
-                            ;                       AX = start address
-                            ;                       HL = number of bytes
-                            ;                       mem_fe60.2 = address type (0=memory, 1=EEPROM)
-                            ;                   Returns:
-                            ;                       AX = end address
-                            ;                       HL = start address
+    movw ax,!mem_f002               ;2be5  02 02 f0
+    call !check_ram_or_eeprom_range ;2be8  9a df 2c     Check if a region in memory or EEPROM is valid
+                                    ;                       AX = start address
+                                    ;                       HL = number of bytes
+                                    ;                       mem_fe60.2 = address type (0=memory, 1=EEPROM)
+                                    ;                   Returns:
+                                    ;                       AX = end address
+                                    ;                       HL = start address
     bc lab_2bf3_ret         ;2beb  8d 06        Branch if invalid
     movw !mem_f002,ax       ;2bed  03 02 f0
     movw ax,hl              ;2bf0  c6
@@ -8602,13 +8602,13 @@ sub_2c1a:
     mov h,#0x00             ;2c22  a7 00
 
     movw ax,!mem_f002       ;2c24  02 02 f0
-    call !sub_2cdf          ;2c27  9a df 2c   Check if a region in memory or EEPROM is valid
-                            ;                     AX = start address
-                            ;                     HL = number of bytes
-                            ;                     mem_fe60.2 = address type (0=memory, 1=EEPROM)
-                            ;                 Returns:
-                            ;                     AX = end address
-                            ;                     HL = start address
+    call !check_ram_or_eeprom_range ;2c27  9a df 2c   Check if a region in memory or EEPROM is valid
+                                    ;                     AX = start address
+                                    ;                     HL = number of bytes
+                                    ;                     mem_fe60.2 = address type (0=memory, 1=EEPROM)
+                                    ;                 Returns:
+                                    ;                     AX = end address
+                                    ;                     HL = start address
     bc lab_2c32             ;2c2a  8d 06      Branch if invalid
     movw !mem_f002,ax       ;2c2c  03 02 f0
     movw ax,hl              ;2c2f  c6
@@ -8642,13 +8642,13 @@ sub_2c33:
     movw ax,de              ;2c46  c4           AX = EEPROM address to write
     movw !mem_f004,ax       ;2c47  03 04 f0     Store EEPROM address
 
-    call !sub_2cdf          ;2c4a  9a df 2c     Check if a region in memory or EEPROM is valid
-                            ;                       AX = start address
-                            ;                       HL = number of bytes
-                            ;                       mem_fe60.2 = address type (0=memory, 1=EEPROM)
-                            ;                   Returns:
-                            ;                       AX = end address
-                            ;                       HL = start address
+    call !check_ram_or_eeprom_range ;2c4a  9a df 2c     Check if a region in memory or EEPROM is valid
+                                    ;                       AX = start address
+                                    ;                       HL = number of bytes
+                                    ;                       mem_fe60.2 = address type (0=memory, 1=EEPROM)
+                                    ;                   Returns:
+                                    ;                       AX = end address
+                                    ;                       HL = start address
     bc lab_2c7b_failed      ;2c4d  8d 2c        Branch if invalid
 
     bf mem_fe65.5,lab_2c6c_write ;2c4f  31 53 65 19   Skip protection checks if ?? bit is off
@@ -8816,7 +8816,7 @@ lab_2cde:
     ret                     ;2cde  af
 
 
-sub_2cdf:
+check_ram_or_eeprom_range:
 ;Check if a region in memory or EEPROM is valid for
 ;KWP1281 read or write.
 ;
@@ -11300,7 +11300,7 @@ lab_392b:
 lab_392c:
     bf mem_fe62.0,lab_393e  ;392c  31 03 62 0e
     clr1 mem_fe62.0         ;3930  0b 62
-    call !sub_4109          ;3932  9a 09 41       TODO Reads from EEPROM, checksum related
+    call !kwp_7c_1b_30_eeprom_csum_related      ;3932  9a 09 41       TODO Reads from EEPROM, checksum related
     bf mem_fe62.0,lab_393e  ;3935  31 03 62 05
     mov a,#0x03             ;3939  a1 03
     call !sub_2cae          ;393b  9a ae 2c       Write 0 to mem_f218_ee_0075 and A to mem_f219_ee_0076 via eeram_f206_wr_byte_hl
@@ -12219,7 +12219,7 @@ lab_3f06:
     mov a,!mem_fb9a             ;3f06  8e 9a fb
     cmp a,#0x55                 ;3f09  4d 55
     bz lab_3f26                 ;3f0b  ad 19
-    call !sub_4109              ;3f0d  9a 09 41     TODO Reads from EEPROM, checksum related
+    call !kwp_7c_1b_30_eeprom_csum_related          ;3f0d  9a 09 41     TODO Reads from EEPROM, checksum related
     bt mem_fe63.4,lab_3f2e_ret  ;3f10  cc 63 1b     Branch to just return
     mov a,!mem_fb9a             ;3f13  8e 9a fb
     cmp a,#0x55                 ;3f16  4d 55
@@ -12633,11 +12633,12 @@ lab_4104_pop_ret:
     pop hl                  ;4107  b6
     ret                     ;4108  af
 
-sub_4109:
-;TODO Reads from EEPROM, checksum related
-;Called from Title=0x1b  Subtitle=0x30  Block length=0x05
+kwp_7c_1b_30_eeprom_csum_related:
+;Title=0x1b  Subtitle=0x30  Block length=0x05
 ;0 request parameters
 ;Replies with ACK only
+;
+;TODO Reads from EEPROM, checksum related
     clr1 mem_fe64.5                     ;4109  5b 64
     mov a,!mem_fb98                     ;410b  8e 98 fb
     cmp a,#0x05                         ;410e  4d 05
@@ -13580,10 +13581,10 @@ lab_46a9:
                             ;                     set = login successful)
     ret                     ;46ac  af
 
-sub_46ad:
-;Called from Title=0x1b  Subtitle=0x26  Block length=0x06
+;Title=0x1b  Subtitle=0x26  Block length=0x06
 ;1 request parameter
 ;Replies with data
+kwp_7c_1b_26_write_mem_fe31:
     mov a,!kwp_rx_buf+5     ;46ad  8e 8f f0     A = value at KWP1281 rx buffer byte 5
     and a,#0x07             ;46b0  5d 07
     mov mem_fe31,a          ;46b2  f2 31
@@ -13596,10 +13597,10 @@ sub_46ad:
 
     ret                     ;46be  af
 
-sub_46bf:
-;Called from Title=0x1b  Subtitle=0x27  Block length=0x07
+;Title=0x1b  Subtitle=0x27  Block length=0x07
 ;2 request parameters
 ;Replies with ACK only
+kwp_7c_1b_27_sub_0994:
     mov a,!kwp_rx_buf+5     ;46bf  8e 8f f0     A = value at KWP1281 rx buffer byte 5
     clr1 mem_fe64.6         ;46c2  6b 64
     bf a.1,lab_46c9         ;46c4  31 1f 02
@@ -13631,8 +13632,8 @@ lab_46e8:
 lab_46f0:
     ret                     ;46f0  af
 
-sub_46f1:
-;Called from Title=0x1b  Subtitle=0x28  Block length=0x05
+kwp_7c_1b_28_sub_aa92:
+;Title=0x1b  Subtitle=0x28  Block length=0x05
 ;0 request parameters
 ;Replies with ACK only
     set1 mem_fe73.3         ;46f1  3a 73
@@ -13641,59 +13642,155 @@ sub_46f1:
     set1 mem_fe73.5         ;46f7  5a 73
     br !sub_aa92            ;46f9  9b 92 aa     Call sub_a6d2, call sub_aa9c, then return
 
-sub_46fc:
-;Called from Title=0x1b  Subtitle=0x2a  Block length=0x07
-;2 request parameters
-;Replies with ACK only
-    call !sub_4835          ;46fc  9a 35 48     Reads rx buffer bytes 5,6 and
-                            ;                     does something with mem_fe65.0
-    bc lab_4730             ;46ff  8d 2f        Branch if failed
+kwp_7c_1b_2a_exposed_read:
+;Read 4 bytes starting at an exposed address.
+;Title=0x1b  Subtitle=0x2a  Block length=0x07
+;
+;Read 4 bytes starting at an exposed address.
+;
+;See the exposed_addresses table for all possible base addresses and
+;find_exposed_address for an explanation of the index and offset
+;bytes in the request block.
+;
+;Note: It's much easier to use title 0x01 Read RAM (kwp_7c_01_read_ram)
+;      because that command directly accepts an address and the number
+;      of bytes to read.
+;
+;Request block:
+;   0x07 Block length                           kwp_rx_buf+0
+;    xx  Block counter                          kwp_rx_buf+1
+;   0x1B Block title (custom usage)             kwp_rx_buf+2
+;   0x31 Unknown constant                       kwp_rx_buf+3 -> kwp_cu_buf
+;   0x2a Subtitle (0x2a)                        kwp_rx_buf+4 -> kwp_cu_buf+1
+;    xx  Index of address in exposed_addresses  kwp_rx_buf+5 -> kwp_cu_buf+2
+;    xx  Offset to apply to address             kwp_rx_buf+6 -> kwp_cu_buf+3
+;   0x03 Block end                              kwp_rx_buf+7
+;
+;Response block:
+;   0x0b Block length                           kwp_tx_buf+0
+;    xx  Block counter                          kwp_tx_buf+1
+;   0x1B Block title (custom usage)             kwp_tx_buf+2
+;   0x31 Unknown Constant                       kwp_tx_buf+3 <- kwp_cu_buf+0 
+;   0x2a Subtitle (0x2a)                        kwp_tx_buf+4 <- kwp_cu_buf+1
+;    xx  Computed start address high byte       kwp_tx_buf+5 <- kwp_cu_buf+2
+;    xx  Computed start address low byte        kwp_tx_buf+6 <- kwp_cu_buf+3
+;    xx  Data byte 0                            kwp_tx_buf+7 <- kwp_cu_buf+4
+;    xx  Data byte 1                            kwp_tx_buf+8 <- kwp_cu_buf+5
+;    xx  Data byte 2                            kwp_tx_buf+9 <- kwp_cu_buf+6
+;    xx  Data byte 3                            kwp_tx_buf+9 <- kwp_cu_buf+7
+;   0x03 Block end                              kwp_tx_buf+a 
+;
+    call !find_exposed_address  ;46fc  9a 35 48     AX = address computed from index and offset
+    bc lab_4730                 ;46ff  8d 2f        Branch if lookup failed
 
-    movw hl,ax              ;4701  d6
-    mov !kwp_cu_buf+2,a     ;4702  9e 9d fb
-    mov a,x                 ;4705  60
-    mov !kwp_cu_buf+3,a     ;4706  9e 9e fb
+    movw hl,ax                  ;4701  d6           HL = copy of computed address in AX
 
-    mov a,#0x02             ;4709  a1 02        A = 2 bytes to copy
-    call !copy_to_kwp_cu_buf;470b  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf
+    mov !kwp_cu_buf+2,a         ;4702  9e 9d fb     Copy computed address high byte
+    mov a,x                     ;4705  60
+    mov !kwp_cu_buf+3,a         ;4706  9e 9e fb     Copy computed address low byte
 
-    bf mem_fe65.0,lab_4724  ;470e  31 03 65 12  Branch if writing to RAM
+    mov a,#0x02                 ;4709  a1 02        A = 2 bytes to copy
+    call !copy_to_kwp_cu_buf    ;470b  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf
+                                ;                       kwp_cu_buf+0 = kwp_rx_buf+3 (Unknown Constant 0x31)
+                                ;                       kwp_cu_buf+1 = kwp_rx_buf+4 (Subtitle 0x28)
+
+    bf mem_fe65.0,lab_4724      ;470e  31 03 65 12  Branch if address is in internal memory (not EEPROM)
 
 lab_4712:
-    call !eeprom_guard      ;4712  9a 17 62     Check if EEPROM is available for use(?)
-    bnc lab_4712            ;4715  9d fb        Repeat until available
+    call !eeprom_guard          ;4712  9a 17 62     Check if EEPROM is available for use(?)
+    bnc lab_4712                ;4715  9d fb        Repeat until available
 
-    mov a,#0x04             ;4717  a1 04        A = 4 bytes to read from EEPROM
-    movw de,#i2c_buf        ;4719  14 db fb     DE = pointer to buffer to receive EEPROM contents
-    call !eeprom_read       ;471c  9a 38 62     Read A bytes from EEPROM address HL into [DE]
-    bnc lab_4730            ;471f  9d 0f        Branch if EEPROM read failed
+    mov a,#0x04                 ;4717  a1 04        A = 4 bytes to read from EEPROM
+    movw de,#i2c_buf            ;4719  14 db fb     DE = pointer to buffer to receive EEPROM contents
+    call !eeprom_read           ;471c  9a 38 62     Read A bytes from EEPROM address HL into [DE]
+    bnc lab_4730                ;471f  9d 0f        Branch if EEPROM read failed
 
-    movw hl,#i2c_buf        ;4721  16 db fb     HL = source address
+    movw hl,#i2c_buf            ;4721  16 db fb     HL = source address
+
 lab_4724:
-    movw de,#kwp_cu_buf+4   ;4724  14 9f fb     DE = destination address
-    mov a,#0x04             ;4727  a1 04        A = 4 bytes to copy
-    callf !copy             ;4729  4c 9e        Copy A bytes from [HL] to [DE]
+    movw de,#kwp_cu_buf+4       ;4724  14 9f fb     DE = destination address
+    mov a,#0x04                 ;4727  a1 04        A = 4 bytes to copy
+    callf !copy                 ;4729  4c 9e        Copy A bytes from [HL] to [DE]
 
-    mov a,#0x08             ;472b  a1 08
-    mov !kwp_cu_len,a       ;472d  9e af fb     Number of bytes of custom usage data to send in KWP1281 response
+    mov a,#0x08                 ;472b  a1 08
+    mov !kwp_cu_len,a           ;472d  9e af fb     Number of bytes of custom usage data to send in KWP1281 response
 
 lab_4730:
-    ret                     ;4730  af
+    ret                         ;4730  af
 
-sub_4731:
-;Called from Title=0x1b  Subtitle=0x2d  Block length=0x0b
+kwp_7c_1b_2d_write_unk_buf_or_i2c:
+;Title=0x1b  Subtitle=0x2d  Block length=0x0b
+;Write to 5 bytes to kwp_cu_unk_buf or do unknown I2C read/write operations.
 ;6 request parameters
 ;Replies with data
-    mov a,!kwp_rx_buf+5     ;4731  8e 8f f0     A = value at KWP1281 rx buffer byte 5
-    cmp a,#0x00             ;4734  4d 00
-    bz lab_474d_ret         ;4736  ad 15
-    bf a.7,lab_474e         ;4738  31 7f 13
+;
+;Request block:
+;   0x0b Block length                           kwp_rx_buf+0
+;    xx  Block counter                          kwp_rx_buf+1
+;   0x1B Block title (custom usage)             kwp_rx_buf+2
+;   0x31 Unknown constant                       kwp_rx_buf+3 -> kwp_cu_buf
+;   0x2d Subtitle (0x2d)                        kwp_rx_buf+4 -> kwp_cu_buf+1
+;    xx  Control byte                           kwp_rx_buf+5 -> kwp_cu_buf+2
+;    xx  Data byte 0                            kwp_rx_buf+6 -> kwp_cu_buf+3 -> kwp_cu_unk_buf
+;    xx  Data byte 1                            kwp_rx_buf+7 -> kwp_cu_buf+4 -> kwp_cu_unk_buf+1
+;    xx  Data byte 2                            kwp_rx_buf+8 -> kwp_cu_buf+5 -> kwp_cu_unk_buf+2
+;    xx  Data byte 3                            kwp_rx_buf+9 -> kwp_cu_buf+6 -> kwp_cu_unk_buf+3
+;    xx  Data byte 4                            kwp_rx_buf+a -> kwp_cu_buf+7 -> kwp_cu_unk_buf+4
+;   0x03 Block end                              kwp_rx_buf+b
+;
+;If the Control byte = 0, do nothing.  The response block will
+;contain whatever happens to be in kwp_tx_buf (TODO verify this):
+;
+;Response block for Control byte = 0:
+;   0x0b Block length                           kwp_tx_buf+0
+;    xx  Block counter                          kwp_tx_buf+1
+;   0x1B Block title (custom usage)             kwp_tx_buf+2
+;    xx  Undefined                              kwp_tx_buf+3 (undefined)
+;    xx  Undefined                              kwp_tx_buf+4 (undefined)
+;    xx  Undefined                              kwp_tx_buf+5 (undefined)
+;    xx  Undefined                              kwp_tx_buf+6 (undefined)
+;    xx  Undefined                              kwp_tx_buf+7 (undefined)
+;    xx  Undefined                              kwp_tx_buf+8 (undefined)
+;    xx  Undefined                              kwp_tx_buf+9 (undefined)
+;    xx  Undefined                              kwp_tx_buf+9 (undefined)
+;   0x03 Block end                              kwp_tx_buf+a 
+;
+;If the Control byte >= 0x80, the 5 data bytes in the request block
+;are written to the buffer kwp_cu_unk_buf.  The following response
+;block is returned:
+;
+;Response block for Control byte >= 0x80:
+;   0x0b Block length                           kwp_tx_buf+0
+;    xx  Block counter                          kwp_tx_buf+1
+;   0x1B Block title (custom usage)             kwp_tx_buf+2
+;   0x31 Unknown Constant                       kwp_tx_buf+3 <- kwp_cu_buf+0 
+;   0x2d Subtitle (0x2d)                        kwp_tx_buf+4 <- kwp_cu_buf+1
+;    xx  Control byte                           kwp_tx_buf+5 <- kwp_cu_buf+2
+;    xx  Data byte 0                            kwp_tx_buf+6 <- kwp_cu_buf+3
+;    xx  Data byte 1                            kwp_tx_buf+7 <- kwp_cu_buf+4
+;    xx  Data byte 2                            kwp_tx_buf+8 <- kwp_cu_buf+5
+;    xx  Data byte 3                            kwp_tx_buf+9 <- kwp_cu_buf+6
+;    xx  Data byte 4                            kwp_tx_buf+9 <- kwp_cu_buf+7
+;   0x03 Block end                              kwp_tx_buf+a 
+;
+;If the Control byte >= 1 and <= 0x7F: do unknown I2C operations.
+;TODO investigate I2C
+;
+    mov a,!kwp_rx_buf+5       ;4731  8e 8f f0     A = value at KWP1281 rx buffer byte 5
+    cmp a,#0x00               ;4734  4d 00
+    bz lab_474d_ret           ;4736  ad 15
 
-    mov a,#0x08             ;473b  a1 08        A = 8 bytes to copy
-    mov !kwp_cu_len,a       ;473d  9e af fb     Number of bytes of custom usage data to send in KWP1281 response
-    call !copy_to_kwp_cu_buf;4740  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf
+    bf a.7,lab_474e_bit_7_off ;4738  31 7f 13
 
-    movw de,#mem_fba7       ;4743  14 a7 fb
+    ;Bit 7 of kwp_rx_buf+5 is set
+
+    mov a,#0x08               ;473b  a1 08        A = 8 bytes to copy
+    mov !kwp_cu_len,a         ;473d  9e af fb     Number of bytes of custom usage data to send in KWP1281 response
+    call !copy_to_kwp_cu_buf  ;4740  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf
+
+    ;Copy 5 bytes from kwp_rx_buf+6 to kwp_cu_unk_buf
+
+    movw de,#kwp_cu_unk_buf   ;4743  14 a7 fb
 
 sub_4746:
     mov a,#0x05             ;4746  a1 05        A = 5 bytes to copy
@@ -13703,7 +13800,7 @@ sub_4746:
 lab_474d_ret:
     ret                     ;474d  af
 
-lab_474e:
+lab_474e_bit_7_off:
     set1 mem_fe69.1         ;474e  1a 69        Bit set = I2C will operate in standard (not high-speed) mode
     mov mem_fed4,#0xc0      ;4750  11 d4 c0
     and a,#0x07             ;4753  5d 07
@@ -13759,7 +13856,7 @@ sub_4797:
     movw de,#i2c_buf        ;479f  14 db fb
     call !sub_4746          ;47a2  9a 46 47
     mov a,#0x05             ;47a5  a1 05        A = 5 bytes to copy
-    movw hl,#mem_fba7       ;47a7  16 a7 fb     HL = source address
+    movw hl,#kwp_cu_unk_buf ;47a7  16 a7 fb     HL = source address
     callf !copy             ;47aa  4c 9e        Copy A bytes from [HL] to [DE]
     mov a,!kwp_rx_buf+5     ;47ac  8e 8f f0     A = value at KWP1281 rx buffer byte 5
     ror a,1                 ;47af  24
@@ -13789,43 +13886,94 @@ lab_47d0:
     clr1 cy                 ;47d0  21
     ret                     ;47d1  af
 
-sub_47d2:
-;Called from Title=0x1b  Subtitle=0x2e  Block length=0x0b
-;6 request parameters
-;Replies with data
-    mov a,#0x08             ;47d2  a1 08        A = 8 bytes to copy
-    mov !kwp_cu_len,a       ;47d4  9e af fb     Number of bytes of custom usage data to send in KWP1281 response
-    call !copy_to_kwp_cu_buf;47d7  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf
+kwp_7c_1b_2e_exposed_write:
+;Title=0x1b  Subtitle=0x2e  Block length=0x0b
+;
+;Write 3 bytes starting at an exposed address.
+;
+;See the exposed_addresses table for all possible base addresses and
+;find_exposed_address for an explanation of the index and offset
+;bytes in the request block.
+;
+;Request block:
+;   0x0b Block length                           kwp_rx_buf+0
+;    xx  Block counter                          kwp_rx_buf+1
+;   0x1B Block title (custom usage)             kwp_rx_buf+2
+;   0x31 Unknown constant                       kwp_rx_buf+3 -> kwp_cu_buf
+;   0x2e Subtitle (0x2e)                        kwp_rx_buf+4 -> kwp_cu_buf+1
+;    xx  Index of address in exposed_addresses  kwp_rx_buf+5 -> kwp_cu_buf+2
+;    xx  Offset to apply to address             kwp_rx_buf+6 -> kwp_cu_buf+3
+;   0x03 Number of bytes to write (3)           kwp_rx_buf+7 -> kwp_cu_buf+4
+;    xx  Data byte 0                            kwp_rx_buf+8 -> kwp_cu_buf+5
+;    xx  Data byte 1                            kwp_rx_buf+9 -> kwp_cu_buf+6
+;    xx  Data byte 2                            kwp_rx_buf+a -> kwp_cu_buf+7
+;   0x03 Block end                              kwp_rx_buf+b
+;
+;Response block:
+;   0x0b Block length                           kwp_tx_buf+0
+;    xx  Block counter                          kwp_tx_buf+1
+;   0x1B Block title (custom usage)             kwp_tx_buf+2
+;   0x31 Unknown constant                       kwp_tx_buf+3 <- kwp_cu_buf
+;   0x2e Subtitle (0x2e)                        kwp_tx_buf+4 <- kwp_cu_buf+1
+;    xx  Computed start address high byte       kwp_tx_buf+5 <- kwp_cu_buf+2
+;    xx  Computed start address low byte        kwp_tx_buf+6 <- kwp_cu_buf+3
+;   0x03 Number of bytes to write (3)           kwp_tx_buf+7 <- kwp_cu_buf+4
+;    xx  Data byte 0                            kwp_tx_buf+8 <- kwp_cu_buf+5
+;    xx  Data byte 1                            kwp_tx_buf+9 <- kwp_cu_buf+6
+;    xx  Data byte 2                            kwp_tx_buf+a <- kwp_cu_buf+7
+;   0x03 Block end                              kwp_rx_buf+b
+;
+    mov a,#0x08                 ;47d2  a1 08        A = 8 bytes to copy
+    mov !kwp_cu_len,a           ;47d4  9e af fb     Number of bytes of custom usage data to send in KWP1281 response
+    call !copy_to_kwp_cu_buf    ;47d7  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf
 
-    call !sub_4835          ;47da  9a 35 48     Reads rx buffer bytes 5,6 and
-                            ;                     does something with mem_fe65.0
-    bc lab_47f5             ;47dd  8d 16        Branch if failed
+    call !find_exposed_address  ;47da  9a 35 48     AX = address computed from index and offset
+    bc lab_47f5                 ;47dd  8d 16        Branch if lookup failed
 
-    movw de,ax              ;47df  d4
-    mov !kwp_cu_buf+2,a     ;47e0  9e 9d fb
-    mov a,x                 ;47e3  60
-    mov !kwp_cu_buf+3,a     ;47e4  9e 9e fb
+    movw de,ax                  ;47df  d4           DE = copy of computed address
 
-    mov a,!kwp_rx_buf+7     ;47e7  8e 91 f0     KWP1281 rx buffer byte 7
-    and a,#0x03             ;47ea  5d 03
-    mov !kwp_cu_buf+4,a     ;47ec  9e 9f fb
+    mov !kwp_cu_buf+2,a         ;47e0  9e 9d fb
+    mov a,x                     ;47e3  60
+    mov !kwp_cu_buf+3,a         ;47e4  9e 9e fb
 
-    movw hl,#kwp_rx_buf+8   ;47ef  16 92 f0     KWP1281 rx buffer byte 8
-    call !copy_to_ee_or_ram ;47f2  9a 62 48     Copy A bytes from [HL] to EEPROM address or RAM address DE
-                            ;                     mem_fe65.0=copy to RAM, mem_fe65.1=write to EEPROM
+    mov a,!kwp_rx_buf+7         ;47e7  8e 91 f0     KWP1281 rx buffer byte 7
+    and a,#0x03                 ;47ea  5d 03
+    mov !kwp_cu_buf+4,a         ;47ec  9e 9f fb
+
+    movw hl,#kwp_rx_buf+8       ;47ef  16 92 f0     KWP1281 rx buffer byte 8
+    call !copy_to_ee_or_ram     ;47f2  9a 62 48     Copy A bytes from [HL] to EEPROM address or RAM address DE
+                                ;                     mem_fe65.0=copy to RAM, mem_fe65.1=write to EEPROM
 lab_47f5:
-    ret                     ;47f5  af
+    ret                         ;47f5  af
 
-sub_47f6:
+kwp_7c_1b_31_eeprom_related:
 ;Title=0x1b  Subtitle=0x31  Block length=0x05
 ;0 request parameters
 ;Replies with ACK only
     set1 mem_fe64.5         ;47f6  5a 64
     br !lab_4165            ;47f8  9b 65 41
 
-sub_47fb:
+kwp_7c_1b_32_rom_checksum:
 ;Title=0x1b  Subtitle=0x32  Block length=0x05
-;Calculate ROM checksum
+;Perform ROM checksum
+;
+;Request block:
+;   0x05 Block length                  kwp_rx_buf+0
+;    xx  Block counter                 kwp_rx_buf+1
+;   0x1B Block title (custom usage)    kwp_rx_buf+2
+;   0x31 Unknown constant              kwp_rx_buf+3
+;   0x32 Subtitle (ROM checksum)       kwp_rx_buf+4
+;   0x03 Block end                     kwp_rx_buf+5
+;
+;Response block:
+;   0x07 Block length                  kwp_tx_buf+0
+;    xx  Block counter                 kwp_tx_buf+1
+;   0x1B Block title (custom usage)    kwp_tx_buf+2
+;   0x31 Unknown constant              kwp_tx_buf+3
+;   0x32 Subtitle (ROM checksum)       kwp_tx_buf+4
+;    xx  Checksum (high byte)          kwp_tx_buf+5
+;    xx  Checksum (low byte)           kwp_tx_buf+6
+;   0x03 Block end                     kwp_tx_buf+7
 ;
 ;Returns:
 ;  AX = checksum in reverse order (A=low, X=high)
@@ -13887,22 +14035,38 @@ sub_4828:
 lab_4834:
     ret                     ;4834  af
 
-sub_4835:
-;Reads rx buffer bytes 5,6 and does something with mem_fe65.0
-;Sets mem_fe65.0 if out of range
-;Returns carry set on failure
-    clr1 mem_fe65.0         ;4835  0b 65        mem_fe65.0=0: Write to EEPROM
+find_exposed_address:
+;
+;Return an address that is computed by first finding a base
+;address in the exposed_addresses table by index, then applying
+;an offset to the base address.  See the examples in the 
+;exposed_addresses table for how the offset works.  
+;
+;XXX Although this code was written so that the address in 
+;    the exposed_addresses table can be either an internal memory address
+;    or an EEPROM address, the table only contains internal memory addresses.
+;
+;Call with:
+;  kwp_rx_buf+5: Index of address in exposed_addresses table
+;  kwp_rx_buf+6: Offset to apply to address
+;
+;Returns:
+;  AX=Computed address (address from table combined with offset)
+;  mem_fe65.0=0 indicates internal memory address, mem_fe65.0=1 indicates address in EEPROM
+;  Carry clear = success, set = table lookup failed
+;
+    clr1 mem_fe65.0         ;4835  0b 65        mem_fe65.0=0: Address is in RAM
 
-    ;Get base address in RAM from table mem_b18f 
+    ;Get base address in RAM from table exposed_addresses 
     ;at index in KWP1281 rx buffer byte 5
 
-    mov a,!kwp_rx_buf+5     ;4837  8e 8f f0     A = value at KWP1281 rx buffer byte 5
-    mov b,a                 ;483a  73
-    movw hl,#mem_b18f+1     ;483b  16 90 b1
-    callf !table_get_word   ;483e  4c 48        Load DE with word at position B in table [HL]
-    bc lab_4859_ret         ;4840  8d 17        Branch if table lookup failed
+    mov a,!kwp_rx_buf+5             ;4837  8e 8f f0     A = value at KWP1281 rx buffer byte 5
+    mov b,a                         ;483a  73
+    movw hl,#exposed_addresses+1    ;483b  16 90 b1
+    callf !table_get_word           ;483e  4c 48        Load DE with word at position B in table [HL]
+    bc lab_4859_ret                 ;4840  8d 17        Branch if table lookup failed
 
-    ;DE now contains an address from table mem_b18f
+    ;DE now contains an address from table exposed_addresses
 
     mov x,#0x00             ;4842  a0 00        
     mov a,!kwp_rx_buf+6     ;4844  8e 90 f0     
@@ -13915,11 +14079,13 @@ lab_484c:
     xch a,x                 ;484e  30
     addc a,d                ;484f  61 2d
 
+    ;AX now contains the computed address
+
     cmpw ax,#0x0200         ;4851  ea 00 02     0x200 = 512 bytes in EEPROM
-    bnc lab_4858            ;4854  9d 02        Branch if address is out of range
+    bnc lab_4858            ;4854  9d 02        Branch if address is out of range of EEPROM
 
     ;carry is set
-    set1 mem_fe65.0         ;4856  0a 65        mem_fe65.0=1: Copy to RAM
+    set1 mem_fe65.0         ;4856  0a 65        mem_fe65.0=1: Address is in EEPROM
 
 lab_4858:
     clr1 cy                 ;4858  21
@@ -15260,7 +15426,7 @@ lab_4ea0_title_found:
 kwp_7c_09_ack:
 ;ack (kwp_7c_handlers)
     call !sub_4828          ;4ead  9a 28 48     If mem_fb28 = 0 then just return, else set mem_fb28 = 0x34
-    br !lab_532a_ack        ;4eb0  9b 2a 53     Branch to send ACK response
+    br !send_ack_resp       ;4eb0  9b 2a 53     Branch to send ACK response
 
 kwp_7c_06_disconnect:
 ;disconnect (kwp_7c_handlers)
@@ -15271,7 +15437,7 @@ kwp_7c_06_disconnect:
     br !kwp_logout_disconnect ;4ebb  9b c3 51     Branch to Clear KWP1281 auth bits and disconnect
 
 lab_4ebe:
-    br !lab_532a_ack        ;4ebe  9b 2a 53     Branch to send ACK response
+    br !send_ack_resp       ;4ebe  9b 2a 53     Branch to send ACK response
 
 kwp_7c_0a_nak:
 ;nak (kwp_7c_handlers)
@@ -15330,7 +15496,7 @@ lab_4eee_login_ok:
     mov a,#0x00             ;4eee  a1 00
     mov !kwp_con_7f_state,a ;4ef0  9e c7 fb     KWP1281 connection state on DELCO address (0x7c)
 
-    br !lab_532a_ack        ;4ef3  9b 2a 53     Branch to send ACK response
+    br !send_ack_resp       ;4ef3  9b 2a 53     Branch to send ACK response
 
 kwp_7c_01_read_ram:
 ;read ram (kwp_7c_handlers)
@@ -15401,7 +15567,7 @@ lab_4f47:
     br !lab_55c5            ;4f4c  9b c5 55     Branch to Send EEPROM write response
 
 kwp_7c_1b_custom:
-;kwp ? custom usage (kwp_7c_handlers)
+;kwp custom usage (kwp_7c_handlers)
     mov a,!kwp_con_7f_state ;4f4f  8e c7 fb     KWP1281 connection state on DELCO address (0x7c)
     cmp a,#0x01             ;4f52  4d 01
     bnz lab_4f59            ;4f54  bd 03
@@ -15455,121 +15621,63 @@ lab_4f88:
     mov b,#0x04             ;4f9a  a3 04
     br ax                   ;4f9c  31 98
 
+;Start of title 0x1b custom usage command handlers for address 0x7c
 
 ;Block title 0x1B custom usage commands
 ;
 ;Request format:
-;   xx  block length              kwp_rx_buf+0
-;   xx  block counter             kwp_rx_buf+1
-;  0x1b block title        0x1B   kwp_rx_buf+2
-;  0x31 unknown constant   0x31   kwp_rx_buf+3
-;   xx  "subtitle"                kwp_rx_buf+4
+;   xx  Block Length              kwp_rx_buf+0
+;   xx  Block Counter             kwp_rx_buf+1
+;  0x1b Block Title        0x1B   kwp_rx_buf+2
+;  0x31 Unknown Constant   0x31   kwp_rx_buf+3
+;   xx  Subtitle                  kwp_rx_buf+4
 ;   ...                           ...
 ;  0x03 block end          0x03   kwp_rx_buf+x
 
+call_kwp_7c_1b_26_write_mem_fe31:
+    call !kwp_7c_1b_26_write_mem_fe31       ;4f9e  9a ad 46
+    br !send_cu_data_resp                   ;4fa1  9b fb 54     Branch to send response with custom usage data
 
-kwp_7c_1b_26:
-;Title=0x1b  Subtitle=0x26  Block length=0x06
-;1 request parameter
-;Replies with data
-    call !sub_46ad          ;4f9e  9a ad 46
-    br !lab_54fb            ;4fa1  9b fb 54     Branch to send response with data
+call_kwp_7c_1b_27_sub_0994:
+    call !kwp_7c_1b_27_sub_0994             ;4fa4  9a bf 46
+    br !send_ack_resp                       ;4fa7  9b 2a 53     Branch to send ACK response
 
-kwp_7c_1b_27:
-;Title=0x1b  Subtitle=0x27  Block length=0x07
-;2 request parameters
-;Replies with ACK only
-    call !sub_46bf          ;4fa4  9a bf 46
-    br !lab_532a_ack        ;4fa7  9b 2a 53     Branch to send ACK response
+call_kwp_7c_1b_28_sub_aa92:
+    call !kwp_7c_1b_28_sub_aa92             ;4faa  9a f1 46
+    br !send_ack_resp                       ;4fad  9b 2a 53     Branch to send ACK response
 
-kwp_7c_1b_28:
-;Title=0x1b  Subtitle=0x28  Block length=0x05
-;0 request parameters
-;Replies with ACK only
-    call !sub_46f1          ;4faa  9a f1 46
-    br !lab_532a_ack        ;4fad  9b 2a 53     Branch to send ACK response
+call_kwp_7c_1b_2a_exposed_read:
+    call !kwp_7c_1b_2a_exposed_read         ;4fb0  9a fc 46
+    br !send_cu_data_resp                   ;4fb3  9b fb 54     Branch to send response with custom usage data
 
-kwp_7c_1b_2a:
-;Title=0x1b  Subtitle=0x2a  Block length=0x07
-;2 request parameters
-;Replies with ACK only
-    call !sub_46fc          ;4fb0  9a fc 46
-    br !lab_54fb            ;4fb3  9b fb 54     Branch to send response with data
+call_kwp_7c_1b_2d_write_unk_buf_or_i2c:
+    call !kwp_7c_1b_2d_write_unk_buf_or_i2c ;4fb6  9a 31 47
+    br !send_cu_data_resp                   ;4fb9  9b fb 54     Branch to send response with custom usage data
 
-kwp_7c_1b_2d:
-;Title=0x1b  Subtitle=0x2d  Block length=0x0b
-;6 request parameters
-;Replies with data
-    call !sub_4731          ;4fb6  9a 31 47
-    br !lab_54fb            ;4fb9  9b fb 54     Branch to send response with data
+call_kwp_7c_1b_2e_exposed_write:
+    call !kwp_7c_1b_2e_exposed_write        ;4fbc  9a d2 47
+    br !send_cu_data_resp                   ;4fbf  9b fb 54     Branch to send response with custom usage data
 
-kwp_7c_1b_2e:
-;Title=0x1b  Subtitle=0x2e  Block length=0x0b
-;6 request parameters
-;Replies with data
-;
-;Request block:
-;   0x05 Block length                  kwp_rx_buf+0
-;    xx  Block counter                 kwp_rx_buf+1
-;   0x1B Block title (custom usage)    kwp_rx_buf+2
-;   0x31 Unknown constant              kwp_rx_buf+3 -> kwp_cu_buf
-;   0x23 Subtitle (0x2e)               kwp_rx_buf+4 -> kwp_cu_buf+1
-;    xx  Address byte?                 kwp_rx_buf+5 -> kwp_cu_buf+2
-;    xx  Address byte?                 kwp_rx_buf+6 -> kwp_cu_buf+3
-;   0x03 Number of bytes (0-3)         kwp_rx_buf+7 -> kwp_cu_buf+4
-;    xx  Data byte 0                   kwp_rx_buf+8 -> kwp_cu_buf+5
-;    xx  Data byte 1                   kwp_rx_buf+9 -> kwp_cu_buf+6
-;    xx  Data byte 2                   kwp_rx_buf+a -> kwp_cu_buf+7
-;   0x03 Block end                     kwp_rx_buf+b
-;
-    call !sub_47d2          ;4fbc  9a d2 47
-    br !lab_54fb            ;4fbf  9b fb 54     Branch to send response with data
-
-kwp_7c_1b_2f:
+kwp_7c_1b_2f_br_badisr:
 ;Title=0x1b  Subtitle=0x2f  Block length=0x05
 ;Simulate power off
 ;0 request parameters
 ;No response; radio goes offline
-    br !badisr_0d75         ;4fc2  9b 75 0d
+    br !badisr_0d75                         ;4fc2  9b 75 0d
 
-kwp_7c_1b_30:
-;Title=0x1b  Subtitle=0x30  Block length=0x05
-;0 request parameters
-;Replies with ACK only
-    call !sub_4109          ;4fc5  9a 09 41     TODO Reads from EEPROM, checksum related
-    br !lab_532a_ack        ;4fc8  9b 2a 53     Branch to send ACK response
+call_kwp_7c_1b_30_eeprom_csum_related:
+    call !kwp_7c_1b_30_eeprom_csum_related  ;4fc5  9a 09 41     TODO Reads from EEPROM, checksum related
+    br !send_ack_resp                       ;4fc8  9b 2a 53     Branch to send ACK response
 
-kwp_7c_1b_31:
-;Title=0x1b  Subtitle=0x31  Block length=0x05
-;0 request parameters
-;Replies with ACK only
-    call !sub_47f6          ;4fcb  9a f6 47
-    br !lab_532a_ack        ;4fce  9b 2a 53     Branch to send ACK response
+call_kwp_7c_1b_31_eeprom_related:
+    call !kwp_7c_1b_31_eeprom_related       ;4fcb  9a f6 47
+    br !send_ack_resp                       ;4fce  9b 2a 53     Branch to send ACK response
 
-kwp_7c_1b_32:
-;Title=0x1b  Subtitle=0x32  Block length=0x05
-;Perform ROM checksum
-;
-;Request block:
-;   0x05 Block length                  kwp_rx_buf+0
-;    xx  Block counter                 kwp_rx_buf+1
-;   0x1B Block title (custom usage)    kwp_rx_buf+2
-;   0x31 Unknown constant              kwp_rx_buf+3
-;   0x32 Subtitle (ROM checksum)       kwp_rx_buf+4
-;   0x03 Block end                     kwp_rx_buf+5
-;
-;Response block:
-;   0x07 Block length                  kwp_tx_buf+0
-;    xx  Block counter                 kwp_tx_buf+1
-;   0x1B Block title (custom usage)    kwp_tx_buf+2
-;   0x31 Unknown constant              kwp_tx_buf+3
-;   0x32 Subtitle (ROM checksum)       kwp_tx_buf+4
-;    xx  Checksum (high byte)          kwp_tx_buf+5
-;    xx  Checksum (low byte)           kwp_tx_buf+6
-;   0x03 Block end                     kwp_tx_buf+7
-;
-    call !sub_47fb          ;4fd1  9a fb 47     Calculate ROM checksum, store in kwp_cu_buf+2 - kwp_cu_buf+3
-    br !lab_54fb            ;4fd4  9b fb 54     Branch to send response with data
+call_kwp_7c_1b_32_rom_checksum:
+    call !kwp_7c_1b_32_rom_checksum         ;4fd1  9a fb 47     Calculate ROM checksum, store in kwp_cu_buf+2 - kwp_cu_buf+3
+    br !send_cu_data_resp                   ;4fd4  9b fb 54     Branch to send response with custom usage data
+
+;End of title 0x1b custom usage command handlers for address 0x7c
 
 kwp_56_09_ack:
 ;ack (kwp_56_handlers)
@@ -15578,7 +15686,7 @@ kwp_56_09_ack:
     bnz lab_4fe1_ne_0       ;4fdc  bd 03
 
     ;kwp_con_56_state = 0
-    br !lab_532a_ack        ;4fde  9b 2a 53     Branch to send ACK response
+    br !send_ack_resp       ;4fde  9b 2a 53     Branch to send ACK response
 
 lab_4fe1_ne_0:
     ;kwp_con_56_state != 0
@@ -15592,7 +15700,7 @@ lab_4fe1_ne_0:
     mov a,#0x00             ;4fe8  a1 00
     mov !kwp_con_56_state,a ;4fea  9e c5 fb     KWP1281 connection state on normal radio address (0x56)
 
-    br !lab_532a_ack        ;4fed  9b 2a 53     Branch to send ACK response
+    br !send_ack_resp       ;4fed  9b 2a 53     Branch to send ACK response
 
 lab_4ff0:
     ;We are sending faults
@@ -15631,10 +15739,10 @@ lab_500b_ne_2:
 
     btclr mem_fe66.0,lab_501b_coding ;5014  31 01 66 03  Branch to Send id block 4/4 with coding (Block length=0x08)
 
-    br !lab_532a_ack        ;5018  9b 2a 53     Branch to send ACK response
+    br !send_ack_resp        ;5018  9b 2a 53     Branch to send ACK response
 
 lab_501b_coding:
-    br !lab_52b1_id_coding  ;501b  9b b1 52     Branch to Send id block 4/4 with coding (Block length=0x08)
+    br !lab_52b1_id_coding   ;501b  9b b1 52     Branch to Send id block 4/4 with coding (Block length=0x08)
 
 kwp_56_06_disconnect:
 ;Disconnect (kwp_56_handlers)
@@ -15657,7 +15765,7 @@ lab_5026:
     mov a,#0x00             ;5026  a1 00
     mov !kwp_con_56_state,a ;5028  9e c5 fb     KWP1281 connection state on normal radio address (0x56)
 
-    br !lab_532a_ack        ;502b  9b 2a 53     Branch to send ACK response
+    br !send_ack_resp       ;502b  9b 2a 53     Branch to send ACK response
 
 kwp_56_0a_nak:
 ;No Acknowledge (kwp_56_handlers)
@@ -15811,7 +15919,7 @@ kwp_56_2b_login:
 lab_5098:
 ;login succeeded
     call !login_56_success  ;5098  9a ba 2a
-    br !lab_532a_ack        ;509b  9b 2a 53     Branch to send ACK response
+    br !send_ack_resp       ;509b  9b 2a 53     Branch to send ACK response
 
 kwp_56_01_read_ram:
 ;Read RAM (kwp_56_handlers)
@@ -16247,7 +16355,7 @@ lab_527e_addr_0x7c:
     mov a,#0x01             ;5276  a1 01
     mov !kwp_con_7f_state,a ;5278  9e c7 fb     KWP1281 connection state on DELCO address (0x7c)
 
-    br !lab_532a_ack        ;527b  9b 2a 53     Branch to send an ACK block
+    br !send_ack_resp       ;527b  9b 2a 53     Branch to send an ACK block
 
 lab_527e_addr_0x56:
 ;KWP1281 connection has just been established on address 0x56 (Normal radio address).
@@ -16504,7 +16612,7 @@ lab_5322:
 
     br !lab_34fc            ;5327  9b fc 34
 
-lab_532a_ack:
+send_ack_resp:
 ;Send ACK response
     clr1 mem_fe63.0         ;532a  0b 63        Clear bit = it's OK to initiate a KWP1281 connection to the cluster
     mov b,#0x01             ;532c  a3 01        B = index 0x01 ack
@@ -16680,7 +16788,7 @@ lab_53ae:
     mov a,!kwp_blk_counter  ;53ae  8e cb fb     A = block counter
     sub a,#0x01             ;53b1  1d 01        Decrement it
     mov !kwp_blk_counter,a  ;53b3  9e cb fb     Store block counter
-    br !lab_532a_ack        ;53b6  9b 2a 53     Branch to send ACK response
+    br !send_ack_resp       ;53b6  9b 2a 53     Branch to send ACK response
 
 lab_53b9:
     mov b,#0x0b             ;53b9  a3 0b        B = index 0x0b clear faults
@@ -16709,7 +16817,7 @@ lab_53cf:
     mov a,!kwp_blk_counter  ;53d9  8e cb fb     A = block counter
     sub a,#0x01             ;53dc  1d 01        Decrement it
     mov !kwp_blk_counter,a  ;53de  9e cb fb     Store block counter
-    br !lab_532a_ack        ;53e1  9b 2a 53     Branch to send ACK response
+    br !send_ack_resp       ;53e1  9b 2a 53     Branch to send ACK response
 
 lab_53e4:
 ;Output tests are continuing; send an output test response
@@ -16992,7 +17100,7 @@ lab_54ea:
     mov [hl+b],a            ;54f7  bb
     br !send_kwp_tx_buf     ;54f8  9b f7 34     Set flags to start sending the KWP1281 tx buffer
 
-lab_54fb:
+send_cu_data_resp:
 ;Send response to custom usage with data
     mov b,#0x1a             ;54fb  a3 1a        B = index 0x1a response to custom usage
     call !init_kwp_tx_buf   ;54fd  9a 92 52     Set block title, counter, length in KWP1281 tx buf
@@ -17000,8 +17108,8 @@ lab_54fb:
                                                 ;  DE = #kwp_cu_buf     Pointer to custom usage response data
                                                 ;  A, C = !kwp_cu_len   Number of bytes of data
 lab_5503_loop:
-    mov a,[de]              ;5503  85
-    mov [hl+b],a            ;5504  bb
+    mov a,[de]              ;5503  85           A = byte from kwp_cu_buf
+    mov [hl+b],a            ;5504  bb           
     inc b                   ;5505  43
     incw de                 ;5506  84
     dbnz c,lab_5503_loop    ;5507  8a fa
@@ -18854,7 +18962,8 @@ lab_5f45:
 lab_5f4b:
     br !lab_5feb                    ;5f4b  9b eb 5f
 
-lab_5f4e:
+;XXX appears unused
+sub_5f4e:
     movw hl,#mem_fed4               ;5f4e  16 d4 fe
 
 i2c_write:
@@ -18878,11 +18987,13 @@ lab_5f64:
     mov1 cy,mem_fe69.1      ;5f64  71 14 69     CY=0: use high-speed mode, CY=1: use standard mode
     not1 cy                 ;5f67  01           Invert carry to become SMC0
     mov1 iiccl0.smc0,cy     ;5f68  71 39 aa     SMC0=CY (CY=0: standard mode, CY=1: high-speed mode)
+
     push ax                 ;5f6b  b1
     and a,#0b00111111       ;5f6c  5d 3f
     cmp a,#0x22             ;5f6e  4d 22        TODO 0x22 = TDA7476 address?
     pop ax                  ;5f70  b0
     bc lab_5f75             ;5f71  8d 02
+
     set1 cy                 ;5f73  20
     ret                     ;5f74  af
 
@@ -19694,7 +19805,7 @@ eeprom_check_range:
 ;
 ;Preserves HL, DE, BC.
 ;
-;See also sub_2cdf for another EEPROM range check.
+;See also check_ram_or_eeprom_range for another EEPROM range check.
 ;
     cmp a,#0                ;6364  4d 00
     bz lab_637d             ;6366  ad 15      Branch if = 0 (failure)
@@ -24520,7 +24631,7 @@ sub_8090:
 ;Perform ROM checksum if not already performed
     bt mem_fe6d.3,lab_80b0_ret ;8090  bc 6d 1d  Branch if ROM checksum already performed
 
-    call !sub_47fb          ;8093  9a fb 47     Calculate ROM checksum, store in kwp_cu_buf+2 - kwp_cu_buf+3
+    call !kwp_7c_1b_32_rom_checksum  ;8093  9a fb 47     Calculate ROM checksum, store in kwp_cu_buf+2 - kwp_cu_buf+3
                             ;                   AX = checksum in reverse order (A=low, X=high)
     set1 mem_fe6d.3         ;8096  3a 6d        ROM checksum calculation = performed
     xch a,x                 ;8098  30           AX = checksum in standard order (A=high, X=low)
@@ -32651,30 +32762,34 @@ mem_b170:
     .word lab_4603
     .word lab_4438
 
-mem_b18f:
-;table of words used by sub_4835 with table_get_word
+;Table of addresses that are exposed for arbitrary read/write
+;over KWP1281 on address 0x7C.
+;
+exposed_addresses:
     .byte 0x12                  ;b18f  12          DATA 0x12        18 entries below:
-    .word .                     ;DATA  Address B190
-    .word mem_b1b4+1            ;DATA  Address B1B5
-    .word mem_af70_a99cz23      ;DATA  Address AF70
-    .word mem_af70_a99cz23      ;DATA  Address AF70
-    .word mem_fe30              ;DATA  Address FE30
-    .word mem_af70_a99cz23      ;DATA  Address AF70
-    .word freq_idx              ;DATA  Address FB56
-    .word mem_f225_ee_0082      ;DATA  Address F225
-    .word mem_fe57              ;DATA  Address FE57
-    .word mem_f257_ee_00b4_fade ;DATA  Address F257
-    .word mem_fe43_key          ;DATA  Address FE43
-    .word mem_fbac              ;DATA  Address FBAC
-    .word mem_f1b3_ee_0010      ;DATA  Address F1B3
-    .word mem_af70_a99cz23      ;DATA  Address AF70
-    .word mem_f1b9_ee_0016      ;DATA  Address F1B9
-    .word mem_fe4c              ;DATA  Address FE4C
-    .word mem_fe44              ;DATA  Address FE44
-    .word mem_fc75_cd_num1      ;DATA  Address FC75
+    .word exposed_addresses+1   ;DATA  Address B190     Index 00: Offset 00-7F=B190-B20F, 80-FF=B110-B18F    
+    .word exposed_unknowns+1    ;DATA  Address B1B5     Index 01: Offset 00-7F=B1B5-B234, 80-FF=B135-B1B4    
+    .word mem_af70_a99cz23      ;DATA  Address AF70     Index 02: Offset 00-7F=AF70-AFEF, 80-FF=AEF0-AF6F    
+    .word mem_af70_a99cz23      ;DATA  Address AF70     Index 03: Offset 00-7F=AF70-AFEF, 80-FF=AEF0-AF6F    
+    .word mem_fe30              ;DATA  Address FE30     Index 04: Offset 00-7F=FE30-FEAF, 80-FF=FDB0-FE2F (RAM)
+    .word mem_af70_a99cz23      ;DATA  Address AF70     Index 05: Offset 00-7F=AF70-AFEF, 80-FF=AEF0-AF6F    
+    .word freq_idx              ;DATA  Address FB56     Index 06: Offset 00-7F=FB56-FBD5, 80-FF=FAD6-FB55 (RAM)
+    .word mem_f225_ee_0082      ;DATA  Address F225     Index 07: Offset 00-7F=F225-F2A4, 80-FF=F1A5-F224 (RAM)
+    .word mem_fe57              ;DATA  Address FE57     Index 08: Offset 00-7F=FE57-FED6, 80-FF=FDD7-FE56 (RAM)
+    .word mem_f257_ee_00b4_fade ;DATA  Address F257     Index 09: Offset 00-7F=F257-F2D6, 80-FF=F1D7-F256 (RAM)
+    .word mem_fe43_key          ;DATA  Address FE43     Index 0a: Offset 00-7F=FE43-FEC2, 80-FF=FDC3-FE42 (RAM)
+    .word mem_fbac              ;DATA  Address FBAC     Index 0b: Offset 00-7F=FBAC-FC2B, 80-FF=FB2C-FBAB (RAM)
+    .word mem_f1b3_ee_0010      ;DATA  Address F1B3     Index 0c: Offset 00-7F=F1B3-F232, 80-FF=F133-F1B2 (RAM)
+    .word mem_af70_a99cz23      ;DATA  Address AF70     Index 0d: Offset 00-7F=AF70-AFEF, 80-FF=AEF0-AF6F
+    .word mem_f1b9_ee_0016      ;DATA  Address F1B9     Index 0e: Offset 00-7F=F1B9-F238, 80-FF=F139-F1B8 (RAM)
+    .word mem_fe4c              ;DATA  Address FE4C     Index 0f: Offset 00-7F=FE4C-FECB, 80-FF=FDCC-FE4B (RAM)
+    .word mem_fe44              ;DATA  Address FE44     Index 10: Offset 00-7F=FE44-FEC3, 80-FF=FDC4-FE43 (RAM)
+    .word mem_fc75_cd_num1      ;DATA  Address FC75     Index 11: Offset 00-7F=FC75-FCF4, 80-FF=FBF5-FC74 (RAM)
 
-;unknown table
-mem_b1b4:
+;Referenced from the exposed_addresses table above but seems to not be
+;used anywhere else in the firmware.
+;
+exposed_unknowns:
     .byte 0x12              ;b1b4  12          DATA 0x12        18 entries below:
     .byte 0x4b              ;b1b5  4b          DATA 0x4b 'K'
     .byte 0x00              ;b1b6  00          DATA 0x00
@@ -32762,7 +32877,7 @@ mem_b1fa:
 ;indexed by mem_fbc8
     .byte 0x26                  ;b1fa  26          DATA 0x26 '&'      38 entries below:
     .word lab_4dd2              ;0x00
-    .word lab_532a_ack          ;0x01 Send ACK
+    .word send_ack_resp         ;0x01 Send ACK
     .word lab_5337_disconnect   ;0x02 Send Disconnect request to instrument cluster
     .word lab_5344_nak_resend   ;0x03 Send NAK response asking for the last block to be sent again
     .word lab_5355_nak_fail     ;0x04 Send NAK response for general failure
@@ -32791,7 +32906,7 @@ mem_b1fa:
     .word lab_54c7              ;0x1b Send NAK response for general failure
     .word lab_54ca              ;0x1c index 0x18 login
     .word lab_54ea              ;0x1d index 0x19 read eeprom
-    .word lab_54fb              ;0x1e Send response to title 0x1b custom usage with data
+    .word send_cu_data_resp     ;0x1e Send response to title 0x1b custom usage with data
     .word lab_5514              ;0x1f index 0x1b read ram
     .word lab_552a_read_ram     ;0x20 Send 0x1c response to read ram or send nak
     .word lab_556b              ;0x21 index 0x1d read rom or eeprom
@@ -33026,17 +33141,17 @@ kwp_7c_1b_handlers:
     .byte 0x0b                  ;b319  0b          DATA 0x0b        11 entries below:
     ;XXX misleading: the B=0 handler is not actually used by the code.  even more confusing, the
     ;XXX   code calls lab_5355_nak_fail for a bad subtitle (not lab_5344_nak_resend as here).
-    .word lab_5344_nak_resend   ;b31a  44 53       VECTOR           B=0x00  <bad title> XXX
-    .word kwp_7c_1b_26          ;b31c  9e 4f       VECTOR           B=0x01  Title=0x1b  Subtitle=0x26
-    .word kwp_7c_1b_27          ;b31e  a4 4f       VECTOR           B=0x02  Title=0x1b  Subtitle=0x27
-    .word kwp_7c_1b_28          ;b320  aa 4f       VECTOR           B=0x03  Title=0x1b  Subtitle=0x28
-    .word kwp_7c_1b_2a          ;b322  b0 4f       VECTOR           B=0x04  Title=0x1b  Subtitle=0x2a
-    .word kwp_7c_1b_2d          ;b324  b6 4f       VECTOR           B=0x05  Title=0x1b  Subtitle=0x2d
-    .word kwp_7c_1b_2e          ;b326  bc 4f       VECTOR           B=0x06  Title=0x1b  Subtitle=0x2e
-    .word kwp_7c_1b_2f          ;b328  c2 4f       VECTOR           B=0x07  Title=0x1b  Subtitle=0x2f
-    .word kwp_7c_1b_30          ;b32a  c5 4f       VECTOR           B=0x08  Title=0x1b  Subtitle=0x30
-    .word kwp_7c_1b_31          ;b32c  cb 4f       VECTOR           B=0x09  Title=0x1b  Subtitle=0x31
-    .word kwp_7c_1b_32          ;b32e  d1 4f       VECTOR           B=0x0A  Title=0x1b  Subtitle=0x32
+    .word lab_5344_nak_resend                       ;b31a  44 53       VECTOR           B=0x00  <bad title> XXX
+    .word call_kwp_7c_1b_26_write_mem_fe31          ;b31c  9e 4f       VECTOR           B=0x01  Title=0x1b  Subtitle=0x26
+    .word call_kwp_7c_1b_27_sub_0994                ;b31e  a4 4f       VECTOR           B=0x02  Title=0x1b  Subtitle=0x27
+    .word call_kwp_7c_1b_28_sub_aa92                ;b320  aa 4f       VECTOR           B=0x03  Title=0x1b  Subtitle=0x28
+    .word call_kwp_7c_1b_2a_exposed_read            ;b322  b0 4f       VECTOR           B=0x04  Title=0x1b  Subtitle=0x2a
+    .word call_kwp_7c_1b_2d_write_unk_buf_or_i2c    ;b324  b6 4f       VECTOR           B=0x05  Title=0x1b  Subtitle=0x2d
+    .word call_kwp_7c_1b_2e_exposed_write           ;b326  bc 4f       VECTOR           B=0x06  Title=0x1b  Subtitle=0x2e
+    .word kwp_7c_1b_2f_br_badisr                    ;b328  c2 4f       VECTOR           B=0x07  Title=0x1b  Subtitle=0x2f
+    .word call_kwp_7c_1b_30_eeprom_csum_related     ;b32a  c5 4f       VECTOR           B=0x08  Title=0x1b  Subtitle=0x30
+    .word call_kwp_7c_1b_31_eeprom_related          ;b32c  cb 4f       VECTOR           B=0x09  Title=0x1b  Subtitle=0x31
+    .word call_kwp_7c_1b_32_rom_checksum            ;b32e  d1 4f       VECTOR           B=0x0A  Title=0x1b  Subtitle=0x32
 
 key_matrix:
 ;b330
