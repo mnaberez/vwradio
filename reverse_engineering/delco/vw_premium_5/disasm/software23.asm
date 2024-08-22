@@ -276,7 +276,7 @@ mem_f26b_ee_00c8 = 0xf26b           ;EEPROM 00C8
 mem_f26c_ee_00c9_csum2_lo = 0xf26c  ;EEPROM 00C9  Checksum for mem_f206_ee_0063 - mem_f26b_ee_00c8 (EEPROM 0063 - 00C8) low byte
 mem_f26d_ee_00ca_csum2_hi = 0xf26d  ;EEPROM 00CA  Checksum for mem_f206_ee_0063 - mem_f26b_ee_00c8 (EEPROM 0063 - 00C8) high byte
 
-;0xF26E - 0xF7FF in Expansion RAM appears completely unused
+;0xF26E - 0xF7FF in Expansion RAM is completely unused
 
 ;High Speed RAM: 0xFB00 - 0xFEFF (1K)
 
@@ -406,8 +406,8 @@ mem_fb97 = 0xfb97
 mem_fb98 = 0xfb98
 mem_fb99 = 0xfb99
 mem_fb9a = 0xfb9a
-kwp_cu_buf = 0xfb9b         ;KWP1281 title 0x1b custom usage data buffer (8 bytes)
-kwp_cu_unk_buf = 0xfba7     ;KWP1281 title 0x1b custom usage unknown buffer (5 bytes)
+kwp_cu_buf = 0xfb9b         ;KWP1281 title 0x1b custom usage main data buffer (8 bytes)
+kwp_cu_i2c_buf = 0xfba7     ;KWP1281 title 0x1b custom usage I2C data buffer (5 bytes)
 mem_fbac = 0xfbac
 mem_fbad = 0xfbad
 mem_fbae = 0xfbae
@@ -627,7 +627,7 @@ mem_fe7f = 0xfe7f
 mem_fe80 = 0xfe80
 mem_fe81 = 0xfe81
 
-;0xFE82-0xFECA in High Speed RAM appears completely unused
+;0xFE82-0xFECA in High Speed RAM is completely unused
 
 ;High Speed RAM from 0xFECB to 0xFEFF is not cleared on reset:
 
@@ -13590,7 +13590,7 @@ kwp_7c_1b_26_write_mem_fe31:
     mov mem_fe31,a          ;46b2  f2 31
 
     mov a,#0x03             ;46b4  a1 03        A = 3 bytes to copy
-    call !copy_to_kwp_cu_buf;46b6  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf
+    call !copy_to_kwp_cu_buf;46b6  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf, Preserve HL and DE
 
     mov a,#0x03             ;46b9  a1 03 
     mov !kwp_cu_len,a       ;46bb  9e af fb     Number of bytes of custom usage data to send in KWP1281 response
@@ -13643,7 +13643,6 @@ kwp_7c_1b_28_sub_aa92:
     br !sub_aa92            ;46f9  9b 92 aa     Call sub_a6d2, call sub_aa9c, then return
 
 kwp_7c_1b_2a_exposed_read:
-;Read 4 bytes starting at an exposed address.
 ;Title=0x1b  Subtitle=0x2a  Block length=0x07
 ;
 ;Read 4 bytes starting at an exposed address.
@@ -13663,7 +13662,7 @@ kwp_7c_1b_2a_exposed_read:
 ;   0x31 Unknown constant                       kwp_rx_buf+3 -> kwp_cu_buf
 ;   0x2a Subtitle (0x2a)                        kwp_rx_buf+4 -> kwp_cu_buf+1
 ;    xx  Index of address in exposed_addresses  kwp_rx_buf+5 -> kwp_cu_buf+2
-;    xx  Offset to apply to address             kwp_rx_buf+6 -> kwp_cu_buf+3
+;    xx  Signed offset to add to address        kwp_rx_buf+6 -> kwp_cu_buf+3
 ;   0x03 Block end                              kwp_rx_buf+7
 ;
 ;Response block:
@@ -13680,7 +13679,7 @@ kwp_7c_1b_2a_exposed_read:
 ;    xx  Data byte 3                            kwp_tx_buf+9 <- kwp_cu_buf+7
 ;   0x03 Block end                              kwp_tx_buf+a 
 ;
-    call !find_exposed_address  ;46fc  9a 35 48     AX = address computed from index and offset
+    call !find_exposed_address  ;46fc  9a 35 48     AX = address computed from index and signed offset
     bc lab_4730                 ;46ff  8d 2f        Branch if lookup failed
 
     movw hl,ax                  ;4701  d6           HL = copy of computed address in AX
@@ -13690,7 +13689,7 @@ kwp_7c_1b_2a_exposed_read:
     mov !kwp_cu_buf+3,a         ;4706  9e 9e fb     Copy computed address low byte
 
     mov a,#0x02                 ;4709  a1 02        A = 2 bytes to copy
-    call !copy_to_kwp_cu_buf    ;470b  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf
+    call !copy_to_kwp_cu_buf    ;470b  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf, Preserve HL and DE
                                 ;                       kwp_cu_buf+0 = kwp_rx_buf+3 (Unknown Constant 0x31)
                                 ;                       kwp_cu_buf+1 = kwp_rx_buf+4 (Subtitle 0x28)
 
@@ -13718,11 +13717,10 @@ lab_4724:
 lab_4730:
     ret                         ;4730  af
 
-kwp_7c_1b_2d_write_unk_buf_or_i2c:
+kwp_7c_1b_2d_i2c_read_or_write:
 ;Title=0x1b  Subtitle=0x2d  Block length=0x0b
-;Write to 5 bytes to kwp_cu_unk_buf or do unknown I2C read/write operations.
-;6 request parameters
-;Replies with data
+;
+;Write to 5 bytes to kwp_cu_i2c_buf or do unknown I2C read/write operations.
 ;
 ;Request block:
 ;   0x0b Block length                           kwp_rx_buf+0
@@ -13731,11 +13729,11 @@ kwp_7c_1b_2d_write_unk_buf_or_i2c:
 ;   0x31 Unknown constant                       kwp_rx_buf+3 -> kwp_cu_buf
 ;   0x2d Subtitle (0x2d)                        kwp_rx_buf+4 -> kwp_cu_buf+1
 ;    xx  Control byte                           kwp_rx_buf+5 -> kwp_cu_buf+2
-;    xx  Data byte 0                            kwp_rx_buf+6 -> kwp_cu_buf+3 -> kwp_cu_unk_buf
-;    xx  Data byte 1                            kwp_rx_buf+7 -> kwp_cu_buf+4 -> kwp_cu_unk_buf+1
-;    xx  Data byte 2                            kwp_rx_buf+8 -> kwp_cu_buf+5 -> kwp_cu_unk_buf+2
-;    xx  Data byte 3                            kwp_rx_buf+9 -> kwp_cu_buf+6 -> kwp_cu_unk_buf+3
-;    xx  Data byte 4                            kwp_rx_buf+a -> kwp_cu_buf+7 -> kwp_cu_unk_buf+4
+;    xx  Data byte 0                            kwp_rx_buf+6 -> kwp_cu_buf+3 -> kwp_cu_i2c_buf
+;    xx  Data byte 1                            kwp_rx_buf+7 -> kwp_cu_buf+4 -> kwp_cu_i2c_buf+1
+;    xx  Data byte 2                            kwp_rx_buf+8 -> kwp_cu_buf+5 -> kwp_cu_i2c_buf+2
+;    xx  Data byte 3                            kwp_rx_buf+9 -> kwp_cu_buf+6 -> kwp_cu_i2c_buf+3
+;    xx  Data byte 4                            kwp_rx_buf+a -> kwp_cu_buf+7 -> kwp_cu_i2c_buf+4
 ;   0x03 Block end                              kwp_rx_buf+b
 ;
 ;If the Control byte = 0, do nothing.  The response block will
@@ -13756,7 +13754,7 @@ kwp_7c_1b_2d_write_unk_buf_or_i2c:
 ;   0x03 Block end                              kwp_tx_buf+a 
 ;
 ;If the Control byte >= 0x80, the 5 data bytes in the request block
-;are written to the buffer kwp_cu_unk_buf.  The following response
+;are written to the buffer kwp_cu_i2c_buf.  The following response
 ;block is returned:
 ;
 ;Response block for Control byte >= 0x80:
@@ -13786,11 +13784,11 @@ kwp_7c_1b_2d_write_unk_buf_or_i2c:
 
     mov a,#0x08               ;473b  a1 08        A = 8 bytes to copy
     mov !kwp_cu_len,a         ;473d  9e af fb     Number of bytes of custom usage data to send in KWP1281 response
-    call !copy_to_kwp_cu_buf  ;4740  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf
+    call !copy_to_kwp_cu_buf  ;4740  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf, Preserve HL and DE
 
-    ;Copy 5 bytes from kwp_rx_buf+6 to kwp_cu_unk_buf
+    ;Copy 5 bytes from kwp_rx_buf+6 (Data byte 0) to kwp_cu_i2c_buf
 
-    movw de,#kwp_cu_unk_buf   ;4743  14 a7 fb
+    movw de,#kwp_cu_i2c_buf   ;4743  14 a7 fb
 
 sub_4746:
     mov a,#0x05             ;4746  a1 05        A = 5 bytes to copy
@@ -13800,19 +13798,24 @@ sub_4746:
 lab_474d_ret:
     ret                     ;474d  af
 
+    ;Bit 7 of kwp_rx_buf+5 is off
+
 lab_474e_bit_7_off:
     set1 mem_fe69.1         ;474e  1a 69        Bit set = I2C will operate in standard (not high-speed) mode
+
     mov mem_fed4,#0xc0      ;4750  11 d4 c0
     and a,#0x07             ;4753  5d 07
     bz sub_4797             ;4755  ad 40
+
     cmp a,#0x05             ;4757  4d 05
     bc lab_475d             ;4759  8d 02
+
     mov a,#0x05             ;475b  a1 05
 
 lab_475d:
     mov x,a                 ;475d  70
     push ax                 ;475e  b1
-    mov a,!kwp_rx_buf+5     ;475f  8e 8f f0     A = value at KWP1281 rx buffer byte 5
+    mov a,!kwp_rx_buf+5     ;475f  8e 8f f0     A = value at KWP1281 rx buffer byte 5 (Control byte)
     and a,#0x78             ;4762  5d 78
     cmp a,#0x10             ;4764  4d 10
     bc lab_476e             ;4766  8d 06
@@ -13821,7 +13824,7 @@ lab_475d:
 
 lab_476e:
     mov a,#0x03             ;476e  a1 03        A = 3 bytes to copy
-    call !copy_to_kwp_cu_buf;4770  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf
+    call !copy_to_kwp_cu_buf;4770  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf, Preserve HL and DL
 
     pop ax                  ;4773  b0
     add a,#0x03             ;4774  0d 03
@@ -13849,22 +13852,33 @@ lab_4795:
     ret                     ;4796  af
 
 sub_4797:
+
+    ;Copy 8 bytes from kwp_rx_buf+3 to kwp_cu_buf
+
     mov a,#0x08             ;4797  a1 08        A = 8 bytes to copy
     mov !kwp_cu_len,a       ;4799  9e af fb     Number of bytes of custom usage data to send in KWP1281 response
-    call !copy_to_kwp_cu_buf;479c  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf
+    call !copy_to_kwp_cu_buf;479c  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf, Preserve HL and DE
+
+    ;Copy 5 bytes from kwp_rx_buf+6 (Data byte 0) to i2c_buf
 
     movw de,#i2c_buf        ;479f  14 db fb
-    call !sub_4746          ;47a2  9a 46 47
+    call !sub_4746          ;47a2  9a 46 47     Copy 5 bytes from kwp_rx_buf+6 to [DE]
+
+    ;At this point, DE = i2c_buf+5
+    ;Copy 5 bytes from kwp_cu_i2c_buf to i2c_buf+5
+
     mov a,#0x05             ;47a5  a1 05        A = 5 bytes to copy
-    movw hl,#kwp_cu_unk_buf ;47a7  16 a7 fb     HL = source address
+    movw hl,#kwp_cu_i2c_buf ;47a7  16 a7 fb     HL = source address
     callf !copy             ;47aa  4c 9e        Copy A bytes from [HL] to [DE]
-    mov a,!kwp_rx_buf+5     ;47ac  8e 8f f0     A = value at KWP1281 rx buffer byte 5
+
+    mov a,!kwp_rx_buf+5     ;47ac  8e 8f f0     A = value at KWP1281 rx buffer byte 5 (Control byte)
     ror a,1                 ;47af  24
     ror a,1                 ;47b0  24
     ror a,1                 ;47b1  24
     and a,#0x0f             ;47b2  5d 0f
     cmp a,#0x0a             ;47b4  4d 0a
     bc lab_47ba             ;47b6  8d 02
+
     mov a,#0x0a             ;47b8  a1 0a
 
 lab_47ba:
@@ -13876,6 +13890,7 @@ lab_47ba:
     cmp a,#0xc2             ;47c3  4d c2
     pop ax                  ;47c5  b0
     bnz lab_47cd            ;47c6  bd 05
+
     call !sub_5e2a          ;47c8  9a 2a 5e
     br lab_47d0             ;47cb  fa 03
 
@@ -13902,7 +13917,7 @@ kwp_7c_1b_2e_exposed_write:
 ;   0x31 Unknown constant                       kwp_rx_buf+3 -> kwp_cu_buf
 ;   0x2e Subtitle (0x2e)                        kwp_rx_buf+4 -> kwp_cu_buf+1
 ;    xx  Index of address in exposed_addresses  kwp_rx_buf+5 -> kwp_cu_buf+2
-;    xx  Offset to apply to address             kwp_rx_buf+6 -> kwp_cu_buf+3
+;    xx  Signed offset to add to address        kwp_rx_buf+6 -> kwp_cu_buf+3
 ;   0x03 Number of bytes to write (3)           kwp_rx_buf+7 -> kwp_cu_buf+4
 ;    xx  Data byte 0                            kwp_rx_buf+8 -> kwp_cu_buf+5
 ;    xx  Data byte 1                            kwp_rx_buf+9 -> kwp_cu_buf+6
@@ -13925,9 +13940,9 @@ kwp_7c_1b_2e_exposed_write:
 ;
     mov a,#0x08                 ;47d2  a1 08        A = 8 bytes to copy
     mov !kwp_cu_len,a           ;47d4  9e af fb     Number of bytes of custom usage data to send in KWP1281 response
-    call !copy_to_kwp_cu_buf    ;47d7  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf
+    call !copy_to_kwp_cu_buf    ;47d7  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf, Preserve HL and DE
 
-    call !find_exposed_address  ;47da  9a 35 48     AX = address computed from index and offset
+    call !find_exposed_address  ;47da  9a 35 48     AX = address computed from index and signed offset
     bc lab_47f5                 ;47dd  8d 16        Branch if lookup failed
 
     movw de,ax                  ;47df  d4           DE = copy of computed address
@@ -13984,7 +13999,7 @@ kwp_7c_1b_32_rom_checksum:
     mov !kwp_cu_len,a       ;47fd  9e af fb     Number of bytes of custom usage data to send in KWP1281 response
 
     mov a,#0x02             ;4800  a1 02        A = 2 bytes to copy
-    call !copy_to_kwp_cu_buf;4802  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf
+    call !copy_to_kwp_cu_buf;4802  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf, Preserve HL and DE
                             ;                   XXX these two bytes are never used.
 
     movw hl,#rst_vect       ;4805  16 00 00     HL = start address (beginning of this ROM)
@@ -14038,9 +14053,9 @@ lab_4834:
 find_exposed_address:
 ;
 ;Return an address that is computed by first finding a base
-;address in the exposed_addresses table by index, then applying
-;an offset to the base address.  See the examples in the 
-;exposed_addresses table for how the offset works.  
+;address in the exposed_addresses table by index, then adding
+;a signed offset (two's complement) to the base address.  See 
+;the exposed_addresses table for a list of accessible regions.
 ;
 ;XXX Although this code was written so that the address in 
 ;    the exposed_addresses table can be either an internal memory address
@@ -14048,7 +14063,7 @@ find_exposed_address:
 ;
 ;Call with:
 ;  kwp_rx_buf+5: Index of address in exposed_addresses table
-;  kwp_rx_buf+6: Offset to apply to address
+;  kwp_rx_buf+6: Signed offset to add to address (two's complement)
 ;
 ;Returns:
 ;  AX=Computed address (address from table combined with offset)
@@ -14070,11 +14085,17 @@ find_exposed_address:
 
     mov x,#0x00             ;4842  a0 00        
     mov a,!kwp_rx_buf+6     ;4844  8e 90 f0     
-    bf a.7,lab_484c         ;4847  31 7f 02
 
-    mov x,#0xff             ;484a  a0 ff
+    bf a.7,lab_484c         ;4847  31 7f 02     Branch if offset to add is positive (bit 7 off)
+
+    ;Offset is negative
+
+    mov x,#0xff             ;484a  a0 ff        
 
 lab_484c:
+
+    ;AX = AX + DE
+
     add a,e                 ;484c  61 0c
     xch a,x                 ;484e  30
     addc a,d                ;484f  61 2d
@@ -14117,7 +14138,7 @@ lab_486c:
     ret                     ;486e  af
 
 copy_to_kwp_cu_buf:
-;Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf
+;Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf, Preserve HL and DE
     push de                 ;486f  b5
     push hl                 ;4870  b7
     movw hl,#kwp_rx_buf+3   ;4871  16 8d f0     HL = source address
@@ -15650,8 +15671,8 @@ call_kwp_7c_1b_2a_exposed_read:
     call !kwp_7c_1b_2a_exposed_read         ;4fb0  9a fc 46
     br !send_cu_data_resp                   ;4fb3  9b fb 54     Branch to send response with custom usage data
 
-call_kwp_7c_1b_2d_write_unk_buf_or_i2c:
-    call !kwp_7c_1b_2d_write_unk_buf_or_i2c ;4fb6  9a 31 47
+call_kwp_7c_1b_2d_i2c_read_or_write:
+    call !kwp_7c_1b_2d_i2c_read_or_write    ;4fb6  9a 31 47
     br !send_cu_data_resp                   ;4fb9  9b fb 54     Branch to send response with custom usage data
 
 call_kwp_7c_1b_2e_exposed_write:
@@ -32762,8 +32783,37 @@ mem_b170:
     .word lab_4603
     .word lab_4438
 
-;Table of addresses that are exposed for arbitrary read/write
-;over KWP1281 on address 0x7C.
+;Table of addresses that are exposed for arbitrary memory read/write
+;over KWP1281 on address 0x7C using these commands:
+;
+;  kwp_7c_1b_2a_exposed_read
+;  kwp_7c_1b_2e_exposed_write
+;
+;Each command accepts an index to an address in this table and a signed
+;offset, which allows reading from (address - 128) to (address + 127).  
+;The following contiguous regions can therefore be accessed:
+;
+;  AEF0 - AFEF
+;  B110 - B234
+;  F133 - F2D6 (RAM)
+;  FAD6 - FCF4 (RAM)
+;  FDB0 - FED6 (RAM)
+;
+;The stack grows from FE1F (stack_top) down to FCA5 (stack_bottom).
+;Large portions of the stack are writable, which might lead to
+;remote code execution.
+;
+;Possible locations where shellcode could be uploaded:
+;
+;  F08A-F189 is the KWP1281 receive buffer (256 bytes) but since
+;            KWP1281 request blocks are normally less than ~16 bytes,
+;            only that many bytes in the buffer are used.  The rest
+;            will not be disturbed unless a very long KWP1281 request
+;            block is sent.  F133-F189 of it is writable (87 bytes).
+;
+;  F26E-F7FF is unused; F26E-F2D6 of it is writable (105 bytes).
+;
+;  FE82-FECA is unused, all of which is writable (73 bytes).
 ;
 exposed_addresses:
     .byte 0x12                  ;b18f  12          DATA 0x12        18 entries below:
@@ -33146,7 +33196,7 @@ kwp_7c_1b_handlers:
     .word call_kwp_7c_1b_27_sub_0994                ;b31e  a4 4f       VECTOR           B=0x02  Title=0x1b  Subtitle=0x27
     .word call_kwp_7c_1b_28_sub_aa92                ;b320  aa 4f       VECTOR           B=0x03  Title=0x1b  Subtitle=0x28
     .word call_kwp_7c_1b_2a_exposed_read            ;b322  b0 4f       VECTOR           B=0x04  Title=0x1b  Subtitle=0x2a
-    .word call_kwp_7c_1b_2d_write_unk_buf_or_i2c    ;b324  b6 4f       VECTOR           B=0x05  Title=0x1b  Subtitle=0x2d
+    .word call_kwp_7c_1b_2d_i2c_read_or_write       ;b324  b6 4f       VECTOR           B=0x05  Title=0x1b  Subtitle=0x2d
     .word call_kwp_7c_1b_2e_exposed_write           ;b326  bc 4f       VECTOR           B=0x06  Title=0x1b  Subtitle=0x2e
     .word kwp_7c_1b_2f_br_badisr                    ;b328  c2 4f       VECTOR           B=0x07  Title=0x1b  Subtitle=0x2f
     .word call_kwp_7c_1b_30_eeprom_csum_related     ;b32a  c5 4f       VECTOR           B=0x08  Title=0x1b  Subtitle=0x30
