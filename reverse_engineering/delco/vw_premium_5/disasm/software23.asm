@@ -3131,7 +3131,7 @@ badisr_0d75:
 ;Handles any unexpected interrupt, unexpected CALLT, or the BRK instruction
 ;Handles watchdog interrupt INTWDT
 ;Handles watch timer interrupt INTWTN0 (should never occur)
-;kwp_7c_1b_2f_br_badisr also branches here
+;kwp_7c_1b_2f_cold_start also branches here
     clr1 shadow_p9.7        ;0d75  7b d3
     clr1 pm9.7              ;0d77  71 7b 29
     mov a,shadow_p9         ;0d7a  f0 d3
@@ -5621,7 +5621,7 @@ lab_1d2c:
     dec a                   ;1d2f  51
     mov !mem_fb63,a         ;1d30  9e 63 fb
     bnz lab_1d4e            ;1d33  bd 19
-    call !sub_6177          ;1d35  9a 77 61
+    call !sub_6177_tea6840  ;1d35  9a 77 61
     bf mem_fe5b.7,lab_1d44  ;1d38  31 73 5b 08
     bt mem_fe5d.3,lab_1d44  ;1d3c  bc 5d 05
     set1 mem_fe5d.3         ;1d3f  3a 5d
@@ -13582,8 +13582,31 @@ lab_46a9:
     ret                     ;46ac  af
 
 ;Title=0x1b  Subtitle=0x26  Block length=0x06
-;1 request parameter
-;Replies with data
+;
+;Write a byte to mem_fe31.  The byte will be AND'ed with 7 so 
+;only the lowest 3 bits will be written.  
+;
+;TODO: The three lowest bits in mem_fe31 are used as flags.
+;      What do they do?
+;
+;Request block:
+;   0x06 Block length                           kwp_rx_buf+0
+;    xx  Block counter                          kwp_rx_buf+1
+;   0x1B Block title (custom usage)             kwp_rx_buf+2
+;   0x31 Unknown constant                       kwp_rx_buf+3 -> kwp_cu_buf
+;   0x26 Subtitle (0x26)                        kwp_rx_buf+4 -> kwp_cu_buf+1
+;    xx  Data byte                              kwp_rx_buf+5 -> kwp_cu_buf+2
+;   0x03 Block end                              kwp_rx_buf+7
+;
+;Response block:
+;   0x06 Block length                           kwp_rx_buf+0
+;    xx  Block counter                          kwp_rx_buf+1
+;   0x1B Block title (custom usage)             kwp_rx_buf+2
+;   0x31 Unknown constant                       kwp_rx_buf+3 <- kwp_cu_buf
+;   0x26 Subtitle (0x26)                        kwp_rx_buf+4 <- kwp_cu_buf+1
+;    xx  Data byte                              kwp_rx_buf+5 <- kwp_cu_buf+2
+;   0x03 Block end                              kwp_rx_buf+7
+;
 kwp_7c_1b_26_write_mem_fe31:
     mov a,!kwp_rx_buf+5     ;46ad  8e 8f f0     A = value at KWP1281 rx buffer byte 5
     and a,#0x07             ;46b0  5d 07
@@ -13720,7 +13743,7 @@ lab_4730:
 kwp_7c_1b_2d_i2c_read_or_write:
 ;Title=0x1b  Subtitle=0x2d  Block length=0x0b
 ;
-;Write to 5 bytes to kwp_cu_i2c_buf or do unknown I2C read/write operations.
+;Write 5 bytes to kwp_cu_i2c_buf or do unknown I2C read/write operations.
 ;
 ;Request block:
 ;   0x0b Block length                           kwp_rx_buf+0
@@ -13781,6 +13804,7 @@ kwp_7c_1b_2d_i2c_read_or_write:
     bf a.7,lab_474e_bit_7_off ;4738  31 7f 13
 
     ;Bit 7 of kwp_rx_buf+5 is set
+    ;meaning this request is only to write to kwp_cu_i2c_buf 
 
     mov a,#0x08               ;473b  a1 08        A = 8 bytes to copy
     mov !kwp_cu_len,a         ;473d  9e af fb     Number of bytes of custom usage data to send in KWP1281 response
@@ -13799,6 +13823,7 @@ lab_474d_ret:
     ret                     ;474d  af
 
     ;Bit 7 of kwp_rx_buf+5 is off
+    ;meaning this request is to do an I2C operation
 
 lab_474e_bit_7_off:
     set1 mem_fe69.1         ;474e  1a 69        Bit set = I2C will operate in standard (not high-speed) mode
@@ -13819,6 +13844,7 @@ lab_475d:
     and a,#0x78             ;4762  5d 78
     cmp a,#0x10             ;4764  4d 10
     bc lab_476e             ;4766  8d 06
+
     mov mem_fed4,#0x80      ;4768  11 d4 80
     call !sub_4797          ;476b  9a 97 47
 
@@ -13830,7 +13856,7 @@ lab_476e:
     add a,#0x03             ;4774  0d 03
     mov !kwp_cu_len,a       ;4776  9e af fb     Number of bytes of custom usage data to send in KWP1281 response
 
-    mov a,!kwp_rx_buf+6     ;4779  8e 90 f0     KWP1281 rx buffer byte 6
+    mov a,!kwp_rx_buf+6     ;4779  8e 90 f0     KWP1281 rx buffer byte 6 (Data byte 0)
     set1 a.0                ;477c  61 8a
     xch a,x                 ;477e  30
     or a,#0xc0              ;477f  6d c0
@@ -13841,7 +13867,7 @@ lab_476e:
     cmp a,#0xc2             ;4788  4d c2
     pop ax                  ;478a  b0
     bnz lab_4792            ;478b  bd 05
-    call !sub_5d99          ;478d  9a 99 5d
+    call !i2c_tea6840_read  ;478d  9a 99 5d     Bit-banged I2C read from TEA6840H NICE only
     br lab_4795             ;4790  fa 03
 
 lab_4792:
@@ -13855,51 +13881,51 @@ sub_4797:
 
     ;Copy 8 bytes from kwp_rx_buf+3 to kwp_cu_buf
 
-    mov a,#0x08             ;4797  a1 08        A = 8 bytes to copy
-    mov !kwp_cu_len,a       ;4799  9e af fb     Number of bytes of custom usage data to send in KWP1281 response
-    call !copy_to_kwp_cu_buf;479c  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf, Preserve HL and DE
+    mov a,#0x08                 ;4797  a1 08        A = 8 bytes to copy
+    mov !kwp_cu_len,a           ;4799  9e af fb     Number of bytes of custom usage data to send in KWP1281 response
+    call !copy_to_kwp_cu_buf    ;479c  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf, Preserve HL and DE
 
     ;Copy 5 bytes from kwp_rx_buf+6 (Data byte 0) to i2c_buf
 
-    movw de,#i2c_buf        ;479f  14 db fb
-    call !sub_4746          ;47a2  9a 46 47     Copy 5 bytes from kwp_rx_buf+6 to [DE]
+    movw de,#i2c_buf            ;479f  14 db fb
+    call !sub_4746              ;47a2  9a 46 47     Copy 5 bytes from kwp_rx_buf+6 to [DE]
 
     ;At this point, DE = i2c_buf+5
     ;Copy 5 bytes from kwp_cu_i2c_buf to i2c_buf+5
 
-    mov a,#0x05             ;47a5  a1 05        A = 5 bytes to copy
-    movw hl,#kwp_cu_i2c_buf ;47a7  16 a7 fb     HL = source address
-    callf !copy             ;47aa  4c 9e        Copy A bytes from [HL] to [DE]
+    mov a,#0x05                 ;47a5  a1 05        A = 5 bytes to copy
+    movw hl,#kwp_cu_i2c_buf     ;47a7  16 a7 fb     HL = source address
+    callf !copy                 ;47aa  4c 9e        Copy A bytes from [HL] to [DE]
 
-    mov a,!kwp_rx_buf+5     ;47ac  8e 8f f0     A = value at KWP1281 rx buffer byte 5 (Control byte)
-    ror a,1                 ;47af  24
-    ror a,1                 ;47b0  24
-    ror a,1                 ;47b1  24
-    and a,#0x0f             ;47b2  5d 0f
-    cmp a,#0x0a             ;47b4  4d 0a
-    bc lab_47ba             ;47b6  8d 02
+    mov a,!kwp_rx_buf+5         ;47ac  8e 8f f0     A = value at KWP1281 rx buffer byte 5 (Control byte)
+    ror a,1                     ;47af  24
+    ror a,1                     ;47b0  24
+    ror a,1                     ;47b1  24
+    and a,#0x0f                 ;47b2  5d 0f
+    cmp a,#0x0a                 ;47b4  4d 0a
+    bc lab_47ba                 ;47b6  8d 02
 
-    mov a,#0x0a             ;47b8  a1 0a
+    mov a,#0x0a                 ;47b8  a1 0a
 
 lab_47ba:
-    or a,mem_fed4           ;47ba  6e d4
-    movw hl,#i2c_buf        ;47bc  16 db fb
-    push ax                 ;47bf  b1
-    mov a,[hl]              ;47c0  87
-    and a,#0xfe             ;47c1  5d fe
-    cmp a,#0xc2             ;47c3  4d c2
-    pop ax                  ;47c5  b0
-    bnz lab_47cd            ;47c6  bd 05
+    or a,mem_fed4               ;47ba  6e d4
+    movw hl,#i2c_buf            ;47bc  16 db fb
+    push ax                     ;47bf  b1
+    mov a,[hl]                  ;47c0  87
+    and a,#0xfe                 ;47c1  5d fe
+    cmp a,#0xc2                 ;47c3  4d c2
+    pop ax                      ;47c5  b0
+    bnz lab_47cd_write          ;47c6  bd 05        If not zero branch to do I2C write
 
-    call !sub_5e2a          ;47c8  9a 2a 5e
-    br lab_47d0             ;47cb  fa 03
+    call !i2c_tea6840_write     ;47c8  9a 2a 5e     Bit-banged I2C write to TEA6840H NICE only
+    br lab_47d0_clr1_ret        ;47cb  fa 03        Branch to skip I2C write
 
-lab_47cd:
-    call !i2c_write         ;47cd  9a 51 5f     Perform I2C write
+lab_47cd_write:
+    call !i2c_write             ;47cd  9a 51 5f     Perform I2C write
 
-lab_47d0:
-    clr1 cy                 ;47d0  21
-    ret                     ;47d1  af
+lab_47d0_clr1_ret:
+    clr1 cy                     ;47d0  21
+    ret                         ;47d1  af
 
 kwp_7c_1b_2e_exposed_write:
 ;Title=0x1b  Subtitle=0x2e  Block length=0x0b
@@ -15651,9 +15677,9 @@ lab_4f88:
 ;   xx  Block Counter             kwp_rx_buf+1
 ;  0x1b Block Title        0x1B   kwp_rx_buf+2
 ;  0x31 Unknown Constant   0x31   kwp_rx_buf+3
-;   xx  Subtitle                  kwp_rx_buf+4
+;   xx  Subtitle            xx    kwp_rx_buf+4
 ;   ...                           ...
-;  0x03 block end          0x03   kwp_rx_buf+x
+;  0x03 Block End          0x03   kwp_rx_buf+x
 
 call_kwp_7c_1b_26_write_mem_fe31:
     call !kwp_7c_1b_26_write_mem_fe31       ;4f9e  9a ad 46
@@ -15679,11 +15705,22 @@ call_kwp_7c_1b_2e_exposed_write:
     call !kwp_7c_1b_2e_exposed_write        ;4fbc  9a d2 47
     br !send_cu_data_resp                   ;4fbf  9b fb 54     Branch to send response with custom usage data
 
-kwp_7c_1b_2f_br_badisr:
+kwp_7c_1b_2f_cold_start:
 ;Title=0x1b  Subtitle=0x2f  Block length=0x05
-;Simulate power off
-;0 request parameters
-;No response; radio goes offline
+;
+;Force an immediate cold start
+;
+;Request block:
+;   0x05 Block length                           kwp_rx_buf+0
+;    xx  Block counter                          kwp_rx_buf+1
+;   0x1B Block title (custom usage)             kwp_rx_buf+2
+;   0x31 Unknown constant                       kwp_rx_buf+3
+;   0x2f Subtitle (0x2f)                        kwp_rx_buf+4
+;   0x03 Block end                              kwp_rx_buf+7
+;
+;No response block.  The radio resets immediately, dropping the
+;connection and forgetting all state.
+;
     br !badisr_0d75                         ;4fc2  9b 75 0d
 
 call_kwp_7c_1b_30_eeprom_csum_related:
@@ -18710,16 +18747,17 @@ lab_5d88:
     mov !mem_fb10,a         ;5d94  9e 10 fb
     br lab_5d3c             ;5d97  fa a3
 
-sub_5d99:
+;Bit-banged I2C read from TEA6840H NICE only
+i2c_tea6840_read:
     push ax                 ;5d99  b1
     and a,#0x3f             ;5d9a  5d 3f
     cmp a,#0x22             ;5d9c  4d 22
     pop ax                  ;5d9e  b0
-    bc lab_5da3             ;5d9f  8d 02
+    bc lab_5da3_in_range    ;5d9f  8d 02
     set1 cy                 ;5da1  20
     ret                     ;5da2  af
 
-lab_5da3:
+lab_5da3_in_range:
     push bc                 ;5da3  b3
     mov c,a                 ;5da4  72
     and a,#0x80             ;5da5  5d 80
@@ -18727,9 +18765,9 @@ lab_5da3:
     inc a                   ;5da9  41
     push hl                 ;5daa  b7
     movw hl,#rb0_x          ;5dab  16 f8 fe
-    call !sub_5e2a          ;5dae  9a 2a 5e
+    call !i2c_tea6840_write ;5dae  9a 2a 5e     Bit-banged I2C write to TEA6840H NICE only
     pop hl                  ;5db1  b6
-    bc lab_5e25             ;5db2  8d 71
+    bc lab_5e25_pop_ret     ;5db2  8d 71        Branch if write failed
 
 lab_5db4:
     clr1 mem_fe68.4         ;5db4  4b 68
@@ -18739,171 +18777,217 @@ lab_5db4:
 lab_5dbc:
     and rb0_c,#0x3f         ;5dbc  d8 fa 3f
 
-lab_5dbf:
+lab_5dbf_byte_loop:
     mov rb0_b,#0x08         ;5dbf  11 fb 08
-    clr1 pu7.4              ;5dc2  71 4b 37
-    set1 pm7.4              ;5dc5  71 4a 27
 
-lab_5dc8:
-    clr1 pm7.3              ;5dc8  71 3b 27
-    cmp rb0_b,#0x00         ;5dcb  c8 fb 00
-    cmp rb0_b,#0x00         ;5dce  c8 fb 00
-    nop                     ;5dd1  00
-    clr1 pu7.3              ;5dd2  71 3b 37
-    set1 pm7.3              ;5dd5  71 3a 27
-    cmp rb0_b,#0x00         ;5dd8  c8 fb 00
-    nop                     ;5ddb  00
-    nop                     ;5ddc  00
-    mov1 cy,p7.4            ;5ddd  71 44 07
-    rolc a,1                ;5de0  27
-    dbnz b,lab_5dc8         ;5de1  8b e5
-    clr1 pm7.3              ;5de3  71 3b 27
+    clr1 pu7.4              ;5dc2  71 4b 37     PU74 pull-up resistor disabled (Bit-banged I2C SDA to TEA6840H NICE only)
+    set1 pm7.4              ;5dc5  71 4a 27     PM74=input (Bit-banged I2C SDA to TEA6840H NICE only)
+
+lab_5dc8_bit_loop:
+    clr1 pm7.3              ;5dc8  71 3b 27     PM73=output (Bit-banged I2C SCL to TEA6840H NICE only)
+
+    cmp rb0_b,#0x00         ;5dcb  c8 fb 00     Waste time
+    cmp rb0_b,#0x00         ;5dce  c8 fb 00       ..
+    nop                     ;5dd1  00             ..
+
+    clr1 pu7.3              ;5dd2  71 3b 37     PU73 pull-up resistor disabled (Bit-banged I2C SCL to TEA6840H NICE only)
+    set1 pm7.3              ;5dd5  71 3a 27     PM73=input (Bit-banged I2C SCL to TEA6840H NICE only)
+
+    cmp rb0_b,#0x00         ;5dd8  c8 fb 00     Waste time 
+    nop                     ;5ddb  00             ..
+    nop                     ;5ddc  00             ..
+
+    mov1 cy,p7.4            ;5ddd  71 44 07     CY=P7.4 (Bit-banged I2C SDA to TEA6840H NICE only)
+
+    rolc a,1                 ;5de0  27
+    dbnz b,lab_5dc8_bit_loop ;5de1  8b e5
+
+    clr1 pm7.3              ;5de3  71 3b 27     PM73=output (Bit-banged I2C SCL to TEA6840H NICE only)
+
     mov [hl],a              ;5de6  97
     incw hl                 ;5de7  86
     dbnz c,lab_5e08         ;5de8  8a 1e
+
     bf mem_fe68.4,lab_5e08  ;5dea  31 43 68 1a
-    clr1 pu7.3              ;5dee  71 3b 37
-    set1 pm7.3              ;5df1  71 3a 27
-    cmp rb0_b,#0x00         ;5df4  c8 fb 00
-    cmp rb0_b,#0x00         ;5df7  c8 fb 00
-    nop                     ;5dfa  00
-    clr1 pm7.3              ;5dfb  71 3b 27
-    cmp rb0_b,#0x00         ;5dfe  c8 fb 00
-    nop                     ;5e01  00
-    nop                     ;5e02  00
-    call !sub_5eb3          ;5e03  9a b3 5e
-    br lab_5e25             ;5e06  fa 1d
+
+    clr1 pu7.3              ;5dee  71 3b 37     PU73 pull-up resistor disabled (Bit-banged I2C SCL to TEA6840H NICE only)
+    set1 pm7.3              ;5df1  71 3a 27     PM73=input (Bit-banged I2C SCL to TEA6840H NICE only)
+
+    cmp rb0_b,#0x00         ;5df4  c8 fb 00     Waste time
+    cmp rb0_b,#0x00         ;5df7  c8 fb 00       ...
+    nop                     ;5dfa  00             ...
+
+    clr1 pm7.3              ;5dfb  71 3b 27     PM73=output (Bit-banged I2C SCL to TEA6840H NICE only)
+
+    cmp rb0_b,#0x00         ;5dfe  c8 fb 00     Waste time 
+    nop                     ;5e01  00             ...
+    nop                     ;5e02  00             ...
+
+    call !sub_53b3_tea6840_done_success  ;5e03  9a b3 5e
+    br lab_5e25_pop_ret     ;5e06  fa 1d
 
 lab_5e08:
-    clr1 pm7.4              ;5e08  71 4b 27
-    clr1 pu7.3              ;5e0b  71 3b 37
-    set1 pm7.3              ;5e0e  71 3a 27
-    cmp rb0_b,#0x00         ;5e11  c8 fb 00
-    cmp rb0_b,#0x00         ;5e14  c8 fb 00
-    nop                     ;5e17  00
-    clr1 pm7.3              ;5e18  71 3b 27
-    cmp rb0_b,#0x00         ;5e1b  c8 fb 00
-    nop                     ;5e1e  00
-    nop                     ;5e1f  00
-    cmp rb0_c,#0x00         ;5e20  c8 fa 00
-    bnz lab_5dbf            ;5e23  bd 9a
+    clr1 pm7.4              ;5e08  71 4b 27     PM74=output (Bit-banged I2C SDA to TEA6840H NICE only)
+    clr1 pu7.3              ;5e0b  71 3b 37     PU73 pull-up resistor disabled (Bit-banged I2C SCL to TEA6840H NICE only)
+    set1 pm7.3              ;5e0e  71 3a 27     PM73=input (Bit-banged I2C SCL to TEA6840H NICE only)
 
-lab_5e25:
+    cmp rb0_b,#0x00         ;5e11  c8 fb 00     Waste time
+    cmp rb0_b,#0x00         ;5e14  c8 fb 00       ..
+    nop                     ;5e17  00             ..
+
+    clr1 pm7.3              ;5e18  71 3b 27     PM73=output (Bit-banged I2C SCL to TEA6840H NICE only)
+
+    cmp rb0_b,#0x00         ;5e1b  c8 fb 00     Waste time
+    nop                     ;5e1e  00             ..
+    nop                     ;5e1f  00             ..
+
+    cmp rb0_c,#0x00         ;5e20  c8 fa 00
+    bnz lab_5dbf_byte_loop  ;5e23  bd 9a
+
+lab_5e25_pop_ret:
     pop bc                  ;5e25  b2
     ret                     ;5e26  af
 
-sub_5e27:
+;Bit-banged I2C write to TEA6840 only
+;Carry clear = success, set = failed
+i2c_tea6480_write_fed4:
     movw hl,#mem_fed4       ;5e27  16 d4 fe
 
-sub_5e2a:
+;Bit-banged I2C write to TEA6840 only 
+;Carry clear = success, set = failed
+i2c_tea6840_write:
     push ax                 ;5e2a  b1
     and a,#0x3f             ;5e2b  5d 3f
     cmp a,#0x22             ;5e2d  4d 22
     pop ax                  ;5e2f  b0
-    bc lab_5e34             ;5e30  8d 02
+    bc lab_5e34_a_in_range  ;5e30  8d 02
     set1 cy                 ;5e32  20
     ret                     ;5e33  af
 
-lab_5e34:
+lab_5e34_a_in_range:
     push bc                 ;5e34  b3
     clr1 mem_fe68.4         ;5e35  4b 68
     bf a.6,lab_5e3c         ;5e37  31 6f 02
     set1 mem_fe68.4         ;5e3a  4a 68
 
 lab_5e3c:
-    bf a.7,lab_5e66         ;5e3c  31 7f 27
-    clr1 pu7.4              ;5e3f  71 4b 37
-    set1 pm7.4              ;5e42  71 4a 27
+    bf a.7,lab_5e66_a_7_off ;5e3c  31 7f 27
+    clr1 pu7.4              ;5e3f  71 4b 37     PU74 pull-up resistor disabled (Bit-banged I2C SDA to TEA6840H NICE only)
+    set1 pm7.4              ;5e42  71 4a 27     PM74=input (Bit-banged I2C SDA to TEA6840H NICE only)
     clr1 shadow_p7.4        ;5e45  4b d1
+
     push ax                 ;5e47  b1
     mov a,shadow_p7         ;5e48  f0 d1
     mov p7,a                ;5e4a  f2 07
-    clr1 pu7.3              ;5e4c  71 3b 37
-    set1 pm7.3              ;5e4f  71 3a 27
+    clr1 pu7.3              ;5e4c  71 3b 37     PU73 pull-up resistor disabled (I2C SCL to TEA6840H NICE only)
+    set1 pm7.3              ;5e4f  71 3a 27     PM73=input (I2C SCL to TEA6840H NICE only)
     clr1 shadow_p7.3        ;5e52  3b d1
     mov a,shadow_p7         ;5e54  f0 d1
     mov p7,a                ;5e56  f2 07
     pop ax                  ;5e58  b0
-    clr1 pm7.4              ;5e59  71 4b 27
-    cmp rb0_b,#0x00         ;5e5c  c8 fb 00
-    nop                     ;5e5f  00
-    nop                     ;5e60  00
-    nop                     ;5e61  00
-    nop                     ;5e62  00
-    clr1 pm7.3              ;5e63  71 3b 27
 
-lab_5e66:
+    clr1 pm7.4              ;5e59  71 4b 27     PM74=output (Bit-banged I2C SDA to TEA6840H NICE only)
+
+    cmp rb0_b,#0x00         ;5e5c  c8 fb 00     Waste time
+    nop                     ;5e5f  00             ...
+    nop                     ;5e60  00             ...
+    nop                     ;5e61  00             ...
+    nop                     ;5e62  00             ...
+
+    clr1 pm7.3              ;5e63  71 3b 27     PM73=output
+
+lab_5e66_a_7_off:
     and a,#0x3f             ;5e66  5d 3f
-    bz lab_5ec9             ;5e68  ad 5f
+    bz lab_5ec9_tea6840_done_failed ;5e68  ad 5f
+
     mov b,a                 ;5e6a  73
 
-lab_5e6b:
+lab_5e6b_byte_loop:
     mov a,[hl]              ;5e6b  87
+
     mov c,#0x08             ;5e6c  a2 08
 
-lab_5e6e:
+lab_5e6e_bit_loop:
     rolc a,1                ;5e6e  27
-    bc lab_5e76             ;5e6f  8d 05
-    clr1 pm7.4              ;5e71  71 4b 27
+    bc lab_5e76_bit_off     ;5e6f  8d 05
+
+    ;Bit is on
+    clr1 pm7.4              ;5e71  71 4b 27     PM74=output (Bit-banged I2C SDA to TEA6840H NICE only)
     br lab_5e7c             ;5e74  fa 06
 
-lab_5e76:
-    clr1 pu7.4              ;5e76  71 4b 37
-    set1 pm7.4              ;5e79  71 4a 27
+lab_5e76_bit_off:
+    clr1 pu7.4              ;5e76  71 4b 37     PU74 pull-up resistor disabled (Bit-banged I2C SDA to TEA6840H NICE only)
+    set1 pm7.4              ;5e79  71 4a 27     PM74=input (Bit-banged I2C SDA to TEA6840H NICE only)
 
 lab_5e7c:
-    nop                     ;5e7c  00
-    clr1 pu7.3              ;5e7d  71 3b 37
-    set1 pm7.3              ;5e80  71 3a 27
-    cmp rb0_b,#0x00         ;5e83  c8 fb 00
-    cmp rb0_b,#0x00         ;5e86  c8 fb 00
-    nop                     ;5e89  00
-    clr1 pm7.3              ;5e8a  71 3b 27
-    dbnz c,lab_5e6e         ;5e8d  8a df
-    clr1 pu7.4              ;5e8f  71 4b 37
-    set1 pm7.4              ;5e92  71 4a 27
-    clr1 pu7.3              ;5e95  71 3b 37
-    set1 pm7.3              ;5e98  71 3a 27
-    cmp rb0_b,#0x00         ;5e9b  c8 fb 00
-    cmp rb0_b,#0x00         ;5e9e  c8 fb 00
-    nop                     ;5ea1  00
-    nop                     ;5ea2  00
-    nop                     ;5ea3  00
-    bt p7.4,lab_5ec9        ;5ea4  cc 07 22
-    clr1 pm7.3              ;5ea7  71 3b 27
-    incw hl                 ;5eaa  86
-    dbnz b,lab_5e6b         ;5eab  8b be
+    nop                     ;5e7c  00           Waste time
+
+    clr1 pu7.3              ;5e7d  71 3b 37     PU73 pull-up resistor disabled (I2C SCL to TEA6840H NICE only)
+    set1 pm7.3              ;5e80  71 3a 27     PM73=input (I2C SCL to TEA6840H NICE only)
+
+    cmp rb0_b,#0x00         ;5e83  c8 fb 00     Waste time
+    cmp rb0_b,#0x00         ;5e86  c8 fb 00       ...
+    nop                     ;5e89  00             ...
+
+    clr1 pm7.3              ;5e8a  71 3b 27     PM73=output (I2C SCL to TEA6840H NICE only)
+
+    dbnz c,lab_5e6e_bit_loop    ;5e8d  8a df
+
+    clr1 pu7.4              ;5e8f  71 4b 37     PU74 pull-up resistor disabled (Bit-banged I2C SDA to TEA6840H NICE only)
+    set1 pm7.4              ;5e92  71 4a 27     PM74=input (Bit-banged I2C SDA to TEA6840H NICE only)
+    clr1 pu7.3              ;5e95  71 3b 37     PU73 pull-up resistor disabled (I2C SCL to TEA6840H NICE only)
+    set1 pm7.3              ;5e98  71 3a 27     PM73=input (I2C SCL to TEA6840H NICE only)
+
+    cmp rb0_b,#0x00         ;5e9b  c8 fb 00     Waste time
+    cmp rb0_b,#0x00         ;5e9e  c8 fb 00       ...
+    nop                     ;5ea1  00             ...
+    nop                     ;5ea2  00             ...
+    nop                     ;5ea3  00             ...
+
+    bt p7.4,lab_5ec9_tea6840_done_failed  ;5ea4  cc 07 22  Branch if P7.4=1 (Bit-banged I2C SDA to TEA6840H NICE only)
+
+    clr1 pm7.3              ;5ea7  71 3b 27     PM74=output (Bit-banged I2C SDA to TEA6840H NICE only)
+
+    incw hl                   ;5eaa  86
+    dbnz b,lab_5e6b_byte_loop ;5eab  8b be
+
     pop bc                  ;5ead  b2
-    bt mem_fe68.4,sub_5eb3  ;5eae  cc 68 02
+    bt mem_fe68.4,sub_53b3_tea6840_done_success  ;5eae  cc 68 02
     clr1 cy                 ;5eb1  21
     ret                     ;5eb2  af
 
-sub_5eb3:
-    clr1 pm7.4              ;5eb3  71 4b 27
-    clr1 pu7.3              ;5eb6  71 3b 37
-    set1 pm7.3              ;5eb9  71 3a 27
-    cmp rb0_b,#0x00         ;5ebc  c8 fb 00
-    nop                     ;5ebf  00
-    nop                     ;5ec0  00
-    clr1 pu7.4              ;5ec1  71 4b 37
-    set1 pm7.4              ;5ec4  71 4a 27
+sub_53b3_tea6840_done_success:
+    clr1 pm7.4              ;5eb3  71 4b 27     PM74=output (Bit-banged I2C SDA to TEA6840H NICE only)
+    clr1 pu7.3              ;5eb6  71 3b 37     PU73 pull-up resistor disabled (I2C SCL to TEA6840H NICE only)
+    set1 pm7.3              ;5eb9  71 3a 27     PM73=input (I2C SCL to TEA6840H NICE only)
+
+    cmp rb0_b,#0x00         ;5ebc  c8 fb 00     Waste time
+    nop                     ;5ebf  00             ...
+    nop                     ;5ec0  00             ...
+
+    clr1 pu7.4              ;5ec1  71 4b 37     PU74 pull-up resistor disabled (Bit-banged I2C SDA to TEA6840H NICE only)
+    set1 pm7.4              ;5ec4  71 4a 27     PM74=input (Bit-banged I2C SDA to TEA6840H NICE only)
     clr1 cy                 ;5ec7  21
     ret                     ;5ec8  af
 
-lab_5ec9:
-    clr1 pm7.3              ;5ec9  71 3b 27
-    cmp rb0_b,#0x00         ;5ecc  c8 fb 00
-    nop                     ;5ecf  00
-    nop                     ;5ed0  00
-    clr1 pm7.4              ;5ed1  71 4b 27
-    clr1 pu7.3              ;5ed4  71 3b 37
-    set1 pm7.3              ;5ed7  71 3a 27
-    cmp rb0_b,#0x00         ;5eda  c8 fb 00
-    nop                     ;5edd  00
-    nop                     ;5ede  00
-    clr1 pu7.4              ;5edf  71 4b 37
-    set1 pm7.4              ;5ee2  71 4a 27
-    set1 cy                 ;5ee5  20
+lab_5ec9_tea6840_done_failed:
+    clr1 pm7.3              ;5ec9  71 3b 27     PM73=output (I2C SCL to TEA6840H NICE only)
+
+    cmp rb0_b,#0x00         ;5ecc  c8 fb 00     Waste time
+    nop                     ;5ecf  00             ...
+    nop                     ;5ed0  00             ...
+
+    clr1 pm7.4              ;5ed1  71 4b 27     PM74=output (Bit-banged I2C SDA to TEA6840H NICE only)
+    clr1 pu7.3              ;5ed4  71 3b 37     PU73 pull-up resistor disabled (I2C SCL to TEA6840H NICE only)
+    set1 pm7.3              ;5ed7  71 3a 27     PM73=input (I2C SCL to TEA6840H NICE only)
+
+    cmp rb0_b,#0x00         ;5eda  c8 fb 00     Waste time
+    nop                     ;5edd  00             ...
+    nop                     ;5ede  00             ...
+
+    clr1 pu7.4              ;5edf  71 4b 37     PU74 pull-up resistor disabled (Bit-banged I2C SDA to TEA6840H NICE only)
+    set1 pm7.4              ;5ee2  71 4a 27     PM74=input (Bit-banged I2C SDA to TEA6840H NICE only)
+    set1 cy                 ;5ee5  20 
     pop bc                  ;5ee6  b2
     ret                     ;5ee7  af
 
@@ -19336,22 +19420,22 @@ lab_611f:
     call !sub_0800_mode     ;6129  9a 00 08     Return mem_f253_ee_00b0_mode in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
 
 lab_612c:
-    mov b,a                     ;612c  73           B = mem_f253_ee_00b0_mode mode
-    movw hl,#mem_f1be_ee_001b   ;612d  16 be f1
-    mov a,[hl+b]                ;6130  ab
-    mov mem_fed8,a              ;6131  f2 d8
-    movw hl,#mem_f1c0_ee_001d   ;6133  16 c0 f1
-    mov a,[hl+b]                ;6136  ab
-    mov mem_fed9,a              ;6137  f2 d9
-    movw hl,#mem_f1c2_ee_001f   ;6139  16 c2 f1
-    mov a,[hl+b]                ;613c  ab
-    mov mem_feda,a              ;613d  f2 da
-    mov a,#0xc7                 ;613f  a1 c7
-    push bc                     ;6141  b3
-    call !sub_5e27              ;6142  9a 27 5e
-    pop bc                      ;6145  b2
-    mov mem_fe22,#0x00          ;6146  11 22 00
-    ret                         ;6149  af
+    mov b,a                         ;612c  73           B = mem_f253_ee_00b0_mode mode
+    movw hl,#mem_f1be_ee_001b       ;612d  16 be f1
+    mov a,[hl+b]                    ;6130  ab
+    mov mem_fed8,a                  ;6131  f2 d8
+    movw hl,#mem_f1c0_ee_001d       ;6133  16 c0 f1
+    mov a,[hl+b]                    ;6136  ab
+    mov mem_fed9,a                  ;6137  f2 d9
+    movw hl,#mem_f1c2_ee_001f       ;6139  16 c2 f1
+    mov a,[hl+b]                    ;613c  ab
+    mov mem_feda,a                  ;613d  f2 da
+    mov a,#0xc7                     ;613f  a1 c7
+    push bc                         ;6141  b3
+    call !i2c_tea6480_write_fed4    ;6142  9a 27 5e     I2C write to TEA6480 NICE only
+    pop bc                          ;6145  b2
+    mov mem_fe22,#0x00              ;6146  11 22 00
+    ret                             ;6149  af
 
 sub_614a:
     call !sub_61a6          ;614a  9a a6 61
@@ -19385,7 +19469,7 @@ sub_6168:
     cmp a,!mem_fb62         ;6173  48 62 fb
     ret                     ;6176  af
 
-sub_6177:
+sub_6177_tea6840:
     bt mem_fe69.5,lab_617d  ;6177  dc 69 03
     call !sub_6165          ;617a  9a 65 61
 
@@ -19395,7 +19479,7 @@ lab_617d:
     mov a,#0xc1             ;6182  a1 c1
     set1 mem_fe69.1         ;6184  1a 69        Bit set = I2C will operate in standard (not high-speed) mode
     mov x,#0xc3             ;6186  a0 c3
-    call !sub_5d99          ;6188  9a 99 5d
+    call !i2c_tea6840_read  ;6188  9a 99 5d     Bit-banged I2C read from TEA6840H NICE only
     call !sub_0800_mode     ;618b  9a 00 08     Return mem_f253_ee_00b0_mode in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     mov b,a                 ;618e  73           B = mem_f253_ee_00b0_mode mode
     movw hl,#mem_b40e       ;618f  16 0e b4
@@ -33198,7 +33282,7 @@ kwp_7c_1b_handlers:
     .word call_kwp_7c_1b_2a_exposed_read            ;b322  b0 4f       VECTOR           B=0x04  Title=0x1b  Subtitle=0x2a
     .word call_kwp_7c_1b_2d_i2c_read_or_write       ;b324  b6 4f       VECTOR           B=0x05  Title=0x1b  Subtitle=0x2d
     .word call_kwp_7c_1b_2e_exposed_write           ;b326  bc 4f       VECTOR           B=0x06  Title=0x1b  Subtitle=0x2e
-    .word kwp_7c_1b_2f_br_badisr                    ;b328  c2 4f       VECTOR           B=0x07  Title=0x1b  Subtitle=0x2f
+    .word kwp_7c_1b_2f_cold_start                   ;b328  c2 4f       VECTOR           B=0x07  Title=0x1b  Subtitle=0x2f
     .word call_kwp_7c_1b_30_eeprom_csum_related     ;b32a  c5 4f       VECTOR           B=0x08  Title=0x1b  Subtitle=0x30
     .word call_kwp_7c_1b_31_eeprom_related          ;b32c  cb 4f       VECTOR           B=0x09  Title=0x1b  Subtitle=0x31
     .word call_kwp_7c_1b_32_rom_checksum            ;b32e  d1 4f       VECTOR           B=0x0A  Title=0x1b  Subtitle=0x32

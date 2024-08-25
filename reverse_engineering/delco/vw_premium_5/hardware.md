@@ -5,8 +5,8 @@
 |Pin  1 |P70/PCL      |Unknown input/output                           |
 |Pin  2 |P71/SDA0     |I2C SDA (see i2c.md file)                      |
 |Pin  3 |P72/SCL0     |I2C SCL (see i2c.md file)                      |
-|Pin  4 |P73/TO01     |Unknown input/output                           |
-|Pin  5 |P74/TI001    |Unknown input/output                           |
+|Pin  4 |P73/TO01     |Bit-banged I2C SCL to TEA6840H NICE only       |
+|Pin  5 |P74/TI001    |Bit-banged I2C SDA to TEA6840H NICE only       |
 |Pin  6 |P75/TI011    |Unknown input                                  |
 |Pin  7 |P00/INTP0    |INTP0: MFSW (inverted; from HEF40106BT pin 12) |
 |Pin  8 |P01/INTP1    |INTP1: Unknown input                           |
