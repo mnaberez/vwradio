@@ -13797,7 +13797,7 @@ kwp_7c_1b_2d_i2c_read_or_write:
 ;If the Control byte >= 1 and <= 0x7F: do unknown I2C operations.
 ;TODO investigate I2C
 ;
-    mov a,!kwp_rx_buf+5       ;4731  8e 8f f0     A = value at KWP1281 rx buffer byte 5
+    mov a,!kwp_rx_buf+5       ;4731  8e 8f f0     A = value at KWP1281 rx buffer byte 5 (Control byte)
     cmp a,#0x00               ;4734  4d 00
     bz lab_474d_ret           ;4736  ad 15
 
@@ -13822,37 +13822,61 @@ sub_4746:
 lab_474d_ret:
     ret                     ;474d  af
 
-    ;Bit 7 of kwp_rx_buf+5 is off
-    ;meaning this request is to do an I2C operation
+    ;A contains kwp_rx_buf+5 (Control byte)
+    ;A != 0
+    ;Bit 7 of A is off meaning this request is to do an I2C operation
+
+;Control byte
+;
+;  Bit 7 = Flag: 0=do actual I2C, 1=write to I2C buffer only
+;  Bit 6 \
+;  Bit 5 | Unknown, if >= 0x10 when masked off then set mem_fed4 = 0x80
+;  Bit 4 | and do an extra call to sub_4797_i2c_write first
+;  Bit 3 /
+;  Bit 2 \
+;  Bit 1 | Data Length
+;  Bit 0 /
+;
+
 
 lab_474e_bit_7_off:
     set1 mem_fe69.1         ;474e  1a 69        Bit set = I2C will operate in standard (not high-speed) mode
 
     mov mem_fed4,#0xc0      ;4750  11 d4 c0
-    and a,#0x07             ;4753  5d 07
-    bz sub_4797             ;4755  ad 40
+
+    and a,#0b00000111       ;4753  5d 07
+    bz sub_4797_i2c_write   ;4755  ad 40        Branch if 0
+
+    ;Control byte & 0b111 != 0
 
     cmp a,#0x05             ;4757  4d 05
-    bc lab_475d             ;4759  8d 02
+    bc lab_475d             ;4759  8d 02        Branch if < 5
+
+    ;Control byte & 0b111 >= 5
 
     mov a,#0x05             ;475b  a1 05
 
 lab_475d:
-    mov x,a                 ;475d  70
-    push ax                 ;475e  b1
+    mov x,a                 ;475d  70           X = Control byte & 0b111 in range of 1-5 inclusive
+    push ax                 ;475e  b1           
+
     mov a,!kwp_rx_buf+5     ;475f  8e 8f f0     A = value at KWP1281 rx buffer byte 5 (Control byte)
-    and a,#0x78             ;4762  5d 78
+    and a,#0b01111000       ;4762  5d 78
     cmp a,#0x10             ;4764  4d 10
-    bc lab_476e             ;4766  8d 06
+    bc lab_476e             ;4766  8d 06        Branch if < 0x10
+
+    ;Control byte & 0b01111000 >= 0x10
 
     mov mem_fed4,#0x80      ;4768  11 d4 80
-    call !sub_4797          ;476b  9a 97 47
+    call !sub_4797_i2c_write;476b  9a 97 47
 
 lab_476e:
     mov a,#0x03             ;476e  a1 03        A = 3 bytes to copy
     call !copy_to_kwp_cu_buf;4770  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf, Preserve HL and DL
 
-    pop ax                  ;4773  b0
+    pop ax                  ;4773  b0           Pop so both A and X contain again:
+                            ;                     Control byte & 0b111 in range of 1-5 inclusive
+
     add a,#0x03             ;4774  0d 03
     mov !kwp_cu_len,a       ;4776  9e af fb     Number of bytes of custom usage data to send in KWP1281 response
 
@@ -13860,24 +13884,25 @@ lab_476e:
     set1 a.0                ;477c  61 8a
     xch a,x                 ;477e  30
     or a,#0xc0              ;477f  6d c0
-    movw hl,#kwp_cu_buf+3   ;4781  16 9e fb
+    movw hl,#kwp_cu_buf+3   ;4781  16 9e fb     HL = address of Data Byte 0
     push ax                 ;4784  b1
     mov a,x                 ;4785  60
-    and a,#0xfe             ;4786  5d fe
-    cmp a,#0xc2             ;4788  4d c2
+    and a,#0b11111110       ;4786  5d fe        Mask to turn off bit 0 (R/W bit)
+    cmp a,#0xc2             ;4788  4d c2        Address = TEA6840H? (0xC2=TEA6840H write, 0xC3=TEAH6840H read)
     pop ax                  ;478a  b0
-    bnz lab_4792            ;478b  bd 05
-    call !i2c_tea6840_read  ;478d  9a 99 5d     Bit-banged I2C read from TEA6840H NICE only
-    br lab_4795             ;4790  fa 03
+    bnz lab_4792_not_tea6840;478b  bd 05
 
-lab_4792:
-    call !i2c_read          ;4792  9a e8 5e     Perform I2C read
+    call !i2c_tea6840_read  ;478d  9a 99 5d     Perform bit-banged I2C read from TEA6840H NICE only into buffer [HL]
+    br lab_4795_done        ;4790  fa 03        Branch to skip I2C read for other devices
 
-lab_4795:
+lab_4792_not_tea6840:
+    call !i2c_read          ;4792  9a e8 5e     Perform I2C read into buffer [HL]
+
+lab_4795_done:
     set1 cy                 ;4795  20
     ret                     ;4796  af
 
-sub_4797:
+sub_4797_i2c_write:
 
     ;Copy 8 bytes from kwp_rx_buf+3 to kwp_cu_buf
 
@@ -13897,31 +13922,45 @@ sub_4797:
     movw hl,#kwp_cu_i2c_buf     ;47a7  16 a7 fb     HL = source address
     callf !copy                 ;47aa  4c 9e        Copy A bytes from [HL] to [DE]
 
+    ;The I2C buffer now contains:
+    ;
+    ;i2c_buf+0 <- kwp_rx_buf+6
+    ;i2c_buf+1 <- kwp_rx_buf+7
+    ;i2c_buf+2 <- kwp_rx_buf+8
+    ;i2c_buf+3 <- kwp_rx_buf+9
+    ;i2c_buf+4 <- kwp_rx_buf+a
+    ;i2c_buf+5 <- kwp_cu_i2c_buf+0
+    ;i2c_buf+6 <- kwp_cu_i2c_buf+1
+    ;i2c_buf+7 <- kwp_cu_i2c_buf+2
+    ;i2c_buf+8 <- kwp_cu_i2c_buf+3
+    ;i2c_buf+9 <- kwp_cu_i2c_buf+4
+
     mov a,!kwp_rx_buf+5         ;47ac  8e 8f f0     A = value at KWP1281 rx buffer byte 5 (Control byte)
     ror a,1                     ;47af  24
     ror a,1                     ;47b0  24
     ror a,1                     ;47b1  24
     and a,#0x0f                 ;47b2  5d 0f
     cmp a,#0x0a                 ;47b4  4d 0a
-    bc lab_47ba                 ;47b6  8d 02
+    bc lab_47ba                 ;47b6  8d 02        Branch if A < 0x0A
 
     mov a,#0x0a                 ;47b8  a1 0a
 
 lab_47ba:
     or a,mem_fed4               ;47ba  6e d4
+
     movw hl,#i2c_buf            ;47bc  16 db fb
     push ax                     ;47bf  b1
     mov a,[hl]                  ;47c0  87
-    and a,#0xfe                 ;47c1  5d fe
-    cmp a,#0xc2                 ;47c3  4d c2
+    and a,#0b11111110           ;47c1  5d fe        Mask to turn off bit 0 (R/W bit)
+    cmp a,#0xc2                 ;47c3  4d c2        Address = TEA6840H? (0xC2=TEA6840H write, 0xC3=TEAH6840H read)
     pop ax                      ;47c5  b0
-    bnz lab_47cd_write          ;47c6  bd 05        If not zero branch to do I2C write
+    bnz lab_47cd_not_tea6840    ;47c6  bd 05        
 
-    call !i2c_tea6840_write     ;47c8  9a 2a 5e     Bit-banged I2C write to TEA6840H NICE only
-    br lab_47d0_clr1_ret        ;47cb  fa 03        Branch to skip I2C write
+    call !i2c_tea6840_write     ;47c8  9a 2a 5e     Perform bit-banged I2C write to TEA6840 only from buffer [HL]
+    br lab_47d0_clr1_ret        ;47cb  fa 03        Branch to skip normal I2C write
 
-lab_47cd_write:
-    call !i2c_write             ;47cd  9a 51 5f     Perform I2C write
+lab_47cd_not_tea6840:
+    call !i2c_write             ;47cd  9a 51 5f     Perform I2C write from buffer [HL]
 
 lab_47d0_clr1_ret:
     clr1 cy                     ;47d0  21
@@ -18747,31 +18786,55 @@ lab_5d88:
     mov !mem_fb10,a         ;5d94  9e 10 fb
     br lab_5d3c             ;5d97  fa a3
 
-;Bit-banged I2C read from TEA6840H NICE only
+;Perform bit-banged I2C read from TEA6840H NICE only into buffer [HL]
+;
+;Call with:
+;  HL = address of buffer to recieve data
+;  
+;  A = Bit 7: 0=do not generate start condition and send address byte, 1=do it
+;      Bit 6: 0=do not generate stop condition after data bytes, 1=do it
+;      Bit 5-0: data length to read
+;  
+;  X = I2C address byte to write, if writing one
+;
+;Returns:
+;  Carry clear = success, set = failure
+;
 i2c_tea6840_read:
     push ax                 ;5d99  b1
-    and a,#0x3f             ;5d9a  5d 3f
+    and a,#0b00111111       ;5d9a  5d 3f
     cmp a,#0x22             ;5d9c  4d 22
     pop ax                  ;5d9e  b0
-    bc lab_5da3_in_range    ;5d9f  8d 02
-    set1 cy                 ;5da1  20
+    bc lab_5da3_in_range    ;5d9f  8d 02        Branch if A < 0x22
+
+    set1 cy                 ;5da1  20           Carry set = failed
     ret                     ;5da2  af
 
 lab_5da3_in_range:
     push bc                 ;5da3  b3
-    mov c,a                 ;5da4  72
-    and a,#0x80             ;5da5  5d 80
-    bz lab_5db4             ;5da7  ad 0b
+
+    mov c,a                 ;5da4  72           Remember A in C
+
+    and a,#0b10000000                   ;5da5  5d 80
+    bz lab_5db4_skip_start_and_address  ;5da7  ad 0b        Branch if bit 7 is off
+
+    ;A = 0b10000000 (0x80)
+
     inc a                   ;5da9  41
+
+    ;A = 0b10000001 (0x81) = generate start, no stop, data length = 1
+    ;Generate start condition, no stop condition, send the I2C address byte in X
+
     push hl                 ;5daa  b7
-    movw hl,#rb0_x          ;5dab  16 f8 fe
-    call !i2c_tea6840_write ;5dae  9a 2a 5e     Bit-banged I2C write to TEA6840H NICE only
+    movw hl,#rb0_x          ;5dab  16 f8 fe     HL = address of register X (contains I2C address byte)
+    call !i2c_tea6840_write ;5dae  9a 2a 5e     Perform bit-banged I2C write to TEA6840 only from buffer [HL]
     pop hl                  ;5db1  b6
     bc lab_5e25_pop_ret     ;5db2  8d 71        Branch if write failed
 
-lab_5db4:
+lab_5db4_skip_start_and_address:
     clr1 mem_fe68.4         ;5db4  4b 68
-    bf rb0_c.6,lab_5dbc     ;5db6  31 63 fa 02
+
+    bf rb0_c.6,lab_5dbc     ;5db6  31 63 fa 02  
     set1 mem_fe68.4         ;5dba  4a 68
 
 lab_5dbc:
@@ -18823,7 +18886,7 @@ lab_5dc8_bit_loop:
     nop                     ;5e01  00             ...
     nop                     ;5e02  00             ...
 
-    call !sub_53b3_tea6840_done_success  ;5e03  9a b3 5e
+    call !i2c_tea6840_stop_success  ;5e03  9a b3 5e
     br lab_5e25_pop_ret     ;5e06  fa 1d
 
 lab_5e08:
@@ -18848,30 +18911,45 @@ lab_5e25_pop_ret:
     pop bc                  ;5e25  b2
     ret                     ;5e26  af
 
-;Bit-banged I2C write to TEA6840 only
-;Carry clear = success, set = failed
+;Perform bit-banged I2C write to TEA6840 only from buffer mem_fed4
 i2c_tea6480_write_fed4:
     movw hl,#mem_fed4       ;5e27  16 d4 fe
 
-;Bit-banged I2C write to TEA6840 only 
-;Carry clear = success, set = failed
+;Perform bit-banged I2C write to TEA6840 only from buffer [HL]
+;
+;Call with:
+;  HL = address of buffer with I2C data to write
+;
+;  A = Bit 7: 0=do not generate start condition, 1=do it
+;      Bit 6: 0=do not generate stop condition after data bytes, 1=do it
+;      Bit 5-0: data length
+;
+;Returns:
+;  Carry clear = success, set = failed
+;
 i2c_tea6840_write:
     push ax                 ;5e2a  b1
-    and a,#0x3f             ;5e2b  5d 3f
+    and a,#0b00111111       ;5e2b  5d 3f
     cmp a,#0x22             ;5e2d  4d 22
     pop ax                  ;5e2f  b0
     bc lab_5e34_a_in_range  ;5e30  8d 02
-    set1 cy                 ;5e32  20
+
+    set1 cy                 ;5e32  20           Carry set = failed
     ret                     ;5e33  af
 
 lab_5e34_a_in_range:
     push bc                 ;5e34  b3
-    clr1 mem_fe68.4         ;5e35  4b 68
-    bf a.6,lab_5e3c         ;5e37  31 6f 02
-    set1 mem_fe68.4         ;5e3a  4a 68
 
-lab_5e3c:
-    bf a.7,lab_5e66_a_7_off ;5e3c  31 7f 27
+    clr1 mem_fe68.4         ;5e35  4b 68      Bit clear = do not generate I2C stop condition when done
+
+    bf a.6,lab_5e66_no_stop ;5e37  31 6f 02   Skip setting flag if no stop condition is desired
+    set1 mem_fe68.4         ;5e3a  4a 68      Bit set = generate I2C stop condition when done
+
+lab_5e66_no_stop:
+    bf a.7,lab_5e66_skip_start ;5e3c  31 7f 27
+
+    ;Generate I2C start condition
+
     clr1 pu7.4              ;5e3f  71 4b 37     PU74 pull-up resistor disabled (Bit-banged I2C SDA to TEA6840H NICE only)
     set1 pm7.4              ;5e42  71 4a 27     PM74=input (Bit-banged I2C SDA to TEA6840H NICE only)
     clr1 shadow_p7.4        ;5e45  4b d1
@@ -18896,11 +18974,11 @@ lab_5e3c:
 
     clr1 pm7.3              ;5e63  71 3b 27     PM73=output
 
-lab_5e66_a_7_off:
-    and a,#0x3f             ;5e66  5d 3f
-    bz lab_5ec9_tea6840_done_failed ;5e68  ad 5f
+lab_5e66_skip_start:
+    and a,#0b00111111       ;5e66  5d 3f
+    bz i2c_tea6840_stop_failed ;5e68  ad 5f
 
-    mov b,a                 ;5e6a  73
+    mov b,a                 ;5e6a  73           B = A = number of bytes to send
 
 lab_5e6b_byte_loop:
     mov a,[hl]              ;5e6b  87
@@ -18944,19 +19022,26 @@ lab_5e7c:
     nop                     ;5ea2  00             ...
     nop                     ;5ea3  00             ...
 
-    bt p7.4,lab_5ec9_tea6840_done_failed  ;5ea4  cc 07 22  Branch if P7.4=1 (Bit-banged I2C SDA to TEA6840H NICE only)
+    bt p7.4,i2c_tea6840_stop_failed  ;5ea4  cc 07 22  Branch if P7.4=1 (Bit-banged I2C SDA to TEA6840H NICE only)
 
-    clr1 pm7.3              ;5ea7  71 3b 27     PM74=output (Bit-banged I2C SDA to TEA6840H NICE only)
+    clr1 pm7.3                  ;5ea7  71 3b 27     PM74=output (Bit-banged I2C SDA to TEA6840H NICE only)
 
-    incw hl                   ;5eaa  86
-    dbnz b,lab_5e6b_byte_loop ;5eab  8b be
+    incw hl                     ;5eaa  86
+    dbnz b,lab_5e6b_byte_loop   ;5eab  8b be
 
-    pop bc                  ;5ead  b2
-    bt mem_fe68.4,sub_53b3_tea6840_done_success  ;5eae  cc 68 02
+    pop bc                                  ;5ead  b2
+    bt mem_fe68.4,i2c_tea6840_stop_success  ;5eae  cc 68 02  If start condition is desired, branch to generate it
+
+    ;No start condition is desired
     clr1 cy                 ;5eb1  21
     ret                     ;5eb2  af
 
-sub_53b3_tea6840_done_success:
+;Generate a bit-banged I2C stop condition for the TEA6840 only
+;after a successful transfer
+;
+;Returns carry clear (success) always
+;
+i2c_tea6840_stop_success:
     clr1 pm7.4              ;5eb3  71 4b 27     PM74=output (Bit-banged I2C SDA to TEA6840H NICE only)
     clr1 pu7.3              ;5eb6  71 3b 37     PU73 pull-up resistor disabled (I2C SCL to TEA6840H NICE only)
     set1 pm7.3              ;5eb9  71 3a 27     PM73=input (I2C SCL to TEA6840H NICE only)
@@ -18970,7 +19055,12 @@ sub_53b3_tea6840_done_success:
     clr1 cy                 ;5ec7  21
     ret                     ;5ec8  af
 
-lab_5ec9_tea6840_done_failed:
+;Generate a bit-banged I2C stop condition for the TEA6840 only
+;after a transfer error
+;
+;Returns carry set (failed) always
+;
+i2c_tea6840_stop_failed:
     clr1 pm7.3              ;5ec9  71 3b 27     PM73=output (I2C SCL to TEA6840H NICE only)
 
     cmp rb0_b,#0x00         ;5ecc  c8 fb 00     Waste time
@@ -18991,33 +19081,55 @@ lab_5ec9_tea6840_done_failed:
     pop bc                  ;5ee6  b2
     ret                     ;5ee7  af
 
-;Perform I2C read
-;Returns carry clear on success, carry set on failure
+;Perform I2C read into buffer [HL]
+;
+;Call with:
+;  HL = address of buffer to recieve data
+;  
+;  A = Bit 7: 0=do not generate start condition and send address byte, 1=do it
+;      Bit 6: 0=do not generate stop condition after data bytes, 1=do it 
+;      Bit 5-0: data length to read
+;  
+;  X = I2C address byte to write, if writing one
+;
+;Returns:
+;  Carry clear = success, set = failure
 ;
 i2c_read:
     push ax                         ;5ee8  b1
     and a,#0b00111111               ;5ee9  5d 3f
-    cmp a,#0x22                     ;5eeb  4d 22        TODO 0x22 = TDA7476 address?
+    cmp a,#0x22                     ;5eeb  4d 22        
     pop ax                          ;5eed  b0
-    bc lab_5ef2                     ;5eee  8d 02        Branch if less
-    set1 cy                         ;5ef0  20           Set carry to indicate failure
+    bc lab_5ef2_in_range            ;5eee  8d 02        Branch if < 0x22
+
+    set1 cy                         ;5ef0  20           Carry set = failed
     ret                             ;5ef1  af
 
-lab_5ef2:
+lab_5ef2_in_range:
     push bc                         ;5ef2  b3
     mov c,a                         ;5ef3  72
-    and a,#0x80                     ;5ef4  5d 80
-    bz lab_5f05                     ;5ef6  ad 0d
-    inc a                           ;5ef8  41
-    push hl                         ;5ef9  b7
-    movw hl,#rb0_x                  ;5efa  16 f8 fe
-    call !i2c_write                 ;5efd  9a 51 5f     Perform I2C write
-    pop hl                          ;5f00  b6
-    bnc lab_5f05                    ;5f01  9d 02        Branch if success
-    br lab_5f45                     ;5f03  fa 40
 
-lab_5f05:
+    and a,#0x80                     ;5ef4  5d 80
+    bz lab_5f05_skip_hw_init_and_address                     ;5ef6  ad 0d
+
+    ;A = 0b10000000 (0x80)
+
+    inc a                           ;5ef8  41
+
+    ;A = 0b10000001 (0x81) = do init, data length = 1
+    ;Init I2C hardware and send the I2C address byte in X
+
+    push hl                               ;5ef9  b7
+    movw hl,#rb0_x                        ;5efa  16 f8 fe     HL = address of register X (contains I2C address byte)
+    call !i2c_write                       ;5efd  9a 51 5f     Perform I2C write from buffer [HL]
+    pop hl                                ;5f00  b6
+    bnc lab_5f05_skip_hw_init_and_address ;5f01  9d 02        Branch if success
+
+    br lab_5f45_cy_set                    ;5f03  fa 40        Failed, branch to return with carry set
+
+lab_5f05_skip_hw_init_and_address:
     clr1 mem_fe68.5                 ;5f05  5b 68
+
     bf rb0_c.6,lab_5f0d             ;5f07  31 63 fa 02
     set1 mem_fe68.5                 ;5f0b  5a 68
 
@@ -19028,8 +19140,8 @@ lab_5f0d:
     set1 iicc0.acke0                ;5f12  71 2a a8     ACKE0=1 (Acknowledge enabled)
     decw hl                         ;5f15  96
 
-lab_5f16:
-    bt mem_fe61.7,lab_5f4b          ;5f16  fc 61 32     Branch if INTP2 occurred
+lab_5f16_byte_loop:
+    bt mem_fe61.7,br_lab_5feb_stop_failed          ;5f16  fc 61 32     Branch if INTP2 occurred
     dec b                           ;5f19  53
     bnz lab_5f26                    ;5f1a  bd 0a
     bf mem_fe68.5,lab_5f26          ;5f1c  31 53 68 06
@@ -19051,33 +19163,40 @@ lab_5f35:
     clr1 if0h.6                     ;5f35  71 6b e1     Clear IICIF0 (INTIIC0 interrupt flag)
     mov a,iic0                      ;5f38  f0 1f        A = I2C Shift Register
     mov [hl],a                      ;5f3a  97
-    dbnz b,lab_5f16                 ;5f3b  8b d9
+    dbnz b,lab_5f16_byte_loop       ;5f3b  8b d9
     bf mem_fe68.5,lab_5f44_success  ;5f3d  31 53 68 03
     set1 iicc0.spt0                 ;5f41  71 0a a8     STP0=1 (Stop condition generated)
 
 lab_5f44_success:
     clr1 cy                         ;5f44  21
 
-lab_5f45:
+lab_5f45_cy_set:
     pop bc                          ;5f45  b2
     clr1 mem_fe69.1                 ;5f46  1b 69        Bit clear = I2C will operate in high-speed mode
     set1 mem_fe68.6                 ;5f48  6a 68
     ret                             ;5f4a  af
 
-lab_5f4b:
-    br !lab_5feb                    ;5f4b  9b eb 5f
+br_lab_5feb_stop_failed:
+    br !lab_5feb_stop_failed        ;5f4b  9b eb 5f
 
+;Perform I2C write from buffer mem_fed4
 ;XXX appears unused
-sub_5f4e:
+i2c_write_fed4:
     movw hl,#mem_fed4               ;5f4e  16 d4 fe
 
+;Perform I2C write from buffer [HL]
+;
+;Call with:
+;  HL = address of buffer to recieve data
+;  
+;  A = Bit 7: 0=do not generate start condition, 1=do it
+;      Bit 6: 0=do not generate stop condition after data bytes, 1=do it
+;      Bit 5-0: data length to read
+;
+;Returns:
+;  Carry clear = success, set = failure
+;
 i2c_write:
-;Perform I2C write
-;
-;Always called with something in A
-;and a pointer to a buffer in HL
-;
-;Returns carry clear on success, carry set on failure
     bt mem_fe69.0,lab_5f64  ;5f51  8c 69 10
     bf mem_fe2d.0,lab_5f5f  ;5f54  31 03 2d 07
     call !i2c_setup         ;5f58  9a f5 5f     Set up hardware for an I2C transfer
@@ -19086,7 +19205,7 @@ i2c_write:
 
 lab_5f5f:
     set1 mem_fe68.7         ;5f5f  7a 68
-    br !lab_5fef            ;5f61  9b ef 5f
+    br !lab_5fef_set_cy     ;5f61  9b ef 5f
 
 lab_5f64:
     mov1 cy,mem_fe69.1      ;5f64  71 14 69     CY=0: use high-speed mode, CY=1: use standard mode
@@ -19095,23 +19214,28 @@ lab_5f64:
 
     push ax                 ;5f6b  b1
     and a,#0b00111111       ;5f6c  5d 3f
-    cmp a,#0x22             ;5f6e  4d 22        TODO 0x22 = TDA7476 address?
+    cmp a,#0x22             ;5f6e  4d 22        
     pop ax                  ;5f70  b0
-    bc lab_5f75             ;5f71  8d 02
+    bc lab_5f75_in_range    ;5f71  8d 02
 
-    set1 cy                 ;5f73  20
+    set1 cy                 ;5f73  20           Carry set = failure
     ret                     ;5f74  af
 
-lab_5f75:
+lab_5f75_in_range:
     clr1 mem_fe68.7         ;5f75  7b 68
     push bc                 ;5f77  b3
+
     clr1 mem_fe68.5         ;5f78  5b 68
-    bf a.6,lab_5f7f         ;5f7a  31 6f 02
+    bf a.6,lab_5f7f_no_stop ;5f7a  31 6f 02
+
     set1 mem_fe68.5         ;5f7d  5a 68
 
-lab_5f7f:
+lab_5f7f_no_stop:
     set1 iicc0.wtim0        ;5f7f  71 3a a8     WTIM0=1 (Interrupt request generated at 9th clock's falling edge)
-    bf a.7,lab_5fa9         ;5f82  31 7f 24
+    bf a.7,lab_5fa9_no_start ;5f82  31 7f 24
+
+    ;Generate start condition
+
     bf mem_fe68.6,lab_5fa0  ;5f85  31 63 68 17
     bt iiccl0.dad0,lab_5f8f ;5f89  31 46 aa 02  Branch if DAD0=1 (SDA0 line was detected at high level)
     br lab_5f93             ;5f8d  fa 04
@@ -19134,18 +19258,20 @@ lab_5fa6:
     dbnz b,lab_5fa6         ;5fa6  8b fe
     pop bc                  ;5fa8  b2
 
-lab_5fa9:
-    and a,#0x3f             ;5fa9  5d 3f
-    bz lab_5feb             ;5fab  ad 3e
+lab_5fa9_no_start:
+    and a,#0b00111111       ;5fa9  5d 3f
+    bz lab_5feb_stop_failed ;5fab  ad 3e
 
     mov b,a                 ;5fad  73
 
-lab_5fae:
-    bt mem_fe61.7,lab_5feb  ;5fae  fc 61 3a     Branch if INTP2 occurred
+lab_5fae_byte_loop:
+    bt mem_fe61.7,lab_5feb_stop_failed  ;5fae  fc 61 3a     Branch if INTP2 occurred
+
     mov a,[hl]              ;5fb1  87
     mov iic0,a              ;5fb2  f2 1f        I2C Shift Register = A
     incw hl                 ;5fb4  86
     bf mem_fe69.2,lab_5fbc  ;5fb5  31 23 69 03
+
     clr1 mem_fe69.2         ;5fb9  2b 69
     set1 cy                 ;5fbb  20
 
@@ -19155,39 +19281,44 @@ lab_5fbc:
 
 lab_5fc0:
     mov c,#0x50             ;5fc0  a2 50
-
-lab_5fc2:
+lab_5fc2_loop:
     bt if0h.6,lab_5fca      ;5fc2  31 66 e1 04  Branch if IICIF0 (INTIIC0 interrupt flag) is set
-    dbnz c,lab_5fc2         ;5fc6  8a fa
+    dbnz c,lab_5fc2_loop    ;5fc6  8a fa
+
     callf !sub_0879_ret     ;5fc8  0c 79        Just returns
 
 lab_5fca:
-    clr1 if0h.6             ;5fca  71 6b e1     Clear IICIF0 (INTIIC0 interrupt flag)
-    cmp a,iic0              ;5fcd  4e 1f        Compare A to I2C Shift Register
-    bnz lab_5feb            ;5fcf  bd 1a
-    mov1 cy,iics0.ackd0     ;5fd1  71 2c a9     CY = Detection of ACK (0=not detected, 1=detected)
-    dbnz b,lab_5fae         ;5fd4  8b d8
-    bf mem_fe68.5,lab_5fdd  ;5fd6  31 53 68 03
-    set1 iicc0.spt0         ;5fda  71 0a a8     SPT0=1 (Stop condition is generated)
+    clr1 if0h.6               ;5fca  71 6b e1     Clear IICIF0 (INTIIC0 interrupt flag)
+    cmp a,iic0                ;5fcd  4e 1f        Compare A to I2C Shift Register
+    bnz lab_5feb_stop_failed  ;5fcf  bd 1a
 
-lab_5fdd:
-    mov1 cy,mem_fe68.5      ;5fdd  71 54 68
-    mov1 mem_fe68.6,cy      ;5fe0  71 61 68
-    pop bc                  ;5fe3  b2
-    clr1 mem_fe69.1         ;5fe4  1b 69        Bit clear = I2C will use high-speed mode
-    bt mem_fe68.7,lab_5ff3  ;5fe6  fc 68 0a
-    clr1 cy                 ;5fe9  21
-    ret                     ;5fea  af
+    mov1 cy,iics0.ackd0       ;5fd1  71 2c a9     CY = Detection of ACK (0=not detected, 1=detected)
+    dbnz b,lab_5fae_byte_loop ;5fd4  8b d8
 
-lab_5feb:
+    bf mem_fe68.5,lab_5fdd_no_stop  ;5fd6  31 53 68 03  Branch if no stop condition is desired
+
+    ;Generate stop condition
+    set1 iicc0.spt0                 ;5fda  71 0a a8     SPT0=1 (Stop condition is generated)
+
+lab_5fdd_no_stop:
+    mov1 cy,mem_fe68.5                  ;5fdd  71 54 68
+    mov1 mem_fe68.6,cy                  ;5fe0  71 61 68
+    pop bc                              ;5fe3  b2
+    clr1 mem_fe69.1                     ;5fe4  1b 69        Bit clear = I2C will use high-speed mode
+    bt mem_fe68.7,lab_5ff3_set_cy_ret   ;5fe6  fc 68 0a
+
+    clr1 cy                             ;5fe9  21           Carry clear = success
+    ret                                 ;5fea  af
+
+lab_5feb_stop_failed:
     set1 iicc0.spt0         ;5feb  71 0a a8     SPT0=1 (Stop condition is generated)
     pop bc                  ;5fee  b2
 
-lab_5fef:
+lab_5fef_set_cy:
     clr1 mem_fe69.1         ;5fef  1b 69        Bit clear = I2C will use high-speed mode
     set1 mem_fe68.6         ;5ff1  6a 68
 
-lab_5ff3:
+lab_5ff3_set_cy_ret:
     set1 cy                 ;5ff3  20
     ret                     ;5ff4  af
 
@@ -19432,7 +19563,7 @@ lab_612c:
     mov mem_feda,a                  ;613d  f2 da
     mov a,#0xc7                     ;613f  a1 c7
     push bc                         ;6141  b3
-    call !i2c_tea6480_write_fed4    ;6142  9a 27 5e     I2C write to TEA6480 NICE only
+    call !i2c_tea6480_write_fed4    ;6142  9a 27 5e     Perform bit-banged I2C write to TEA6840 only from buffer mem_fed4
     pop bc                          ;6145  b2
     mov mem_fe22,#0x00              ;6146  11 22 00
     ret                             ;6149  af
@@ -19475,11 +19606,11 @@ sub_6177_tea6840:
 
 lab_617d:
     clr1 mem_fe5b.7         ;617d  7b 5b
-    movw hl,#mem_fed4       ;617f  16 d4 fe
-    mov a,#0xc1             ;6182  a1 c1
+    movw hl,#mem_fed4       ;617f  16 d4 fe     HL = buffer to receive I2C data
+    mov a,#0b11000000+0x01  ;6182  a1 c1        A = generate I2C start and stop conditions, data length = 1
     set1 mem_fe69.1         ;6184  1a 69        Bit set = I2C will operate in standard (not high-speed) mode
-    mov x,#0xc3             ;6186  a0 c3
-    call !i2c_tea6840_read  ;6188  9a 99 5d     Bit-banged I2C read from TEA6840H NICE only
+    mov x,#0xc3             ;6186  a0 c3        X = I2C address byte (TEA6840H read address)
+    call !i2c_tea6840_read  ;6188  9a 99 5d     Perform bit-banged I2C read from TEA6840H NICE only into buffer [HL]
     call !sub_0800_mode     ;618b  9a 00 08     Return mem_f253_ee_00b0_mode in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     mov b,a                 ;618e  73           B = mem_f253_ee_00b0_mode mode
     movw hl,#mem_b40e       ;618f  16 0e b4
@@ -19662,7 +19793,7 @@ lab_624f_attempt:
     push ax                 ;625c  b1
     mov a,#0x82             ;625d  a1 82
     movw hl,#i2c_buf        ;625f  16 db fb
-    call !i2c_write         ;6262  9a 51 5f     Perform I2C write
+    call !i2c_write         ;6262  9a 51 5f     Perform I2C write from buffer [HL]
     pop ax                  ;6265  b0
 
     set1 a.0                ;6266  61 8a
@@ -19671,7 +19802,7 @@ lab_624f_attempt:
     or a,#0xc0              ;626c  6d c0
     pop hl                  ;626e  b6
     push hl                 ;626f  b7
-    call !i2c_read          ;6270  9a e8 5e     Perform I2C read
+    call !i2c_read          ;6270  9a e8 5e     Perform I2C read into buffer [HL]
     bc lab_627b             ;6273  8d 06        Branch if failed
 
 lab_6275_success:
@@ -19801,11 +19932,11 @@ lab_62c6_attempt:
 
     movw hl,#i2c_buf        ;62e0  16 db fb
     mov a,!mem_fc10         ;62e3  8e 10 fc
-    add a,#0xc2             ;62e6  0d c2
-    call !i2c_write         ;62e8  9a 51 5f     Perform I2C write
-    bc lab_628b_failed      ;62eb  8d 9e        Failed; branch to clear carry, pop registers, and return
+    add a,#0b11000000+0x02  ;62e6  0d c2
+    call !i2c_write         ;62e8  9a 51 5f     Perform I2C write from buffer [HL]
+    bc lab_628b_failed      ;62eb  8d 9e        If failed, branch to clear carry, pop registers, and return
 
-    ;TODO I2C write? succeeded
+    ;I2C write succeeded
 
     mov a,#0x0b             ;62ed  a1 0b
     mov !mem_fb06,a         ;62ef  9e 06 fb
@@ -23342,11 +23473,14 @@ sub_7712:
 lab_771a:
     mov a,#0x0c             ;771a  a1 0c
     mov !mem_fb12,a         ;771c  9e 12 fb
-    mov a,#0x22<<1          ;771f  a1 44        0x22 = TDA7476 I2C address
+
+    mov a,#0x22<<1          ;771f  a1 44        
     mov !i2c_buf,a          ;7721  9e db fb
-    mov a,#0xc1             ;7724  a1 c1
+
+    mov a,#0b11000000+0x01  ;7724  a1 c1
     movw hl,#i2c_buf        ;7726  16 db fb
-    call !i2c_write         ;7729  9a 51 5f     Perform I2C write
+    call !i2c_write         ;7729  9a 51 5f     Perform I2C write from buffer [HL]
+
     clr1 mem_fe40.0         ;772c  0b 40
     bc lab_7734             ;772e  8d 04        Branch if failed
     set1 mem_fe40.0         ;7730  0a 40
@@ -23368,7 +23502,7 @@ sub_7735:
     set1 mem_fe69.3         ;7748  3a 69
 
 lab_774a:
-    call !i2c_read          ;774a  9a e8 5e     Perform I2C read
+    call !i2c_read          ;774a  9a e8 5e     Perform I2C read into buffer [HL]
     clr1 mem_fe69.3         ;774d  3b 69
     bnc lab_7761            ;774f  9d 10        Branch if succeeded
     mov a,!mem_fc14         ;7751  8e 14 fc
@@ -29189,18 +29323,23 @@ sub_9e8e:
     mov !i2c_buf+3,a        ;9e9b  9e de fb
     xch a,x                 ;9e9e  30
     mov !i2c_buf+4,a        ;9e9f  9e df fb
-    mov a,#0x85             ;9ea2  a1 85
-    movw hl,#i2c_buf        ;9ea4  16 db fb
-    call !i2c_write         ;9ea7  9a 51 5f     Perform I2C write
-    mov a,#0x02             ;9eaa  a1 02
-    movw hl,#i2c_buf+3      ;9eac  16 de fb
-    call !i2c_write         ;9eaf  9a 51 5f     Perform I2C write
-    mov a,#0x02             ;9eb2  a1 02
-    movw hl,#i2c_buf+3      ;9eb4  16 de fb
-    call !i2c_write         ;9eb7  9a 51 5f     Perform I2C write
-    mov a,#0x42             ;9eba  a1 42
-    movw hl,#i2c_buf+3      ;9ebc  16 de fb
-    call !i2c_write         ;9ebf  9a 51 5f     Perform I2C write
+
+    mov a,#0b10000000+0x05  ;9ea2  a1 85        A = generate start, no stop, data length = 5
+    movw hl,#i2c_buf        ;9ea4  16 db fb     HL = buffer to send
+    call !i2c_write         ;9ea7  9a 51 5f     Perform I2C write from buffer [HL]
+
+    mov a,#0b00000000+0x02  ;9eaa  a1 02        A = no start, no stop, data length = 2
+    movw hl,#i2c_buf+3      ;9eac  16 de fb     HL = buffer to send
+    call !i2c_write         ;9eaf  9a 51 5f     Perform I2C write from buffer [HL]
+
+    mov a,#0b00000000+0x02  ;9eb2  a1 02        A = no start, no stop, data length = 2
+    movw hl,#i2c_buf+3      ;9eb4  16 de fb     HL = buffer to send
+    call !i2c_write         ;9eb7  9a 51 5f     Perform I2C write from buffer [HL]
+
+    mov a,#0b01000000+0x02  ;9eba  a1 42        A = no start, generate stop, data length = 2
+    movw hl,#i2c_buf+3      ;9ebc  16 de fb     HL = buffer to send
+    call !i2c_write         ;9ebf  9a 51 5f     Perform I2C write from buffer [HL]
+
     mov a,#0x0b             ;9ec2  a1 0b
     br !sub_9f9f            ;9ec4  9b 9f 9f
 
@@ -29217,10 +29356,10 @@ lab_9ed1:
     mov !i2c_buf,a          ;9eda  9e db fb
     mov a,#0x83             ;9edd  a1 83
     movw hl,#i2c_buf        ;9edf  16 db fb
-    call !i2c_write         ;9ee2  9a 51 5f     Perform I2C write
+    call !i2c_write         ;9ee2  9a 51 5f     Perform I2C write from buffer [HL]
     mov a,#0x4e             ;9ee5  a1 4e
     movw hl,#mem_f022       ;9ee7  16 22 f0
-    call !i2c_write         ;9eea  9a 51 5f     Perform I2C write
+    call !i2c_write         ;9eea  9a 51 5f     Perform I2C write from buffer [HL]
     movw hl,#mem_ba94       ;9eed  16 94 ba
     bf mem_fe73.7,lab_9ef7  ;9ef0  31 73 73 03
     movw hl,#mem_ba9a       ;9ef4  16 9a ba
@@ -29252,7 +29391,7 @@ sub_9f12:
     call !sub_9f9f          ;9f1f  9a 9f 9f
     or a,#0xc0              ;9f22  6d c0
     movw hl,#i2c_buf        ;9f24  16 db fb
-    br !i2c_write           ;9f27  9b 51 5f     Perform I2C write
+    br !i2c_write           ;9f27  9b 51 5f     Perform I2C write from buffer [HL]
 
 sub_9f2a:
     call !sub_9f8a          ;9f2a  9a 8a 9f
@@ -29310,7 +29449,7 @@ lab_9f70:
     or a,#0x40              ;9f74  6d 40
 
 lab_9f76:
-    br !i2c_write           ;9f76  9b 51 5f     Perform I2C write
+    br !i2c_write           ;9f76  9b 51 5f     Perform I2C write from buffer [HL]
 
 lab_9f79:
     push hl                 ;9f79  b7
@@ -29321,7 +29460,7 @@ lab_9f79:
     call !sub_9f9f          ;9f81  9a 9f 9f
     or a,#0x40              ;9f84  6d 40
     pop hl                  ;9f86  b6
-    br !i2c_write           ;9f87  9b 51 5f     Perform I2C write
+    br !i2c_write           ;9f87  9b 51 5f     Perform I2C write from buffer [HL]
 
 sub_9f8a:
     mov a,#0x1C<<1          ;9f8a  a1 38        0x1C = SAA7705H I2C address
@@ -29439,11 +29578,11 @@ sub_a04d:
     mov !i2c_buf,a          ;a056  9e db fb
     mov a,#0x83             ;a059  a1 83
     movw hl,#i2c_buf        ;a05b  16 db fb
-    call !i2c_write         ;a05e  9a 51 5f     Perform I2C write
+    call !i2c_write         ;a05e  9a 51 5f     Perform I2C write from buffer [HL]
     mov x,#0x39             ;a061  a0 39
     movw hl,#mem_fed4       ;a063  16 d4 fe
     mov a,#0xc3             ;a066  a1 c3
-    br !i2c_read            ;a068  9b e8 5e     Perform I2C read
+    br !i2c_read            ;a068  9b e8 5e     Perform I2C read into buffer [HL]
 
 sub_a06b:
     mov a,#0x32             ;a06b  a1 32
