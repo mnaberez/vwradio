@@ -407,7 +407,7 @@ mem_fb98 = 0xfb98
 mem_fb99 = 0xfb99
 mem_fb9a = 0xfb9a
 kwp_cu_buf = 0xfb9b         ;KWP1281 title 0x1b custom usage main data buffer (8 bytes)
-kwp_cu_i2c_buf = 0xfba7     ;KWP1281 title 0x1b custom usage I2C data buffer (5 bytes)
+kwp_cu_i2c_buf = 0xfba7     ;KWP1281 title 0x1b custom usage buffer for I2C writes > 5 bytes (5 bytes)
 mem_fbac = 0xfbac
 mem_fbad = 0xfbad
 mem_fbae = 0xfbae
@@ -13740,68 +13740,81 @@ lab_4724:
 lab_4730:
     ret                         ;4730  af
 
-kwp_7c_1b_2d_i2c_read_or_write:
+kwp_7c_1b_2d_i2c_read_write:
 ;Title=0x1b  Subtitle=0x2d  Block length=0x0b
 ;
-;Write 5 bytes to kwp_cu_i2c_buf or do unknown I2C read/write operations.
+;Perform an I2C transaction.  The request block contains a control byte
+;followed by exactly 5 data bytes.
 ;
 ;Request block:
-;   0x0b Block length                           kwp_rx_buf+0
-;    xx  Block counter                          kwp_rx_buf+1
-;   0x1B Block title (custom usage)             kwp_rx_buf+2
-;   0x31 Unknown constant                       kwp_rx_buf+3 -> kwp_cu_buf
-;   0x2d Subtitle (0x2d)                        kwp_rx_buf+4 -> kwp_cu_buf+1
-;    xx  Control byte                           kwp_rx_buf+5 -> kwp_cu_buf+2
-;    xx  Data byte 0                            kwp_rx_buf+6 -> kwp_cu_buf+3 -> kwp_cu_i2c_buf
-;    xx  Data byte 1                            kwp_rx_buf+7 -> kwp_cu_buf+4 -> kwp_cu_i2c_buf+1
-;    xx  Data byte 2                            kwp_rx_buf+8 -> kwp_cu_buf+5 -> kwp_cu_i2c_buf+2
-;    xx  Data byte 3                            kwp_rx_buf+9 -> kwp_cu_buf+6 -> kwp_cu_i2c_buf+3
-;    xx  Data byte 4                            kwp_rx_buf+a -> kwp_cu_buf+7 -> kwp_cu_i2c_buf+4
-;   0x03 Block end                              kwp_rx_buf+b
 ;
-;If the Control byte = 0, do nothing.  The response block will
-;contain whatever happens to be in kwp_tx_buf (TODO verify this):
+;   0x0b Block length                                     kwp_rx_buf+0
+;    xx  Block counter                                    kwp_rx_buf+1
+;   0x1B Block title (custom usage)                       kwp_rx_buf+2
+;   0x31 Unknown constant                                 kwp_rx_buf+3 -> kwp_cu_buf
+;   0x2d Subtitle (0x2d)                                  kwp_rx_buf+4 -> kwp_cu_buf+1
+;    xx  Control byte                                     kwp_rx_buf+5 -> kwp_cu_buf+2
+;    xx  I2C Data byte 0 (I2C Address) / I2C Data byte 5  kwp_rx_buf+6 -> kwp_cu_buf+3 -> kwp_cu_i2c_buf
+;    xx  I2C Data byte 1               / I2C Data byte 6  kwp_rx_buf+7 -> kwp_cu_buf+4 -> kwp_cu_i2c_buf+1
+;    xx  I2C Data byte 2               / I2C Data byte 7  kwp_rx_buf+8 -> kwp_cu_buf+5 -> kwp_cu_i2c_buf+2
+;    xx  I2C Data byte 3               / I2C Data byte 8  kwp_rx_buf+9 -> kwp_cu_buf+6 -> kwp_cu_i2c_buf+3
+;    xx  I2C Data byte 4               / I2C Data byte 9  kwp_rx_buf+a -> kwp_cu_buf+7 -> kwp_cu_i2c_buf+4
+;   0x03 Block end                                        kwp_rx_buf+b
 ;
-;Response block for Control byte = 0:
-;   0x0b Block length                           kwp_tx_buf+0
-;    xx  Block counter                          kwp_tx_buf+1
-;   0x1B Block title (custom usage)             kwp_tx_buf+2
-;    xx  Undefined                              kwp_tx_buf+3 (undefined)
-;    xx  Undefined                              kwp_tx_buf+4 (undefined)
-;    xx  Undefined                              kwp_tx_buf+5 (undefined)
-;    xx  Undefined                              kwp_tx_buf+6 (undefined)
-;    xx  Undefined                              kwp_tx_buf+7 (undefined)
-;    xx  Undefined                              kwp_tx_buf+8 (undefined)
-;    xx  Undefined                              kwp_tx_buf+9 (undefined)
-;    xx  Undefined                              kwp_tx_buf+9 (undefined)
-;   0x03 Block end                              kwp_tx_buf+a 
+;Format of the control byte:
 ;
-;If the Control byte >= 0x80, the 5 data bytes in the request block
-;are written to the buffer kwp_cu_i2c_buf.  The following response
-;block is returned:
+;  Bit 7 = Flag: 0=do actual I2C, 1=write to I2C buffer kwp_cu_i2c_buf only
+;  Bit 6 \ 
+;  Bit 5 | Number of bytes to write to I2C (0-10)
+;  Bit 4 | (first 5 bytes from kwp_rx_buf+6, second 5 bytes from kwp_cu_i2c_buf)
+;  Bit 3 /
+;  Bit 2 \
+;  Bit 1 | Number of bytes to read from I2C (0-5)
+;  Bit 0 /
 ;
-;Response block for Control byte >= 0x80:
-;   0x0b Block length                           kwp_tx_buf+0
-;    xx  Block counter                          kwp_tx_buf+1
-;   0x1B Block title (custom usage)             kwp_tx_buf+2
-;   0x31 Unknown Constant                       kwp_tx_buf+3 <- kwp_cu_buf+0 
-;   0x2d Subtitle (0x2d)                        kwp_tx_buf+4 <- kwp_cu_buf+1
-;    xx  Control byte                           kwp_tx_buf+5 <- kwp_cu_buf+2
-;    xx  Data byte 0                            kwp_tx_buf+6 <- kwp_cu_buf+3
-;    xx  Data byte 1                            kwp_tx_buf+7 <- kwp_cu_buf+4
-;    xx  Data byte 2                            kwp_tx_buf+8 <- kwp_cu_buf+5
-;    xx  Data byte 3                            kwp_tx_buf+9 <- kwp_cu_buf+6
-;    xx  Data byte 4                            kwp_tx_buf+9 <- kwp_cu_buf+7
-;   0x03 Block end                              kwp_tx_buf+a 
+;The following combinations are supported:
 ;
-;If the Control byte >= 1 and <= 0x7F: do unknown I2C operations.
-;TODO investigate I2C
+;  - Perform an I2C write only       (number of bytes to write > 0, number to read = 0)
+;  - Perform an I2C read only        (number of bytes to write = 0, number to read > 0)
+;  - Perform an I2C write then read  (both lengths non-zero)
+;  - Do not perform I2C; write to kwp_cu_i2c_buf used for I2C writes > 5 bytes
+;
+;If Bit 7 of the control byte is set, no I2C operation will be performed
+;and the other bits of the control byte are ignored.  The 5 data bytes in
+;the request are written to the buffer kwp_cu_i2c_buf.  When a future
+;request block specifies an I2C write longer than 5 bytes, the first 5
+;bytes will come from that request block and up to five more will come 
+;from kwp_cu_i2c_buf.
+;
+;Response block:
+;
+;   0x0b Block length                                     kwp_tx_buf+0
+;    xx  Block counter                                    kwp_tx_buf+1
+;   0x1B Block title (custom usage)                       kwp_tx_buf+2
+;   0x31 Unknown Constant                                 kwp_tx_buf+3 <- kwp_cu_buf+0 
+;   0x2d Subtitle (0x2d)                                  kwp_tx_buf+4 <- kwp_cu_buf+1
+;    xx  Control byte                                     kwp_tx_buf+5 <- kwp_cu_buf+2
+;    xx  I2C Data byte 0 (I2C Address) / I2C Data byte 5  kwp_tx_buf+6 <- kwp_cu_buf+3
+;    xx  I2C Data byte 1               / I2C Data byte 6  kwp_tx_buf+7 <- kwp_cu_buf+4
+;    xx  I2C Data byte 2               / I2C Data byte 7  kwp_tx_buf+8 <- kwp_cu_buf+5
+;    xx  I2C Data byte 3               / I2C Data byte 8  kwp_tx_buf+9 <- kwp_cu_buf+6
+;    xx  I2C Data byte 4               / I2C Data byte 9  kwp_tx_buf+a <- kwp_cu_buf+7
+;   0x03 Block end                                        kwp_tx_buf+b 
+;
+;The control byte and 5 data bytes will always be returned.  The data bytes
+;will contain the data written or read.  If fewer than 5 bytes were read or
+;written, the extra bytes in the response block will contain whatever was
+;in those positions in the request block. (TODO verify this)
+;
+;If the control byte = 0, it means an an I2C operation was requested (bit 7 clear)
+;with no bytes to read or write.  The data returned in the response block is 
+;undefined. (TODO verify this)
 ;
     mov a,!kwp_rx_buf+5       ;4731  8e 8f f0     A = value at KWP1281 rx buffer byte 5 (Control byte)
     cmp a,#0x00               ;4734  4d 00
     bz lab_474d_ret           ;4736  ad 15
 
-    bf a.7,lab_474e_bit_7_off ;4738  31 7f 13
+    bf a.7,lab_474e_do_i2c    ;4738  31 7f 13
 
     ;Bit 7 of kwp_rx_buf+5 is set
     ;meaning this request is only to write to kwp_cu_i2c_buf 
@@ -13826,51 +13839,38 @@ lab_474d_ret:
     ;A != 0
     ;Bit 7 of A is off meaning this request is to do an I2C operation
 
-;Control byte
-;
-;  Bit 7 = Flag: 0=do actual I2C, 1=write to I2C buffer only
-;  Bit 6 \
-;  Bit 5 | Unknown, if >= 0x10 when masked off then set mem_fed4 = 0x80
-;  Bit 4 | and do an extra call to sub_4797_i2c_write first
-;  Bit 3 /
-;  Bit 2 \
-;  Bit 1 | Data Length
-;  Bit 0 /
-;
-
-
-lab_474e_bit_7_off:
+lab_474e_do_i2c:
     set1 mem_fe69.1         ;474e  1a 69        Bit set = I2C will operate in standard (not high-speed) mode
 
-    mov mem_fed4,#0xc0      ;4750  11 d4 c0
+    mov mem_fed4,#0b11000000;4750  11 d4 c0     Bit 7 = generate start condition, bit 6 = generate stop
 
     and a,#0b00000111       ;4753  5d 07
-    bz sub_4797_i2c_write   ;4755  ad 40        Branch if 0
+    bz sub_4797_i2c_write   ;4755  ad 40        Branch if no bytes to read
 
     ;Control byte & 0b111 != 0
 
     cmp a,#0x05             ;4757  4d 05
-    bc lab_475d             ;4759  8d 02        Branch if < 5
+    bc lab_475d_read_len_ok ;4759  8d 02        Branch if < 5 bytes to read
 
     ;Control byte & 0b111 >= 5
 
     mov a,#0x05             ;475b  a1 05
 
-lab_475d:
+lab_475d_read_len_ok:
     mov x,a                 ;475d  70           X = Control byte & 0b111 in range of 1-5 inclusive
     push ax                 ;475e  b1           
 
     mov a,!kwp_rx_buf+5     ;475f  8e 8f f0     A = value at KWP1281 rx buffer byte 5 (Control byte)
     and a,#0b01111000       ;4762  5d 78
     cmp a,#0x10             ;4764  4d 10
-    bc lab_476e             ;4766  8d 06        Branch if < 0x10
+    bc lab_476e_i2c_read    ;4766  8d 06        Branch if < 0x10 (no bytes to write)
 
     ;Control byte & 0b01111000 >= 0x10
 
-    mov mem_fed4,#0x80      ;4768  11 d4 80
+    mov mem_fed4,#0b10000000;4768  11 d4 80     Bit 7 set = generate stop condition, bit 6 clear = no stop
     call !sub_4797_i2c_write;476b  9a 97 47
 
-lab_476e:
+lab_476e_i2c_read:
     mov a,#0x03             ;476e  a1 03        A = 3 bytes to copy
     call !copy_to_kwp_cu_buf;4770  9a 6f 48     Copy A bytes from kwp_rx_buf+3 to kwp_cu_buf, Preserve HL and DL
 
@@ -13880,13 +13880,16 @@ lab_476e:
     add a,#0x03             ;4774  0d 03
     mov !kwp_cu_len,a       ;4776  9e af fb     Number of bytes of custom usage data to send in KWP1281 response
 
-    mov a,!kwp_rx_buf+6     ;4779  8e 90 f0     KWP1281 rx buffer byte 6 (Data byte 0)
-    set1 a.0                ;477c  61 8a
-    xch a,x                 ;477e  30
-    or a,#0xc0              ;477f  6d c0
-    movw hl,#kwp_cu_buf+3   ;4781  16 9e fb     HL = address of Data Byte 0
+    mov a,!kwp_rx_buf+6     ;4779  8e 90 f0     KWP1281 rx buffer byte 6 (Data byte 0) (I2C address)
+    set1 a.0                ;477c  61 8a        Set bit 0 = I2C read
+    xch a,x                 ;477e  30           Swap so that:
+                            ;                     X = I2C address byte
+                            ;                     A = length from Control byte
+    or a,#0b11000000        ;477f  6d c0        Bit 7 on = generate start condition, Bit 6 on = generate stop
+    movw hl,#kwp_cu_buf+3   ;4781  16 9e fb     HL = address buffer to receive I2C data
+
     push ax                 ;4784  b1
-    mov a,x                 ;4785  60
+    mov a,x                 ;4785  60           X = I2C address byte
     and a,#0b11111110       ;4786  5d fe        Mask to turn off bit 0 (R/W bit)
     cmp a,#0xc2             ;4788  4d c2        Address = TEA6840H? (0xC2=TEA6840H write, 0xC3=TEAH6840H read)
     pop ax                  ;478a  b0
@@ -13924,7 +13927,7 @@ sub_4797_i2c_write:
 
     ;The I2C buffer now contains:
     ;
-    ;i2c_buf+0 <- kwp_rx_buf+6
+    ;i2c_buf+0 <- kwp_rx_buf+6      (I2C address byte)
     ;i2c_buf+1 <- kwp_rx_buf+7
     ;i2c_buf+2 <- kwp_rx_buf+8
     ;i2c_buf+3 <- kwp_rx_buf+9
@@ -13956,7 +13959,7 @@ lab_47ba:
     pop ax                      ;47c5  b0
     bnz lab_47cd_not_tea6840    ;47c6  bd 05        
 
-    call !i2c_tea6840_write     ;47c8  9a 2a 5e     Perform bit-banged I2C write to TEA6840 only from buffer [HL]
+    call !i2c_tea6840_write     ;47c8  9a 2a 5e     Perform bit-banged I2C write to TEA6840H only from buffer [HL]
     br lab_47d0_clr1_ret        ;47cb  fa 03        Branch to skip normal I2C write
 
 lab_47cd_not_tea6840:
@@ -15736,8 +15739,8 @@ call_kwp_7c_1b_2a_exposed_read:
     call !kwp_7c_1b_2a_exposed_read         ;4fb0  9a fc 46
     br !send_cu_data_resp                   ;4fb3  9b fb 54     Branch to send response with custom usage data
 
-call_kwp_7c_1b_2d_i2c_read_or_write:
-    call !kwp_7c_1b_2d_i2c_read_or_write    ;4fb6  9a 31 47
+call_kwp_7c_1b_2d_i2c_read_write:
+    call !kwp_7c_1b_2d_i2c_read_write       ;4fb6  9a 31 47
     br !send_cu_data_resp                   ;4fb9  9b fb 54     Branch to send response with custom usage data
 
 call_kwp_7c_1b_2e_exposed_write:
@@ -18793,7 +18796,7 @@ lab_5d88:
 ;  
 ;  A = Bit 7: 0=do not generate start condition and send address byte, 1=do it
 ;      Bit 6: 0=do not generate stop condition after data bytes, 1=do it
-;      Bit 5-0: data length to read
+;      Bit 5-0: number of bytes to read
 ;  
 ;  X = I2C address byte to write, if writing one
 ;
@@ -18827,7 +18830,7 @@ lab_5da3_in_range:
 
     push hl                 ;5daa  b7
     movw hl,#rb0_x          ;5dab  16 f8 fe     HL = address of register X (contains I2C address byte)
-    call !i2c_tea6840_write ;5dae  9a 2a 5e     Perform bit-banged I2C write to TEA6840 only from buffer [HL]
+    call !i2c_tea6840_write ;5dae  9a 2a 5e     Perform bit-banged I2C write to TEA6840H only from buffer [HL]
     pop hl                  ;5db1  b6
     bc lab_5e25_pop_ret     ;5db2  8d 71        Branch if write failed
 
@@ -18911,18 +18914,18 @@ lab_5e25_pop_ret:
     pop bc                  ;5e25  b2
     ret                     ;5e26  af
 
-;Perform bit-banged I2C write to TEA6840 only from buffer mem_fed4
+;Perform bit-banged I2C write to TEA6840H only from buffer mem_fed4
 i2c_tea6480_write_fed4:
     movw hl,#mem_fed4       ;5e27  16 d4 fe
 
-;Perform bit-banged I2C write to TEA6840 only from buffer [HL]
+;Perform bit-banged I2C write to TEA6840H only from buffer [HL]
 ;
 ;Call with:
 ;  HL = address of buffer with I2C data to write
 ;
 ;  A = Bit 7: 0=do not generate start condition, 1=do it
 ;      Bit 6: 0=do not generate stop condition after data bytes, 1=do it
-;      Bit 5-0: data length
+;      Bit 5-0: number of bytes to write
 ;
 ;Returns:
 ;  Carry clear = success, set = failed
@@ -19036,7 +19039,7 @@ lab_5e7c:
     clr1 cy                 ;5eb1  21
     ret                     ;5eb2  af
 
-;Generate a bit-banged I2C stop condition for the TEA6840 only
+;Generate a bit-banged I2C stop condition for the TEA6840H only
 ;after a successful transfer
 ;
 ;Returns carry clear (success) always
@@ -19055,7 +19058,7 @@ i2c_tea6840_stop_success:
     clr1 cy                 ;5ec7  21
     ret                     ;5ec8  af
 
-;Generate a bit-banged I2C stop condition for the TEA6840 only
+;Generate a bit-banged I2C stop condition for the TEA6840H only
 ;after a transfer error
 ;
 ;Returns carry set (failed) always
@@ -19088,7 +19091,7 @@ i2c_tea6840_stop_failed:
 ;  
 ;  A = Bit 7: 0=do not generate start condition and send address byte, 1=do it
 ;      Bit 6: 0=do not generate stop condition after data bytes, 1=do it 
-;      Bit 5-0: data length to read
+;      Bit 5-0: number of bytes to read
 ;  
 ;  X = I2C address byte to write, if writing one
 ;
@@ -19191,7 +19194,7 @@ i2c_write_fed4:
 ;  
 ;  A = Bit 7: 0=do not generate start condition, 1=do it
 ;      Bit 6: 0=do not generate stop condition after data bytes, 1=do it
-;      Bit 5-0: data length to read
+;      Bit 5-0: number of bytes to write
 ;
 ;Returns:
 ;  Carry clear = success, set = failure
@@ -19563,7 +19566,7 @@ lab_612c:
     mov mem_feda,a                  ;613d  f2 da
     mov a,#0xc7                     ;613f  a1 c7
     push bc                         ;6141  b3
-    call !i2c_tea6480_write_fed4    ;6142  9a 27 5e     Perform bit-banged I2C write to TEA6840 only from buffer mem_fed4
+    call !i2c_tea6480_write_fed4    ;6142  9a 27 5e     Perform bit-banged I2C write to TEA6840H only from buffer mem_fed4
     pop bc                          ;6145  b2
     mov mem_fe22,#0x00              ;6146  11 22 00
     ret                             ;6149  af
@@ -33419,7 +33422,7 @@ kwp_7c_1b_handlers:
     .word call_kwp_7c_1b_27_sub_0994                ;b31e  a4 4f       VECTOR           B=0x02  Title=0x1b  Subtitle=0x27
     .word call_kwp_7c_1b_28_sub_aa92                ;b320  aa 4f       VECTOR           B=0x03  Title=0x1b  Subtitle=0x28
     .word call_kwp_7c_1b_2a_exposed_read            ;b322  b0 4f       VECTOR           B=0x04  Title=0x1b  Subtitle=0x2a
-    .word call_kwp_7c_1b_2d_i2c_read_or_write       ;b324  b6 4f       VECTOR           B=0x05  Title=0x1b  Subtitle=0x2d
+    .word call_kwp_7c_1b_2d_i2c_read_write          ;b324  b6 4f       VECTOR           B=0x05  Title=0x1b  Subtitle=0x2d
     .word call_kwp_7c_1b_2e_exposed_write           ;b326  bc 4f       VECTOR           B=0x06  Title=0x1b  Subtitle=0x2e
     .word kwp_7c_1b_2f_cold_start                   ;b328  c2 4f       VECTOR           B=0x07  Title=0x1b  Subtitle=0x2f
     .word call_kwp_7c_1b_30_eeprom_csum_related     ;b32a  c5 4f       VECTOR           B=0x08  Title=0x1b  Subtitle=0x30
