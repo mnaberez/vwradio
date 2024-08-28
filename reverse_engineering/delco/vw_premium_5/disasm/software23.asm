@@ -443,7 +443,7 @@ mem_fc11 = 0xfc11
 mem_fc12 = 0xfc12           ;I2C attempt counter used in eeprom_unguarded_read (read EEPROM)
 mem_fc14 = 0xfc14
 mem_fc16 = 0xfc16
-mem_fc17 = 0xfc17
+tda7476_buf = 0xfc17        ;I2C buffer for data received from TDA7476 (3 bytes)
 
 ;Faults buffer #1 (9 bytes)
 ;See also clear_faults
@@ -23494,18 +23494,23 @@ lab_7734:
 
 sub_7735:
     clr1 mem_fe40.0         ;7735  0b 40
-    mov a,#0x44             ;7737  a1 44
-    set1 a.0                ;7739  61 8a
-    mov x,a                 ;773b  70
-    mov a,#0x03             ;773c  a1 03
-    or a,#0xc0              ;773e  6d c0
-    movw hl,#mem_fc17       ;7740  16 17 fc
+
+    mov a,#0x22<<1          ;7737  a1 44        A = I2C address 0x22 (TDA7476)
+    set1 a.0                ;7739  61 8a        Set bit 0 = I2C read
+    mov x,a                 ;773b  70           Save in X for i2c_read
+
+    mov a,#0x03             ;773c  a1 03        A = 3 bytes to read
+    or a,#0b11000000        ;773e  6d c0        Add start condition and stop condition
+
+    movw hl,#tda7476_buf    ;7740  16 17 fc     HL = buffer to receive I2C data
+
     clr1 mem_fe69.3         ;7743  3b 69
     bt mem_fe6b.4,lab_774a  ;7745  cc 6b 02
     set1 mem_fe69.3         ;7748  3a 69
 
 lab_774a:
     call !i2c_read          ;774a  9a e8 5e     Perform I2C read into buffer [HL]
+
     clr1 mem_fe69.3         ;774d  3b 69
     bnc lab_7761            ;774f  9d 10        Branch if succeeded
     mov a,!mem_fc14         ;7751  8e 14 fc
@@ -23613,7 +23618,7 @@ lab_77f8:
     ret                     ;77f8  af
 
 sub_77f9:
-    movw hl,#mem_fc17       ;77f9  16 17 fc
+    movw hl,#tda7476_buf    ;77f9  16 17 fc
     mov a,mem_fed4          ;77fc  f0 d4
     cmp a,#0x06             ;77fe  4d 06
     bnc lab_7807            ;7800  9d 05
@@ -23853,7 +23858,7 @@ lab_79ba:
     bt mem_fe65.5,lab_7a0d  ;79bc  dc 65 4e
     bt mem_fe6b.4,lab_7a0d  ;79bf  cc 6b 4b
     bt mem_fe41.5,lab_79e9  ;79c2  dc 41 24
-    movw hl,#mem_fc17       ;79c5  16 17 fc
+    movw hl,#tda7476_buf    ;79c5  16 17 fc
     mov a,[hl+0x00]         ;79c8  ae 00
     mov mem_feda,a          ;79ca  f2 da
     and a,#0x0f             ;79cc  5d 0f
@@ -23876,7 +23881,7 @@ lab_79da:
     br !lab_7a70            ;79e6  9b 70 7a
 
 lab_79e9:
-    movw hl,#mem_fc17       ;79e9  16 17 fc
+    movw hl,#tda7476_buf    ;79e9  16 17 fc
     mov a,[hl+0x01]         ;79ec  ae 01
     mov mem_feda,a          ;79ee  f2 da
     and a,#0xfc             ;79f0  5d fc
