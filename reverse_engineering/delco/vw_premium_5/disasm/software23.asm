@@ -7420,7 +7420,7 @@ lab_2762_loop:
 
     ;Get pointer to current position in faults buffer
     ;Check if it is valid
-    movw ax,!mem_f002       ;2762  02 02 f0     A = pointer to faults buffer
+    movw ax,!mem_f002       ;2762  02 02 f0     AX = pointer to faults buffer
     cmpw ax,#mem_f20d_ee_006a       ;2765  ea 0d f2     HL = faults buffer #2
     bc lab_278c_no_fault    ;2768  8d 22        Branch to "no fault" if AX < #mem_f20d_ee_006a
     cmpw ax,#mem_f218_ee_0075+1     ;276a  ea 19 f2
@@ -19794,17 +19794,20 @@ lab_624f_attempt:
     mov !i2c_buf,a          ;6259  9e db fb     Store 24C04 Device Select byte
 
     push ax                 ;625c  b1
-    mov a,#0x82             ;625d  a1 82
-    movw hl,#i2c_buf        ;625f  16 db fb
+    mov a,#0b10000000+0x02  ;625d  a1 82        A = start condition, no stop, length = 2 bytes
+    movw hl,#i2c_buf        ;625f  16 db fb     HL = address of buffer to write from
     call !i2c_write         ;6262  9a 51 5f     Perform I2C write from buffer [HL]
     pop ax                  ;6265  b0
 
-    set1 a.0                ;6266  61 8a
-    mov x,a                 ;6268  70
+    set1 a.0                ;6266  61 8a        Set bit 0 of address = I2C read
+    mov x,a                 ;6268  70           X = I2C address
+
     mov a,!mem_fc10         ;6269  8e 10 fc
-    or a,#0xc0              ;626c  6d c0
-    pop hl                  ;626e  b6
-    push hl                 ;626f  b7
+    or a,#0b11000000        ;626c  6d c0        Add start and stop conditions
+
+    pop hl                  ;626e  b6           ;XXX 
+    push hl                 ;626f  b7           ;XXX redundant
+
     call !i2c_read          ;6270  9a e8 5e     Perform I2C read into buffer [HL]
     bc lab_627b             ;6273  8d 06        Branch if failed
 
@@ -19933,9 +19936,9 @@ lab_62c6_attempt:
     mov a,x                 ;62dc  60           A = EEPROM address low
     mov !i2c_buf+1,a        ;62dd  9e dc fb     Store 24C04 Device Select byte
 
-    movw hl,#i2c_buf        ;62e0  16 db fb
+    movw hl,#i2c_buf        ;62e0  16 db fb     HL = address of buffer to write from
     mov a,!mem_fc10         ;62e3  8e 10 fc
-    add a,#0b11000000+0x02  ;62e6  0d c2
+    add a,#0b11000000+0x02  ;62e6  0d c2        A = start and stop conditions, length = 2 bytes
     call !i2c_write         ;62e8  9a 51 5f     Perform I2C write from buffer [HL]
     bc lab_628b_failed      ;62eb  8d 9e        If failed, branch to clear carry, pop registers, and return
 
@@ -23477,11 +23480,11 @@ lab_771a:
     mov a,#0x0c             ;771a  a1 0c
     mov !mem_fb12,a         ;771c  9e 12 fb
 
-    mov a,#0x22<<1          ;771f  a1 44        
+    mov a,#(0x22<<1)+0      ;771f  a1 44        A = I2C address 0x22 (TDA7476) + 0 = I2C write
     mov !i2c_buf,a          ;7721  9e db fb
 
-    mov a,#0b11000000+0x01  ;7724  a1 c1
-    movw hl,#i2c_buf        ;7726  16 db fb
+    mov a,#0b11000000+0x01  ;7724  a1 c1        A = start and stop conditions, length = 1 byte
+    movw hl,#i2c_buf        ;7726  16 db fb     HL = address of buffer to write from
     call !i2c_write         ;7729  9a 51 5f     Perform I2C write from buffer [HL]
 
     clr1 mem_fe40.0         ;772c  0b 40
@@ -28013,12 +28016,16 @@ lab_94bb:
 lab_94c6:
     mov a,!mem_f1e3_ee_0040         ;94c6  8e e3 f1
     mov !i2c_buf+3,a        ;94c9  9e de fb
+
     mov a,!mem_f1e4_ee_0041         ;94cc  8e e4 f1
     mov !i2c_buf+4,a        ;94cf  9e df fb
+
     mov a,!mem_f1e5_ee_0042         ;94d2  8e e5 f1
     mov !i2c_buf+5,a        ;94d5  9e e0 fb
+
     mov a,!mem_f1e6_ee_0043         ;94d8  8e e6 f1
     mov !i2c_buf+6,a        ;94db  9e e1 fb
+
     movw ax,#0x0853         ;94de  10 53 08
     mov b,#0x07             ;94e1  a3 07
     call !sub_9f12          ;94e3  9a 12 9f
@@ -29352,22 +29359,27 @@ sub_9e8e:
     br !sub_9f9f            ;9ec4  9b 9f 9f
 
 sub_9ec7:
-    movw ax,#0x08b7         ;9ec7  10 b7 08
+    movw ax,#0x08b7         ;9ec7  10 b7 08     A = 0x08, X = 0xB7
     bf mem_fe73.7,lab_9ed1  ;9eca  31 73 73 03
-    movw ax,#0x08c5         ;9ece  10 c5 08
+
+    movw ax,#0x08c5         ;9ece  10 c5 08     A = 0x08, X = 0xC5
 
 lab_9ed1:
     mov !i2c_buf+1,a        ;9ed1  9e dc fb
     xch a,x                 ;9ed4  30
     mov !i2c_buf+2,a        ;9ed5  9e dd fb
-    mov a,#0x1C<<1          ;9ed8  a1 38        0x1C = SAA7705H I2C address
+
+    mov a,#(0x1C<<1)+0      ;9ed8  a1 38        0x1C = SAA7705H I2C address + 0 = I2C write
     mov !i2c_buf,a          ;9eda  9e db fb
-    mov a,#0x83             ;9edd  a1 83
-    movw hl,#i2c_buf        ;9edf  16 db fb
+
+    mov a,#0b10000000+0x03  ;9edd  a1 83        A = generate start condition, no stop, length = 3 bytes
+    movw hl,#i2c_buf        ;9edf  16 db fb     HL = buffer to write from
     call !i2c_write         ;9ee2  9a 51 5f     Perform I2C write from buffer [HL]
-    mov a,#0x4e             ;9ee5  a1 4e
-    movw hl,#mem_f022       ;9ee7  16 22 f0
+
+    mov a,#0b01000000+0x0e  ;9ee5  a1 4e        A = no start, generate stop condition, length = 14 bytes
+    movw hl,#mem_f022       ;9ee7  16 22 f0     HL = buffer to write from
     call !i2c_write         ;9eea  9a 51 5f     Perform I2C write from buffer [HL]
+
     movw hl,#mem_ba94       ;9eed  16 94 ba
     bf mem_fe73.7,lab_9ef7  ;9ef0  31 73 73 03
     movw hl,#mem_ba9a       ;9ef4  16 9a ba
@@ -29391,14 +29403,17 @@ sub_9f07:
 
 sub_9f12:
     mov !i2c_buf+1,a        ;9f12  9e dc fb
+
     mov a,x                 ;9f15  60
     mov !i2c_buf+2,a        ;9f16  9e dd fb
-    mov a,#0x1C<<1          ;9f19  a1 38        0x1C = SAA7705H I2C address
+
+    mov a,#(0x1C<<1)+0      ;9f19  a1 38        0x1C = SAA7705H I2C address + 0 = I2C write
     mov !i2c_buf,a          ;9f1b  9e db fb
+
     mov a,b                 ;9f1e  63
     call !sub_9f9f          ;9f1f  9a 9f 9f
-    or a,#0xc0              ;9f22  6d c0
-    movw hl,#i2c_buf        ;9f24  16 db fb
+    or a,#0b11000000        ;9f22  6d c0        Add I2C start condition and stop condition
+    movw hl,#i2c_buf        ;9f24  16 db fb     HL = buffer to write from
     br !i2c_write           ;9f27  9b 51 5f     Perform I2C write from buffer [HL]
 
 sub_9f2a:
@@ -29454,7 +29469,7 @@ lab_9f5b:
 
 lab_9f70:
     bf mem_fe74.1,lab_9f76  ;9f70  31 13 74 02
-    or a,#0x40              ;9f74  6d 40
+    or a,#0b01000000        ;9f74  6d 40        Add I2C stop condition
 
 lab_9f76:
     br !i2c_write           ;9f76  9b 51 5f     Perform I2C write from buffer [HL]
@@ -29466,7 +29481,7 @@ lab_9f79:
     call !sub_9f12          ;9f7d  9a 12 9f
     pop ax                  ;9f80  b0
     call !sub_9f9f          ;9f81  9a 9f 9f
-    or a,#0x40              ;9f84  6d 40
+    or a,#0b01000000        ;9f84  6d 40        Add I2C stop condition
     pop hl                  ;9f86  b6
     br !i2c_write           ;9f87  9b 51 5f     Perform I2C write from buffer [HL]
 
@@ -29580,16 +29595,20 @@ sub_a04a:
 
 sub_a04d:
     mov !i2c_buf+1,a        ;a04d  9e dc fb
+
     mov a,x                 ;a050  60
     mov !i2c_buf+2,a        ;a051  9e dd fb
-    mov a,#0x1C<<1          ;a054  a1 38        0x1C = SAA7705H I2C address
+
+    mov a,#(0x1C<<1)+0      ;a054  a1 38        0x1C = I2C address 0x1C (SAA7705H) + 0 = I2C write
     mov !i2c_buf,a          ;a056  9e db fb
-    mov a,#0x83             ;a059  a1 83
-    movw hl,#i2c_buf        ;a05b  16 db fb
+
+    mov a,#0b10000000+0x03  ;a059  a1 83        A = generate start condition, no stop, length = 3 bytes
+    movw hl,#i2c_buf        ;a05b  16 db fb     HL = address of buffer to write from
     call !i2c_write         ;a05e  9a 51 5f     Perform I2C write from buffer [HL]
-    mov x,#0x39             ;a061  a0 39
-    movw hl,#mem_fed4       ;a063  16 d4 fe
-    mov a,#0xc3             ;a066  a1 c3
+
+    mov x,#(0x1c<<1)+1      ;a061  a0 39        A = I2C address 0x1C (SAA7705H) + 1 = I2C read
+    movw hl,#mem_fed4       ;a063  16 d4 fe     HL = address of buffer to receive I2C data
+    mov a,#0b11000000+0x03  ;a066  a1 c3        A = generate start and stop conditions, length = 3 bytes
     br !i2c_read            ;a068  9b e8 5e     Perform I2C read into buffer [HL]
 
 sub_a06b:
