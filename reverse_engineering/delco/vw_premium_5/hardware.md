@@ -13,7 +13,7 @@
 |Pin  9 |P02/INTP2    |INTP2: Unknown input                           |
 |Pin 10 |P03/INTP3    |Unknown input (not used as INTP3)              |
 |Pin 12 |P80/ANI01    |Switched 5V supply control (0=off, 1=on)       |
-|Pin 13 |P81/ANI11    |Unknown output                                 |
+|Pin 13 |P81/ANI11    |Antenna phantom power out (0=off, 1=on)        |
 |Pin 14 |P82/ANI21    |Monsoon amplifier power 12V out (0=off, 1=on)  |
 |Pin 15 |P83/ANI31    |Unknown input                                  |
 |Pin 16 |P84/ANI41    |Unknown input                                  |

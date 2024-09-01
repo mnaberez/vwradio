@@ -280,8 +280,8 @@ mem_f26d_ee_00ca_csum2_hi = 0xf26d  ;EEPROM 00CA  Checksum for mem_f206_ee_0063 
 
 ;High Speed RAM: 0xFB00 - 0xFEFF (1K)
 
-;Counter Group 0: cntr_0_fb00 - cntr_0_fb07
-cntr_0_fb00 = 0xfb00
+;Counter Group 0: cntr_0_led - cntr_0_fb07
+cntr_0_led = 0xfb00     ;Counts down to blink the faceplate LED
 cntr_0_fb01 = 0xfb01
 cntr_0_fb02 = 0xfb02
 cntr_0_fb03 = 0xfb03
@@ -297,7 +297,7 @@ cntr_1_fb0a = 0xfb0a
 cntr_1_fb0b = 0xfb0b
 cntr_1_fb0c = 0xfb0c
 cntr_1_fb0d = 0xfb0d
-cntr_1_fb0e = 0xfb0e
+cntr_1_mfsw = 0xfb0e     ;MFSW-related; used in intp0_mfsw
 cntr_1_fb0f = 0xfb0f
 cntr_1_fb10 = 0xfb10
 cntr_1_fb11 = 0xfb11
@@ -1346,7 +1346,7 @@ lab_015a:
 lab_0160:
     ei                      ;0160  7a 1e
 
-    movw hl,#cntr_0_fb00-1  ;0162  16 ff fa     HL = address of a group of counters - 1
+    movw hl,#cntr_0_led-1   ;0162  16 ff fa     HL = address of a group of counters - 1
     mov a,#0x08             ;0165  a1 08
     sub a,#0x00             ;0167  1d 00        A = 8 counters to decrement
     callf !decr_counters    ;0169  1c 32        Decrement A counters at [HL+1] down to 0
@@ -1388,7 +1388,7 @@ lab_01a0:
     btclr mem_fe61.3,lab_01cd   ;01aa  31 31 61 1f
     set1 mem_fe61.3             ;01ae  3a 61
     bf mem_fe23.4,lab_01b7      ;01b0  31 43 23 03
-    call !blink_led_cntr_0_fb00 ;01b4   9a 0d 25     If cntr_0_fb00=0, set it to 0x3e and do blink_led.
+    call !blink_led_cntr_0_led  ;01b4   9a 0d 25     If cntr_0_led=0, set it to 0x3e and do blink_led.
 
 lab_01b7:
     call !sub_308f          ;01b7  9a 8f 30
@@ -1403,6 +1403,7 @@ lab_01cd:
     mov a,!cntr_0_fb03      ;01cd  8e 03 fb
     cmp a,#0x00             ;01d0  4d 00
     bnz lab_0204            ;01d2  bd 30
+
     mov a,#0x0a             ;01d4  a1 0a
     inc mem_fe29            ;01d6  81 29
     bt mem_fe29.0,lab_01df  ;01d8  8c 29 04
@@ -1438,6 +1439,7 @@ lab_0204:
     mov a,!cntr_1_fb0b      ;0204  8e 0b fb
     cmp a,#0x00             ;0207  4d 00
     bnz lab_025a            ;0209  bd 4f
+
     mov a,#0x0a             ;020b  a1 0a
     mov !cntr_1_fb0b,a      ;020d  9e 0b fb
 
@@ -1902,9 +1904,11 @@ intcsi31_08f7:
     push hl                 ;08fa  b7
     mov a,!cdc_isr_rx_idx   ;08fb  8e 32 f0
     mov b,a                 ;08fe  73
+
     mov a,!cntr_1_fb0a      ;08ff  8e 0a fb
     cmp a,#0x00             ;0902  4d 00
     bnz lab_0908            ;0904  bd 02
+
     mov b,#0x00             ;0906  a3 00
 
 lab_0908:
@@ -1932,8 +1936,10 @@ lab_091c_loop:
 
 lab_0925_more:
     mov !cdc_isr_rx_idx,a   ;0925  9e 32 f0
+
     mov a,#0x04             ;0928  a1 04
     mov !cntr_1_fb0a,a      ;092a  9e 0a fb
+
     pop hl                  ;092d  b6
     pop de                  ;092e  b4
     pop bc                  ;092f  b2
@@ -2005,10 +2011,12 @@ sub_0970:
 lab_097a:
     movw hl,#mem_fb86       ;097a  16 86 fb
     cmp a,[hl+b]            ;097d  31 4b
-    bz lab_0990             ;097f  ad 0f
+    bz lab_0990_ret         ;097f  ad 0f
+
     xch a,b                 ;0981  33
     cmp a,#0x0b             ;0982  4d 0b
-    bnc lab_0990            ;0984  9d 0a
+    bnc lab_0990_ret        ;0984  9d 0a
+
     xch a,b                 ;0986  33
     xch a,mem_fe2e          ;0987  83 2e
     sub a,[hl+b]            ;0989  31 1b
@@ -2016,7 +2024,7 @@ lab_097a:
     xch a,mem_fe2e          ;098d  83 2e
     mov [hl+b],a            ;098f  bb
 
-lab_0990:
+lab_0990_ret:
     ret                     ;0990  af
 
 sub_0991:
@@ -2027,7 +2035,7 @@ sub_0991:
 sub_0994:
     movw hl,#mem_fb86       ;0994  16 86 fb
     mov a,[hl+b]            ;0997  ab
-    and a,#0xfc             ;0998  5d fc
+    and a,#0b11111100       ;0998  5d fc
     br lab_097a             ;099a  fa de
 
 sub_099c:
@@ -2035,7 +2043,7 @@ sub_099c:
     mov b,a                 ;099e  73
     movw hl,#mem_fb86       ;099f  16 86 fb
     mov a,[hl+b]            ;09a2  ab
-    or a,#0x03              ;09a3  6d 03
+    or a,#0b00000011        ;09a3  6d 03
     br lab_097a             ;09a5  fa d3
 
 ;CALLT #4 (0x0048)
@@ -3274,7 +3282,7 @@ cold_start:
     ;Clear RAM: most of High Speed RAM
     ;Almost 1K: 0xFB00 - 0xFECA
     ;Includes the stack area, stops before peripheral register shadows
-    movw hl,#cntr_0_fb00    ;0e25  16 00 fb
+    movw hl,#cntr_0_led     ;0e25  16 00 fb
     mov a,#0x00             ;0e28  a1 00
 lab_0e2a_loop:
     mov [hl],a              ;0e2a  97
@@ -3601,10 +3609,12 @@ lab_1036:
     set1 mk1l.4             ;1070  71 4a e6     Set TMMK011 (disables INTTM011; CDC TX)
     mov tmc01,#0x04         ;1073  13 68 04
     set1 mk0l.1             ;1076  71 1a e4     Set PMK0 (disables INTP0)
+
     mov a,#0x00             ;1079  a1 00
     mov mem_fe34,a          ;107b  f2 34
     mov !mem_f198,a         ;107d  9e 98 f1
     mov !cntr_0_fb05,a      ;1080  9e 05 fb
+
     clr1 mem_fe67.6         ;1083  6b 67
     clr1 mem_fe67.5         ;1085  5b 67
     clr1 mem_fe67.4         ;1087  4b 67
@@ -4012,6 +4022,7 @@ lab_12e3_task_07_5baud_mfsw:
     btclr mem_fe68.0,lab_1312       ;12e6  31 01 68 28
     bt mem_fe67.6,lab_1326          ;12ea  ec 67 39
     bf mem_fe67.4,lab_12f8_failed   ;12ed  31 43 67 07
+
     mov a,!cntr_0_fb05              ;12f1  8e 05 fb
     cmp a,#0x00                     ;12f4  4d 00
     bnz lab_131e                    ;12f6  bd 26
@@ -4019,16 +4030,20 @@ lab_12e3_task_07_5baud_mfsw:
 lab_12f8_failed:
     clr1 mem_fe67.4         ;12f8  4b 67
     bf mem_fe67.7,lab_1309  ;12fa  31 73 67 0b
+
     mov a,!cntr_1_fb0f      ;12fe  8e 0f fb
     cmp a,#0x00             ;1301  4d 00
     bnz lab_1358            ;1303  bd 53
+
     clr1 mem_fe67.7         ;1305  7b 67
     br lab_1312             ;1307  fa 09
 
 lab_1309:
     set1 mem_fe67.7         ;1309  7a 67
+
     mov a,#0x0f             ;130b  a1 0f
     mov !cntr_1_fb0f,a      ;130d  9e 0f fb
+
     br lab_1358             ;1310  fa 46
 
 lab_1312:
@@ -4073,7 +4088,9 @@ lab_1349:
     mov a,!mem_fc26         ;1349  8e 26 fc
     cmp a,#0x00             ;134c  4d 00
     bz lab_1358             ;134e  ad 08
+
     clr1 a.7                ;1350  61 fb
+
     mov !mem_fc26,a         ;1352  9e 26 fc
     mov b,#0x00             ;1355  a3 00
     callt [0x0040]          ;1357  c1         Calls sub_0994
@@ -4201,7 +4218,7 @@ lab_142e:
     cmp a,#0x00                                     ;1433  4d 00
     bz lab_1479_br_lab_12d7_task_00_exit            ;1435  ad 42
     bf mem_fe2c.3,lab_1479_br_lab_12d7_task_00_exit ;1437  31 33 2c 3e
-    mov a,!mem_f1fe_ee_005d                                 ;143b  8e fe f1       TODO coding, monsoon related
+    mov a,!mem_f1fe_ee_005d                         ;143b  8e fe f1       TODO coding, monsoon related
     cmp a,#0x03                                     ;143e  4d 03
     bz lab_1479_br_lab_12d7_task_00_exit            ;1440  ad 37
     cmp a,#0x03                                     ;1442  4d 03
@@ -5002,10 +5019,12 @@ lab_193c:
 lab_1945:
     mov mem_fe20,#0x01      ;1945  11 20 01
     mov mem_fe21,#0x0e      ;1948  11 21 0e
+
     mov a,!mem_fc2f         ;194b  8e 2f fc
     cmp a,#0x00             ;194e  4d 00
     bz lab_1955             ;1950  ad 03
-    br !lab_19de            ;1952  9b de 19
+
+    br !lab_19de_ret        ;1952  9b de 19
 
 lab_1955:
     call !sub_1ac1          ;1955  9a c1 1a
@@ -5041,12 +5060,15 @@ lab_1986:
 
 lab_198d:
     mov mem_fe21,#0x0f      ;198d  11 21 0f
+
     mov a,#0x1e             ;1990  a1 1e
     mov !cntr_1_fb09,a      ;1992  9e 09 fb
+
     call !sub_0800_mode     ;1995  9a 00 08     Return mem_f253_ee_00b0_mode in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     cmp a,#0x02             ;1998  4d 02
     bnz sub_19a1            ;199a  bd 05
     ;mem_f253_ee_00b0_mode=0x02 (AM)
+
     mov a,#0x4b             ;199c  a1 4b
     mov !cntr_1_fb09,a      ;199e  9e 09 fb
 
@@ -5079,13 +5101,15 @@ lab_19cb:
 
 lab_19ce:
     call !sub_608d          ;19ce  9a 8d 60
+
     mov a,!cntr_1_fb09      ;19d1  8e 09 fb
     cmp a,#0x00             ;19d4  4d 00
-    bnz lab_19de            ;19d6  bd 06
+    bnz lab_19de_ret        ;19d6  bd 06
+
     call !sub_614a          ;19d8  9a 4a 61
     call !sub_a780          ;19db  9a 80 a7
 
-lab_19de:
+lab_19de_ret:
     ret                     ;19de  af
 
 sub_19df:
@@ -5959,7 +5983,7 @@ lab_1efe:
     mov mem_fed6,a          ;1f0d  f2 d6
     mov c,#0x04             ;1f0f  a2 04
 
-lab_1f11:
+lab_1f11_outer_loop:
     mov mem_fed8,#0x10      ;1f11  11 d8 10
     dec c                   ;1f14  52
     mov a,c                 ;1f15  62
@@ -5972,7 +5996,7 @@ lab_1f11:
     mov a,[hl+c]            ;1f22  aa
     mov mem_fed9,a          ;1f23  f2 d9
 
-lab_1f25:
+lab_1f25_inner_loop:
     mov a,mem_fed8          ;1f25  f0 d8
     mov b,a                 ;1f27  73
     dec b                   ;1f28  53
@@ -5981,17 +6005,18 @@ lab_1f25:
     callf !table_get_byte   ;1f2c  4c 7d        Load A with byte at position B in table [HL]
     cmp a,mem_fed9          ;1f2e  4e d9
     bc lab_1f35             ;1f30  8d 03
-    dbnz mem_fed8,lab_1f25  ;1f32  04 d8 f0
+    dbnz mem_fed8,lab_1f25_inner_loop  ;1f32  04 d8 f0
 
 lab_1f35:
-    mov a,mem_fed8          ;1f35  f0 d8
-    movw hl,#mem_fb69       ;1f37  16 69 fb
-    mov [hl+c],a            ;1f3a  ba
-    inc c                   ;1f3b  42
-    dbnz c,lab_1f11         ;1f3c  8a d3
-    clr1 mem_fe5e.1         ;1f3e  1b 5e      FERN status = off
-    bf shadow_p8.1,lab_1f46_ret  ;1f40  31 13 d2 02
-    set1 mem_fe5e.1         ;1f44  1a 5e      FERN status = on
+    mov a,mem_fed8              ;1f35  f0 d8
+    movw hl,#mem_fb69           ;1f37  16 69 fb
+    mov [hl+c],a                ;1f3a  ba
+    inc c                       ;1f3b  42
+    dbnz c,lab_1f11_outer_loop  ;1f3c  8a d3
+
+    clr1 mem_fe5e.1             ;1f3e  1b 5e        FERN status = off
+    bf shadow_p8.1,lab_1f46_ret ;1f40  31 13 d2 02  Branch if P81=1 (Antenna phantom power)
+    set1 mem_fe5e.1             ;1f44  1a 5e        FERN status = on
 
 lab_1f46_ret:
     ret                     ;1f46  af
@@ -6920,9 +6945,9 @@ lab_24f0:
     ret                     ;24f0  af
 
 sub_24f1:
-    call !sub_249c                  ;24f1  9a 9c 24     A = 1 + sum of 6 bytes at mem_f206_ee_0063 - mem_f20b_ee_0068_safe_tries
-    movw hl,#mem_f20c_ee_0069       ;24f4  16 0c f2
-    call !eeram_f206_wr_byte_hl     ;24f7  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
+    call !sub_249c              ;24f1  9a 9c 24     A = 1 + sum of 6 bytes at mem_f206_ee_0063 - mem_f20b_ee_0068_safe_tries
+    movw hl,#mem_f20c_ee_0069   ;24f4  16 0c f2
+    call !eeram_f206_wr_byte_hl ;24f7  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
     movw de,#mem_fb77           ;24fa  14 77 fb
     movw hl,#mem_fe23           ;24fd  16 23 fe
@@ -6934,16 +6959,16 @@ sub_24f1:
     br !sub_0bf6                ;250a  9b f6 0b
 
 
-blink_led_cntr_0_fb00:
-;If  cntr_0_fb00=0,  set it to 0x3e and do blink_led.
-    mov a,!cntr_0_fb00      ;250d  8e 00 fb
-    cmp a,#0x00             ;2510  4d 00        Is cntr_0_fb00  = 0?
-    bz lab_2515_blink       ;2512  ad 01          Yes: go to set cntr_0_fb00=0x3e  and do blink_led
+blink_led_cntr_0_led:
+;If  cntr_0_led=0,  set it to 0x3e and do blink_led.
+    mov a,!cntr_0_led       ;250d  8e 00 fb
+    cmp a,#0x00             ;2510  4d 00        Is cntr_0_led  = 0?
+    bz lab_2515_blink       ;2512  ad 01          Yes: go to set cntr_0_led=0x3e  and do blink_led
     ret                     ;2514  af             No: do nothing and return
 
 lab_2515_blink:
     mov a,#0x3e             ;2515  a1 3e
-    mov !cntr_0_fb00,a      ;2517  9e 00 fb
+    mov !cntr_0_led,a       ;2517  9e 00 fb
     ;Fall through to blink_led
 
 
@@ -7990,7 +8015,7 @@ lab_2939_check_0xe3:
     ;"meas_id" = 0xE3 (Antenna Type)
 
     mov e,#0x12             ;293d  a4 12
-    mov a,!mem_f1fd_ee_005c         ;293f  8e fd f1
+    mov a,!mem_f1fd_ee_005c ;293f  8e fd f1
     bt a.0,lab_2947         ;2942  31 0e 02
     mov e,#0x11             ;2945  a4 11
 
@@ -8137,12 +8162,12 @@ recode:
 
     call !coding_bin_to_bcd                 ;29c3  9a 44 2d     Convert 16-bit binary number in AX to BCD in mem_fed4-mem_fed6
     call !check_coding_bcd                  ;29c6  9a 6e 2d     Check that requested coding in BCD is valid
-    bc lab_29ce                             ;29c9  8d 03        Branch if valid
+    bc lab_29ce_valid                       ;29c9  8d 03        Branch if valid
 
     ;Requested coding is invalid
     br !lab_2ab9_ret                        ;29cb  9b b9 2a     Branch to just return
 
-lab_29ce:
+lab_29ce_valid:
     ;Requested coding is valid
     mov a,mem_fed4                          ;29ce  f0 d4
     and a,!mem_f1fd_ee_005c                 ;29d0  58 fd f1
@@ -8935,7 +8960,7 @@ check_ram_or_eeprom_range:
 
 lab_2cee:
     xchw ax,hl              ;2cee  e6
-    cmpw ax,#cntr_0_fb00    ;2cef  ea 00 fb
+    cmpw ax,#cntr_0_led     ;2cef  ea 00 fb
     xchw ax,hl              ;2cf2  e6
     bnc lab_2d0f_valid      ;2cf3  9d 18
     cmpw ax,#mem_f000       ;2cf5  ea 00 f0
@@ -9728,10 +9753,12 @@ lab_302e_fis:
 lab_304b:
     mov a,!cntr_0_fb02      ;304b  8e 02 fb
     cmp a,#0x00             ;304e  4d 00
-    bnz lab_3065            ;3050  bd 13
+    bnz lab_3065_ret        ;3050  bd 13
+
     mov a,!fis_f067         ;3052  8e 67 f0     A = FIS unknown (timer countdown?)
     cmp a,#0x00             ;3055  4d 00
     bz lab_3061             ;3057  ad 08
+
     dec a                   ;3059  51
     mov !fis_f067,a         ;305a  9e 67 f0     Store as FIS unknown (timer countdown?)
     set1 mem_fe60.3         ;305d  3a 60
@@ -9741,7 +9768,7 @@ lab_3061:
     clr1 mem_fe61.2         ;3061  2b 61
     br lab_3066_fis         ;3063  fa 01
 
-lab_3065:
+lab_3065_ret:
     ret                     ;3065  af
 
 lab_3066_fis:
@@ -11055,6 +11082,7 @@ lab_373b:
     mov a,!cntr_1_fb0c      ;373b  8e 0c fb
     cmp a,#0x00             ;373e  4d 00
     bnz lab_3747            ;3740  bd 05
+
     mov a,#0x0a             ;3742  a1 0a
     mov !cntr_1_fb0c,a      ;3744  9e 0c fb
 
@@ -11119,6 +11147,7 @@ lab_379a:
 lab_37a7:
     mov mem_fe2a,#0x02      ;37a7  11 2a 02
     clr1 shadow_p9.7        ;37aa  7b d3
+
     mov a,#0x00             ;37ac  a1 00
     mov !cntr_1_fb0c,a      ;37ae  9e 0c fb
     mov !cntr_1_fb1f,a      ;37b1  9e 1f fb
@@ -11126,9 +11155,11 @@ lab_37a7:
 lab_37b4:
     mov mem_fe2a,#0x03      ;37b4  11 2a 03
     clr1 shadow_p9.4        ;37b7  4b d3
+
     mov a,!cntr_1_fb0c      ;37b9  8e 0c fb
     cmp a,#0x00             ;37bc  4d 00
     bz lab_37c1             ;37be  ad 01
+
     ret                     ;37c0  af
 
 lab_37c1:
@@ -11151,6 +11182,7 @@ lab_37c5:
 
 lab_37da:
     mov mem_fe2a,#0x05      ;37da  11 2a 05
+
     mov a,#0x0a             ;37dd  a1 0a
     mov !cntr_1_fb0c,a      ;37df  9e 0c fb
 
@@ -11158,6 +11190,7 @@ lab_37e2:
     mov a,!cntr_1_fb0c      ;37e2  8e 0c fb
     cmp a,#0x00             ;37e5  4d 00
     bz lab_37ea             ;37e7  ad 01
+
     ret                     ;37e9  af
 
 lab_37ea:
@@ -11167,7 +11200,7 @@ lab_37ea:
 lab_37ef:
     bt mem_fe65.5,lab_37f6  ;37ef  dc 65 04
     clr1 shadow_p8.2        ;37f2  2b d2        P82=0 (Monsoon amplifier power off)
-    clr1 shadow_p8.1        ;37f4  1b d2
+    clr1 shadow_p8.1        ;37f4  1b d2        P81=0 (Antenna phantom power off)
 
 lab_37f6:
     bt mem_fe61.5,lab_37fb  ;37f6  dc 61 02
@@ -11198,7 +11231,7 @@ lab_381c:
 
 lab_381e:
     bt mem_fe65.5,lab_3823  ;381e  dc 65 02
-    clr1 shadow_p8.1        ;3821  1b d2
+    clr1 shadow_p8.1        ;3821  1b d2        P81=0 (Antenna phantom power off)
 
 lab_3823:
     bt mem_fe61.5,lab_3828  ;3823  dc 61 02
@@ -11211,7 +11244,7 @@ lab_3828:
 
 lab_3830:
     clr1 mem_fe61.4         ;3830  4b 61
-    set1 shadow_p8.1        ;3832  1a d2
+    set1 shadow_p8.1        ;3832  1a d2        P81=1 (Antenna phantom power on)
     set1 shadow_p8.2        ;3834  2a d2        P82=1 (Monsoon amplifier power on)
 
 lab_3836:
@@ -11239,6 +11272,7 @@ lab_3856:
 lab_385d:
     bt shadow_p9.4,lab_3870 ;385d  cc d3 10
     mov mem_fe2a,#0x08      ;3860  11 2a 08
+
     mov a,#0x73             ;3863  a1 73
     mov !cntr_1_fb0c,a      ;3865  9e 0c fb
 
@@ -11246,6 +11280,7 @@ lab_3868:
     mov a,!cntr_1_fb0c      ;3868  8e 0c fb
     cmp a,#0x00             ;386b  4d 00
     bz lab_3870             ;386d  ad 01
+
     ret                     ;386f  af
 
 lab_3870:
@@ -11266,9 +11301,10 @@ lab_387d:
     mov mem_fe2a,#0x0a      ;388a  11 2a 0a
 
 lab_388d:
-    bt mem_fe61.5,lab_38dc  ;388d  dc 61 4c
+    bt mem_fe61.5,lab_38dc_ret  ;388d  dc 61 4c
     clr1 shadow_p9.7        ;3890  7b d3
     mov mem_fe2a,#0x0b      ;3892  11 2a 0b
+
     mov a,#0x0a             ;3895  a1 0a
     mov !cntr_1_fb0c,a      ;3897  9e 0c fb
 
@@ -11276,11 +11312,12 @@ lab_389a:
     mov a,!cntr_1_fb0c      ;389a  8e 0c fb
     cmp a,#0x00             ;389d  4d 00
     bz lab_38a2             ;389f  ad 01
+
     ret                     ;38a1  af
 
 lab_38a2:
     mov mem_fe2a,#0x07      ;38a2  11 2a 07
-    bf mem_fe2c.5,lab_38dc  ;38a5  31 53 2c 33
+    bf mem_fe2c.5,lab_38dc_ret  ;38a5  31 53 2c 33
 
     call !switched_5v_on    ;38a9  9a 06 3a     Turn the switched 5V supply on
 
@@ -11294,6 +11331,7 @@ lab_38b7:
     mov a,!cntr_1_fb0c      ;38b7  8e 0c fb
     cmp a,#0x00             ;38ba  4d 00
     bz lab_38c3             ;38bc  ad 05
+
     bf mem_fe2c.3,lab_38d0  ;38be  31 33 2c 0e
     ret                     ;38c2  af
 
@@ -11303,20 +11341,20 @@ lab_38c3:
 
 lab_38c7:
     mov mem_fe2a,#0x07      ;38c7  11 2a 07
-    bt mem_fe65.5,lab_38cf  ;38ca  dc 65 02
+    bt mem_fe65.5,lab_38cf_ret  ;38ca  dc 65 02
     set1 shadow_p9.7        ;38cd  7a d3
 
-lab_38cf:
+lab_38cf_ret:
     ret                     ;38cf  af
 
 lab_38d0:
     call !sub_a74b          ;38d0  9a 4b a7
     set1 mem_fe7d.4         ;38d3  4a 7d
-    clr1 shadow_p8.1        ;38d5  1b d2
+    clr1 shadow_p8.1        ;38d5  1b d2        P81=0 (Antenna phantom power off)
     clr1 shadow_p8.2        ;38d7  2b d2        P82=0 (Monsoon amplifier power off)
     br !lab_37c3            ;38d9  9b c3 37
 
-lab_38dc:
+lab_38dc_ret:
     ret                     ;38dc  af
 
 lab_38dd:
@@ -11392,14 +11430,17 @@ lab_393e:
     clr1 shadow_p9.4        ;3947  4b d3
     mov a,shadow_p9         ;3949  f0 d3
     mov p9,a                ;394b  f2 09
+
     mov a,#0x04             ;394d  a1 04
     mov !cntr_1_fb0c,a      ;394f  9e 0c fb
 
 lab_3952:
     mov mem_fe2a,#0x0d      ;3952  11 2a 0d
+
     mov a,!cntr_1_fb0c      ;3955  8e 0c fb
     cmp a,#0x00             ;3958  4d 00
     bz lab_395d_power_off_and_halt ;395a  ad 01
+
     ret                     ;395c  af
 
 lab_395d_power_off_and_halt:
@@ -11817,11 +11858,11 @@ lab_3c03:
     br !sub_3dbd            ;3c05  9b bd 3d
 
 lab_3c08:
-    bt mem_fe62.7,lab_3c58      ;3c08  fc 62 4d
-    bt mem_fe62.1,lab_3c58      ;3c0b  9c 62 4a
+    bt mem_fe62.7,lab_3c58_ret  ;3c08  fc 62 4d
+    bt mem_fe62.1,lab_3c58_ret  ;3c0b  9c 62 4a
     bf mem_fe65.5,lab_3c1a      ;3c0e  31 53 65 08
     cmp mem_fe43_key,#0x33      ;3c12  c8 43 33
-    bz lab_3c58                 ;3c15  ad 41
+    bz lab_3c58_ret             ;3c15  ad 41
     call !kwp_logout_disconnect ;3c17  9a c3 51     Branch to Clear KWP1281 auth bits and disconnect
 
 lab_3c1a:
@@ -11830,7 +11871,7 @@ lab_3c1a:
     bf a.0,lab_3c29         ;3c1f  31 0f 07
     bt mem_fe66.7,lab_3c29  ;3c22  fc 66 04
     clr1 mem_fe2c.3         ;3c25  3b 2c
-    br lab_3c58             ;3c27  fa 2f
+    br lab_3c58_ret             ;3c27  fa 2f
 
 lab_3c29:
     mov a,!mem_fb71         ;3c29  8e 71 fb
@@ -11840,20 +11881,20 @@ lab_3c29:
     cmp a,#0x06             ;3c33  4d 06
     bz lab_3c3f             ;3c35  ad 08
     cmp mem_fe43_key,#0x33  ;3c37  c8 43 33
-    bnz lab_3c58            ;3c3a  bd 1c
+    bnz lab_3c58_ret        ;3c3a  bd 1c
     clr1 mem_fe2c.3         ;3c3c  3b 2c
     ret                     ;3c3e  af
 
 lab_3c3f:
     set1 mem_fe2c.5         ;3c3f  5a 2c
     set1 mem_fe2c.7         ;3c41  7a 2c
-    mov a,!mem_f1fe_ee_005d         ;3c43  8e fe f1       TODO coding, monsoon related
+    mov a,!mem_f1fe_ee_005d ;3c43  8e fe f1       TODO coding, monsoon related
     cmp a,#0x03             ;3c46  4d 03
-    bz lab_3c4e             ;3c48  ad 04          Branch if coded for Monsoon
+    bz lab_3c4e_monsoon     ;3c48  ad 04          Branch if coded for Monsoon
     cmp a,#0x04             ;3c4a  4d 04
-    bnz lab_3c58            ;3c4c  bd 0a          Branch if not Monsoon
+    bnz lab_3c58_ret        ;3c4c  bd 0a          Branch if not Monsoon
 
-lab_3c4e:
+lab_3c4e_monsoon:
 ;Monsoon
     mov a,#0x80             ;3c4e  a1 80
     mov !tmp_msg_idx,a      ;3c50  9e a6 f1       0 Writes "    MONSOON"
@@ -11861,7 +11902,7 @@ lab_3c4e:
     mov a,#30               ;3c53  a1 1e          A = 3 seconds
     mov !cntr_2_msg,a       ;3c55  9e 2e fb
 
-lab_3c58:
+lab_3c58_ret:
 ;Not Monsoon
     ret                     ;3c58  af
 
@@ -11900,7 +11941,7 @@ lab_3c7f:
     ret                     ;3c84  af
 
 lab_3c85:
-    bt mem_fe62.7,lab_3cf2  ;3c85  fc 62 6a
+    bt mem_fe62.7,lab_3cf2_ret  ;3c85  fc 62 6a
 
     mov a,!cntr_5_fb54      ;3c88  8e 54 fb
     cmp a,#0x00             ;3c8b  4d 00
@@ -11947,19 +11988,19 @@ lab_3cc6:
 lab_3ccd:
     mov a,!mem_fb70         ;3ccd  8e 70 fb
     cmp a,#0x06             ;3cd0  4d 06
-    bnz lab_3cf2            ;3cd2  bd 1e
+    bnz lab_3cf2_ret        ;3cd2  bd 1e
 
 lab_3cd4:
-    bf mem_fe2c.3,lab_3cf2  ;3cd4  31 33 2c 1a
-    bt mem_fe2c.5,lab_3cf2  ;3cd8  dc 2c 17
-    set1 mem_fe2c.5         ;3cdb  5a 2c
-    mov a,!mem_f1fe_ee_005d         ;3cdd  8e fe f1       TODO coding, monsoon related
-    cmp a,#0x03             ;3ce0  4d 03
-    bz lab_3ce8             ;3ce2  ad 04          Branch if coded for Monsoon
-    cmp a,#0x04             ;3ce4  4d 04
-    bnz lab_3cf2            ;3ce6  bd 0a          Branch if not Monsoon
+    bf mem_fe2c.3,lab_3cf2_ret  ;3cd4  31 33 2c 1a
+    bt mem_fe2c.5,lab_3cf2_ret  ;3cd8  dc 2c 17
+    set1 mem_fe2c.5             ;3cdb  5a 2c
+    mov a,!mem_f1fe_ee_005d     ;3cdd  8e fe f1       TODO coding, monsoon related
+    cmp a,#0x03                 ;3ce0  4d 03
+    bz lab_3ce8_monsoon         ;3ce2  ad 04          Branch if coded for Monsoon
+    cmp a,#0x04                 ;3ce4  4d 04
+    bnz lab_3cf2_ret            ;3ce6  bd 0a          Branch if not Monsoon
 
-lab_3ce8:
+lab_3ce8_monsoon:
 ;Monsoon
     mov a,#0x80             ;3ce8  a1 80
     mov !tmp_msg_idx,a      ;3cea  9e a6 f1       0 Writes "    MONSOON"
@@ -11967,7 +12008,7 @@ lab_3ce8:
     mov a,#30               ;3ced  a1 1e          A = 3 seconds
     mov !cntr_2_msg,a       ;3cef  9e 2e fb
 
-lab_3cf2:
+lab_3cf2_ret:
 ;Not Monsoon
     ret                     ;3cf2  af
 
@@ -13616,6 +13657,7 @@ lab_463c:
 
 lab_4654:
     bf mem_fe31.2,lab_4688  ;4654  31 23 31 30
+
     mov a,!cntr_0_fb04      ;4658  8e 04 fb
     cmp a,#0x00             ;465b  4d 00
     bnz lab_4680            ;465d  bd 21
@@ -17947,7 +17989,7 @@ lab_581a:
     bz lab_5862             ;582d  ad 33
 
     mov rb0_x,a             ;582f  f2 f8
-    mov a,!mem_f1e9_ee_0048         ;5831  8e e9 f1
+    mov a,!mem_f1e9_ee_0048 ;5831  8e e9 f1
     and a,#0x01             ;5834  5d 01
     cmp a,#0x00             ;5836  4d 00
     mov a,rb0_x             ;5838  f0 f8
@@ -18244,7 +18286,7 @@ lab_59ad:
 ;P0.0 = low
     mov a,#0x00             ;59ad  a1 00
 
-    cmp a,!cntr_1_fb0e      ;59af  48 0e fb
+    cmp a,!cntr_1_mfsw      ;59af  48 0e fb
     bnz lab_59b7            ;59b2  bd 03
 
     mov !mem_f198,a         ;59b4  9e 98 f1
@@ -18258,7 +18300,7 @@ lab_59b7:
     bnc lab_59fd_mfsw_err   ;59c0  9d 3b
 
     mov a,#0x64             ;59c2  a1 64
-    mov !cntr_1_fb0e,a      ;59c4  9e 0e fb
+    mov !cntr_1_mfsw,a      ;59c4  9e 0e fb
 
     br lab_5a0e_pop_reti    ;59c7  fa 45        Branch to pop registers and reti
 
@@ -19564,7 +19606,7 @@ sub_608d:
     bf mem_fe69.5,lab_609d_ret  ;608f  31 53 69 0a
     bf mem_fe2d.2,lab_609d_ret  ;6093  31 23 2d 06
     call !sub_60ac              ;6097  9a ac 60
-    call !sub_6162              ;609a  9a 62 61
+    call !clr1_mem_fe69_5       ;609a  9a 62 61     Performs only: clr1 mem_fe69.5
 
 lab_609d_ret:
     ret                         ;609d  af
@@ -19579,7 +19621,7 @@ sub_60a0:
     mov a,#0x14             ;60a4  a1 14
     mov !cntr_1_fb09,a      ;60a6  9e 09 fb
 
-    call !sub_6165          ;60a9  9a 65 61
+    call !set1_mem_fe69_5   ;60a9  9a 65 61     Performs only: set1 mem_fe69.5
 
 sub_60ac:
     call !sub_61e7          ;60ac  9a e7 61
@@ -19698,17 +19740,20 @@ sub_614a:
 lab_6158:
     mov a,!cntr_1_fb09      ;6158  8e 09 fb
     cmp a,#0x00             ;615b  4d 00
-    bnz lab_6161            ;615d  bd 02
+    bnz lab_6161_ret        ;615d  bd 02
+
     clr1 mem_fe5c.4         ;615f  4b 5c
 
-lab_6161:
+lab_6161_ret:
     ret                     ;6161  af
 
-sub_6162:
+;Performs only: clr1 mem_fe69.5
+clr1_mem_fe69_5:
     clr1 mem_fe69.5         ;6162  5b 69
     ret                     ;6164  af
 
-sub_6165:
+;Performs only: set1 mem_fe69.5
+set1_mem_fe69_5:
     set1 mem_fe69.5         ;6165  5a 69
     ret                     ;6167  af
 
@@ -19722,7 +19767,7 @@ sub_6168:
 
 sub_6177_tea6840:
     bt mem_fe69.5,lab_617d  ;6177  dc 69 03
-    call !sub_6165          ;617a  9a 65 61
+    call !set1_mem_fe69_5   ;617a  9a 65 61     Performs only: set1 mem_fe69.5
 
 lab_617d:
     clr1 mem_fe5b.7         ;617d  7b 5b
@@ -19789,9 +19834,11 @@ sub_61dc:
 
 sub_61e7:
     clr1 mem_fe69.7         ;61e7  7b 69
+
     call !sub_0800_mode     ;61e9  9a 00 08     Return mem_f253_ee_00b0_mode in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
     cmp a,#0x02             ;61ec  4d 02
     bnz lab_6209            ;61ee  bd 19
+
     ;mem_f253_ee_00b0_mode = 0x02 (AM)
     mov a,!mem_f1e7_ee_0046_region  ;61f0  8e e7 f1
     and a,#0x07             ;61f3  5d 07
@@ -20092,7 +20139,8 @@ lab_630d:
 
     mov a,!cntr_0_fb06      ;6314  8e 06 fb
     cmp a,#0x00             ;6317  4d 00
-    bnz lab_6363            ;6319  bd 48
+    bnz lab_6363_ret        ;6319  bd 48
+
     movw ax,!i2c_eeprom_addr;631b  02 1a f0     AX = EEPROM address
     movw hl,ax              ;631e  d6           HL = EEPROM address
     movw de,#i2c_buf        ;631f  14 db fb
@@ -20134,9 +20182,11 @@ lab_6345:
 lab_634a:
     mov a,#0x02             ;634a  a1 02
     callf !sub_09d3         ;634c  1c d3
+
     mov a,!mem_fc11         ;634e  8e 11 fc
     cmp a,#0x00             ;6351  4d 00
-    bz lab_6363             ;6353  ad 0e
+    bz lab_6363_ret         ;6353  ad 0e
+
     movw ax,!mem_f01c       ;6355  02 1c f0
     movw de,ax              ;6358  d4
     movw ax,!mem_f01e       ;6359  02 1e f0
@@ -20144,8 +20194,7 @@ lab_634a:
     mov a,!mem_fc11         ;635d  8e 11 fc
     call !eeprom_unguarded_write ;6360  9a 93 62     Write A bytes to EEPROM address DE from [HL]
                                  ;                     without eeprom_guard check
-
-lab_6363:
+lab_6363_ret:
     ret                     ;6363  af
 
 eeprom_check_range:
@@ -21219,7 +21268,7 @@ lab_6a0a:
     ret                     ;6a0f  af
 
 lab_6a10_monsoon:
-    mov a,!mem_f1fe_ee_005d         ;6a10  8e fe f1     TODO coding, monsoon related
+    mov a,!mem_f1fe_ee_005d ;6a10  8e fe f1     TODO coding, monsoon related
     cmp a,#0x03             ;6a13  4d 03
     bz lab_6a1b             ;6a15  ad 04        Branch if coded for Monsoon
     cmp a,#0x04             ;6a17  4d 04
@@ -22919,7 +22968,7 @@ lab_7303_blank:
 
 lab_733e_fern:
     mov b,#0x0a             ;733e  a3 0a
-    movw hl,#fern_on        ;7340  16 e1 64     HL = pointer to 11,"FERN   ON  "
+    movw hl,#fern_on        ;7340  16 e1 64     HL = pointer to 11,"FERN   ON  " ("FERN" = Fernspeisung = Antenna phantom power)
     mov1 cy,mem_fe5e.1      ;7343  71 14 5e     CY = FERN status (0=FERN off, 1=FERN on)
     bc lab_734b             ;7346  8d 03        Branch if FERN is on
     ; FERN is off
@@ -23809,18 +23858,19 @@ sub_7880:
     ret                     ;7887  af
 
 lab_7888:
-    bt mem_fe41.1,lab_78a4  ;7888  9c 41 19
-    mov a,mem_fedd          ;788b  f0 dd
-    cmp a,#0x88             ;788d  4d 88
-    bz lab_789a             ;788f  ad 09
-    bf mem_fe6a.5,lab_789a  ;7891  31 53 6a 05
-    cmp mem_fedd,#0x2c      ;7895  c8 dd 2c
-    bz lab_78bd             ;7898  ad 23
+    bt mem_fe41.1,lab_78a4                      ;7888  9c 41 19
+    mov a,mem_fedd                              ;788b  f0 dd
+    cmp a,#0x88                                 ;788d  4d 88
+    bz lab_789a_turn_phantom_on_ret             ;788f  ad 09
+    bf mem_fe6a.5,lab_789a_turn_phantom_on_ret  ;7891  31 53 6a 05
+    cmp mem_fedd,#0x2c                          ;7895  c8 dd 2c
+    bz lab_78bd                                 ;7898  ad 23
 
-lab_789a:
-    bt shadow_p8.1,lab_78df  ;789a  9c d2 42
-    set1 shadow_p8.1         ;789d  1a d2
-    mov a,shadow_p8          ;789f  f0 d2
+lab_789a_turn_phantom_on_ret:
+    bt shadow_p8.1,lab_78df ;789a  9c d2 42     Branch if P81=1 (Antenna phantom power is already on)
+
+    set1 shadow_p8.1        ;789d  1a d2        P81=1 (Antenna phantom power on)
+    mov a,shadow_p8         ;789f  f0 d2
     mov p8,a                ;78a1  f2 08
     ret                     ;78a3  af
 
@@ -23829,17 +23879,19 @@ lab_78a4:
     cmp a,#0x88             ;78a6  4d 88
     bnz lab_78b4            ;78a8  bd 0a
 
-lab_78aa:
-    bt shadow_p8.2,lab_78df  ;78aa  ac d2 32    Branch if P82=1 (Monsoon amplifier power is on)
+lab_78aa_turn_amplifier_on_ret:
+    bt shadow_p8.2,lab_78df  ;78aa  ac d2 32    Branch if P82=1 (Monsoon amplifier power is already on)
+
     set1 shadow_p8.2         ;78ad  2a d2       P82=1 (Monsoon amplifier power on)
     mov a,shadow_p8          ;78af  f0 d2
-    mov p8,a                ;78b1  f2 08
-    ret                     ;78b3  af
+    mov p8,a                 ;78b1  f2 08
+    ret                      ;78b3  af
 
 lab_78b4:
-    bf mem_fe6a.5,lab_78aa  ;78b4  31 53 6a f2
-    cmp mem_fedd,#0x1d      ;78b8  c8 dd 1d
-    bnz lab_78aa            ;78bb  bd ed
+    bf mem_fe6a.5,lab_78aa_turn_amplifier_on_ret  ;78b4  31 53 6a f2
+
+    cmp mem_fedd,#0x1d                      ;78b8  c8 dd 1d
+    bnz lab_78aa_turn_amplifier_on_ret      ;78bb  bd ed
 
 lab_78bd:
     cmp mem_fedb,#0x00      ;78bd  c8 db 00
@@ -23854,13 +23906,13 @@ lab_78cb:
     mov1 mem_fe6a.6,cy      ;78cf  71 61 6a
 
 lab_78d2:
-    bt mem_fe6a.6,lab_78da  ;78d2  ec 6a 05
-    bt mem_fe41.1,lab_78aa  ;78d5  9c 41 d2
-    br lab_789a             ;78d8  fa c0
+    bt mem_fe6a.6,lab_78da                        ;78d2  ec 6a 05
+    bt mem_fe41.1,lab_78aa_turn_amplifier_on_ret  ;78d5  9c 41 d2
+    br lab_789a_turn_phantom_on_ret               ;78d8  fa c0
 
 lab_78da:
-    bt mem_fe41.1,lab_7931  ;78da  9c 41 54
-    br lab_7952             ;78dd  fa 73
+    bt mem_fe41.1,lab_7931_turn_amplifier_off  ;78da  9c 41 54
+    br lab_7952_turn_phantom_off               ;78dd  fa 73
 
 lab_78df:
     clr1 mem_fe41.2         ;78df  2b 41
@@ -23892,52 +23944,52 @@ lab_790e:
     set1 mem_fe41.2         ;790e  2a 41
 
 lab_7910:
-    call !sub_7c7d          ;7910  9a 7d 7c
-    bt mem_fe65.5,lab_795a  ;7913  dc 65 44
-    bf mem_fe6a.5,lab_795a  ;7916  31 53 6a 40
-    clr1 mem_fe6a.6         ;791a  6b 6a
-    bf mem_fe41.1,lab_7939  ;791c  31 13 41 19
-    cmp mem_fed7,#0x1d      ;7920  c8 d7 1d
-    bz lab_7929             ;7923  ad 04
-    set1 mem_fe6c.6         ;7925  6a 6c
-    br lab_795a             ;7927  fa 31
+    call !sub_7c7d              ;7910  9a 7d 7c
+    bt mem_fe65.5,lab_795a_ret  ;7913  dc 65 44
+    bf mem_fe6a.5,lab_795a_ret  ;7916  31 53 6a 40
+    clr1 mem_fe6a.6             ;791a  6b 6a
+    bf mem_fe41.1,lab_7939      ;791c  31 13 41 19
+    cmp mem_fed7,#0x1d          ;7920  c8 d7 1d
+    bz lab_7929                 ;7923  ad 04
+    set1 mem_fe6c.6             ;7925  6a 6c
+    br lab_795a_ret             ;7927  fa 31
 
 lab_7929:
-    bf mem_fe6c.6,lab_7931  ;7929  31 63 6c 04
+    bf mem_fe6c.6,lab_7931_turn_amplifier_off  ;7929  31 63 6c 04
     clr1 mem_fe6c.6         ;792d  6b 6c
     br lab_794b             ;792f  fa 1a
 
-lab_7931:
+lab_7931_turn_amplifier_off:
     clr1 shadow_p8.2        ;7931  2b d2        P82=0 (Monsoon amplifier power off)
     mov a,shadow_p8         ;7933  f0 d2
     mov p8,a                ;7935  f2 08
-    br lab_7958             ;7937  fa 1f
+    br lab_7958_set1_mem_fe6a_6_ret ;7937  fa 1f
 
 lab_7939:
     cmp mem_fed7,#0x88      ;7939  c8 d7 88
     bnz lab_7945            ;793c  bd 07
     bt mem_fe6c.5,lab_7945  ;793e  dc 6c 04
     set1 mem_fe6c.7         ;7941  7a 6c
-    br lab_795a             ;7943  fa 15
+    br lab_795a_ret         ;7943  fa 15
 
 lab_7945:
-    bf mem_fe6c.7,lab_7952  ;7945  31 73 6c 09
-    clr1 mem_fe6c.7         ;7949  7b 6c
+    bf mem_fe6c.7,lab_7952_turn_phantom_off  ;7945  31 73 6c 09
+    clr1 mem_fe6c.7                          ;7949  7b 6c
 
 lab_794b:
-    bt mem_fe6a.4,lab_795a  ;794b  cc 6a 0c
-    clr1 mem_fe6a.5         ;794e  5b 6a
-    br lab_795a             ;7950  fa 08
+    bt mem_fe6a.4,lab_795a_ret  ;794b  cc 6a 0c
+    clr1 mem_fe6a.5             ;794e  5b 6a
+    br lab_795a_ret             ;7950  fa 08
 
-lab_7952:
-    clr1 shadow_p8.1         ;7952  1b d2
+lab_7952_turn_phantom_off:
+    clr1 shadow_p8.1         ;7952  1b d2       P81=0 (Antenna phantom power off)
     mov a,shadow_p8          ;7954  f0 d2
     mov p8,a                 ;7956  f2 08
 
-lab_7958:
+lab_7958_set1_mem_fe6a_6_ret:
     set1 mem_fe6a.6         ;7958  6a 6a
 
-lab_795a:
+lab_795a_ret:
     ret                     ;795a  af
 
 lab_795b:
@@ -23974,7 +24026,7 @@ lab_7987:
     mov !mem_fc23,a         ;79aa  9e 23 fc
     clr1 mem_fe41.6         ;79ad  6b 41
     set1 mem_fe41.5         ;79af  5a 41
-    mov a,!mem_f1ff_ee_005e         ;79b1  8e ff f1
+    mov a,!mem_f1ff_ee_005e ;79b1  8e ff f1
     cmp a,#0x01             ;79b4  4d 01
     bnz lab_79ba            ;79b6  bd 02
     set1 mem_fe41.6         ;79b8  6a 41
@@ -24356,12 +24408,12 @@ lab_7c50_ret:
     ret                     ;7c50  af
 
 sub_7c51:
-    mov a,!mem_f1fd_ee_005c         ;7c51  8e fd f1
+    mov a,!mem_f1fd_ee_005c ;7c51  8e fd f1
     mov1 cy,a.0             ;7c54  61 8c
     mov1 mem_fe6b.7,cy      ;7c56  71 71 6b
     set1 mem_fe6c.1         ;7c59  1a 6c
     set1 mem_fe6c.0         ;7c5b  0a 6c
-    mov a,!mem_f1ff_ee_005e         ;7c5d  8e ff f1
+    mov a,!mem_f1ff_ee_005e ;7c5d  8e ff f1
     cmp a,#0x00             ;7c60  4d 00
     bz lab_7c7c             ;7c62  ad 18
     cmp a,#0x04             ;7c64  4d 04
@@ -30925,15 +30977,17 @@ lab_a6cd:
     ret                     ;a6d1  af
 
 sub_a6d2:
-    bt mem_fe77.1,lab_a6f4  ;a6d2  9c 77 1f
+    bt mem_fe77.1,lab_a6f4_ret  ;a6d2  9c 77 1f
 
 lab_a6d5:
-    bt mem_fe7d.2,lab_a6f4  ;a6d5  ac 7d 1c
+    bt mem_fe7d.2,lab_a6f4_ret  ;a6d5  ac 7d 1c
+
     mov a,!cntr_1_fb1f      ;a6d8  8e 1f fb
     cmp a,#0x00             ;a6db  4d 00
-    bnz lab_a6f4            ;a6dd  bd 15
-    bt mem_fe73.0,lab_a6f4  ;a6df  8c 73 12
-    bt mem_fe73.1,lab_a6f4  ;a6e2  9c 73 0f
+    bnz lab_a6f4_ret        ;a6dd  bd 15
+
+    bt mem_fe73.0,lab_a6f4_ret  ;a6df  8c 73 12
+    bt mem_fe73.1,lab_a6f4_ret  ;a6e2  9c 73 0f
     clr1 mem_fe77.1         ;a6e5  1b 77
     clr1 mem_fe77.2         ;a6e7  2b 77
     set1 mem_fe77.4         ;a6e9  4a 77
@@ -30944,7 +30998,7 @@ lab_a6eb:
     mov a,#0x01             ;a6ef  a1 01
     mov !mem_fc9b,a         ;a6f1  9e 9b fc
 
-lab_a6f4:
+lab_a6f4_ret:
     ret                     ;a6f4  af
 
 lab_a6f5:
@@ -30956,9 +31010,9 @@ sub_a6fc:
     bt mem_fe5e.0,lab_a70b  ;a6fc  8c 5e 0c
     bt mem_fe23.6,lab_a70b  ;a6ff  ec 23 09
 
-    mov a,!mem_fe57         ;a702  8e 57 fe
-    movw hl,#mem_f268_ee_00c5       ;a705  16 68 f2
-    call !eeram_f206_wr_byte_hl  ;a708  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
+    mov a,!mem_fe57             ;a702  8e 57 fe
+    movw hl,#mem_f268_ee_00c5   ;a705  16 68 f2
+    call !eeram_f206_wr_byte_hl ;a708  9a 92 40     Write A to EEPROM area in RAM at [HL], add to checksum
 
 lab_a70b:
     ret                     ;a70b  af
@@ -31874,6 +31928,7 @@ sub_abf5:
 ;Returns:
 ;  A = value read from an A/D conversion result register
 ;  carry set = failed, carry clear = success
+;
     bt a.3,lab_ac25         ;abf5  31 3e 2d       If bit 3 is set, branch to handle P80-P87 group
 
     ;Set corresponding port mode bit in PM9 to input
@@ -31941,6 +31996,8 @@ lab_ac4e:
     mov adm01,#0x00         ;ac4e  13 88 00
     ret                     ;ac51  af
 
+;XXX appears unused
+mem_ac52:
     .byte 0x2b              ;ac52  2b          DATA 0x2b '+'
     .byte 0x60              ;ac53  60          DATA 0x60 '`'
     .byte 0x09              ;ac54  09          DATA 0x09
