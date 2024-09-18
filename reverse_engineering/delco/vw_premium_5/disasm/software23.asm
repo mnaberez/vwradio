@@ -942,7 +942,7 @@ intp4_vect:
 intp5_vect:
 ;Note: P05 is connected to the uPD16432B's KEYREQ line (goes high
 ;whenever a key is being pressed).  This could be detected with
-;INTP5 but is not.  The firmware does seem to use P05 at all.
+;INTP5 but is not.  The firmware does not seem to use P05 at all.
     .word badisr_0d75       ;0010  75 0d       VECTOR INTP5
 
 intp6_vect:
@@ -3641,9 +3641,11 @@ lab_1036:
     clr1 mem_fe6a.0         ;10b1  0b 6a
     clr1 mem_fe6a.1         ;10b3  1b 6a
     clr1 pm2.7              ;10b5  71 7b 22
+
     set1 shadow_p2.7        ;10b8  7a cc
     mov a,shadow_p2         ;10ba  f0 cc
     mov p2,a                ;10bc  f2 02
+
     mov mem_fe40,#0x00      ;10be  11 40 00
     mov mem_fe41,#0x00      ;10c1  11 41 00
     mov mem_fe42,#0x00      ;10c4  11 42 00
@@ -4152,9 +4154,11 @@ lab_13b9:
     clr1 pm2.7              ;13be  71 7b 22
     clr1 mem_fe40.0         ;13c1  0b 40
     clr1 mem_fe40.1         ;13c3  1b 40
+
     clr1 shadow_p2.7        ;13c5  7b cc
     mov a,shadow_p2         ;13c7  f0 cc
     mov p2,a                ;13c9  f2 02
+
     mov a,#0x06             ;13cb  a1 06
     mov !cntr_0_fb07,a      ;13cd  9e 07 fb
 
@@ -4186,6 +4190,7 @@ lab_13f3:
     mov [hl+b],a            ;13f8  bb
     mov !mem_fc23,a         ;13f9  9e 23 fc
     mov !mem_fc24,a         ;13fc  9e 24 fc
+
     set1 shadow_p2.7        ;13ff  7a cc
     mov a,shadow_p2         ;1401  f0 cc
     mov p2,a                ;1403  f2 02
@@ -11690,23 +11695,33 @@ sub_3acf:
 
     clr1 pu5.7              ;3aed  71 7b 35   PU57 pull-up resistor disabled
     set1 pm5.7              ;3af0  71 7a 25   PM57 = input
-    clr1 pu7.0              ;3af3  71 0b 37
-    set1 pm7.0              ;3af6  71 0a 27
-    clr1 pu5.0              ;3af9  71 0b 35
-    set1 pm5.0              ;3afc  71 0a 25
-    clr1 pu5.1              ;3aff  71 1b 35
-    set1 pm5.1              ;3b02  71 1a 25
-    clr1 pu5.2              ;3b05  71 2b 35
-    set1 pm5.2              ;3b08  71 2a 25
-    clr1 pu5.3              ;3b0b  71 3b 35
-    set1 pm5.3              ;3b0e  71 3a 25
-    clr1 pu5.4              ;3b11  71 4b 35
-    set1 pm5.4              ;3b14  71 4a 25
-    clr1 pu5.5              ;3b17  71 5b 35
-    set1 pm5.5              ;3b1a  71 5a 25
-    set1 pm8.7              ;3b1d  71 7a 28
-    clr1 pu3.6              ;3b20  71 6b 33
-    set1 pm3.6              ;3b23  71 6a 23
+
+    clr1 pu7.0              ;3af3  71 0b 37   PU70 pull-up resistor disabled
+    set1 pm7.0              ;3af6  71 0a 27   PM70 = input
+
+    clr1 pu5.0              ;3af9  71 0b 35   PU50 pull-up resistor disabled
+    set1 pm5.0              ;3afc  71 0a 25   PM50 = input
+
+    clr1 pu5.1              ;3aff  71 1b 35   PU51 pull-up resistor disabled
+    set1 pm5.1              ;3b02  71 1a 25   PM51 = input
+
+    clr1 pu5.2              ;3b05  71 2b 35   PU52 pull-up resistor disabled
+    set1 pm5.2              ;3b08  71 2a 25   PM52 = input
+
+    clr1 pu5.3              ;3b0b  71 3b 35   PU53 pull-up resistor disabled
+    set1 pm5.3              ;3b0e  71 3a 25   PM53 = input
+
+    clr1 pu5.4              ;3b11  71 4b 35   PU54 pull-up resistor disabled
+    set1 pm5.4              ;3b14  71 4a 25   PM54 = input
+
+    clr1 pu5.5              ;3b17  71 5b 35   PU55 pull-up resistor disabled
+    set1 pm5.5              ;3b1a  71 5a 25   PM55 = input
+
+    set1 pm8.7              ;3b1d  71 7a 28   PM87 = input
+
+    clr1 pu3.6              ;3b20  71 6b 33   PU36 pull-up resistor disabled
+    set1 pm3.6              ;3b23  71 6a 23   PM36 = input
+
     ret                     ;3b26  af
 
 sub_3b27:
@@ -25296,7 +25311,7 @@ lab_81be:
     mov a,#0x14             ;81be  a1 14
     mov !cntr_2_fb41,a      ;81c0  9e 41 fb
 
-    call !sub_886f          ;81c3  9a 6f 88
+    call !sub_886f_port5    ;81c3  9a 6f 88
     mov mem_fe4b,#0x02      ;81c6  11 4b 02
 
 lab_81c9:
@@ -25311,7 +25326,7 @@ lab_81c9:
     mov a,#0x14             ;81da  a1 14
     mov !cntr_1_fb18,a      ;81dc  9e 18 fb
 
-    call !sub_8853          ;81df  9a 53 88
+    call !sub_8853_port5    ;81df  9a 53 88
     mov mem_fe4b,#0x03      ;81e2  11 4b 03
 
 lab_81e5:
@@ -25330,7 +25345,7 @@ lab_81ef:
     mov a,#0x1e             ;81f1  a1 1e
     mov !cntr_2_fb41,a      ;81f3  9e 41 fb
 
-    call !sub_8861          ;81f6  9a 61 88
+    call !sub_8861_port5    ;81f6  9a 61 88
 
 lab_81f9:
     mov a,!cntr_2_fb41      ;81f9  8e 41 fb
@@ -25341,7 +25356,7 @@ lab_81f9:
 
     mov a,#0x14             ;8206  a1 14
     mov !cntr_1_fb18,a      ;8208  9e 18 fb
-    call !sub_8853          ;820b  9a 53 88
+    call !sub_8853_port5    ;820b  9a 53 88
 
 lab_820e:
     mov mem_fe4b,#0x27      ;820e  11 4b 27
@@ -25352,7 +25367,7 @@ lab_820e:
     mov a,#0x14             ;8218  a1 14
     mov !cntr_2_fb41,a      ;821a  9e 41 fb
 
-    call !sub_886f          ;821d  9a 6f 88
+    call !sub_886f_port5    ;821d  9a 6f 88
 
 lab_8220:
     mov a,!cntr_2_fb41      ;8220  8e 41 fb
@@ -25370,7 +25385,7 @@ lab_8230:
     mov a,#0x1e             ;8237  a1 1e
     mov !cntr_2_fb41,a      ;8239  9e 41 fb
 
-    call !sub_8861          ;823c  9a 61 88
+    call !sub_8861_port5    ;823c  9a 61 88
     mov mem_fe4b,#0x04      ;823f  11 4b 04
 
 lab_8242:
@@ -25380,7 +25395,7 @@ lab_8243:
     mov a,#0x1e             ;8243  a1 1e
     mov !cntr_2_fb41,a      ;8245  9e 41 fb
 
-    call !sub_8861          ;8248  9a 61 88
+    call !sub_8861_port5    ;8248  9a 61 88
     mov mem_fe4b,#0x04      ;824b  11 4b 04
 
 lab_824e:
@@ -25391,7 +25406,7 @@ lab_824e:
 
 lab_8258:
     bf p6.5,lab_827d        ;8258  31 53 06 21
-    call !sub_8853          ;825c  9a 53 88
+    call !sub_8853_port5    ;825c  9a 53 88
     clr1 mem_fe71.3         ;825f  3b 71
     cmp mem_fe4f,#0x00      ;8261  c8 4f 00
     bnz lab_8272            ;8264  bd 0c
@@ -25399,12 +25414,12 @@ lab_8258:
     mov a,#0x38             ;8266  a1 38
     mov !cntr_1_fb18,a      ;8268  9e 18 fb
 
-    call !sub_889a          ;826b  9a 9a 88
+    call !sub_889a_port5    ;826b  9a 9a 88
     mov mem_fe4b,#0x09      ;826e  11 4b 09
     ret                     ;8271  af
 
 lab_8272:
-    call !sub_88f4          ;8272  9a f4 88
+    call !sub_88f4_port5    ;8272  9a f4 88
 
     mov a,#0x2d             ;8275  a1 2d
     mov !cntr_1_fb18,a      ;8277  9e 18 fb
@@ -25437,7 +25452,7 @@ lab_8294:
     set1 mem_fe70.2         ;82a8  2a 70
 
 lab_82aa:
-    call !sub_887d          ;82aa  9a 7d 88
+    call !sub_887d_port5    ;82aa  9a 7d 88
     mov mem_fe4f,#0x00      ;82ad  11 4f 00
 
     mov a,#0x1e             ;82b0  a1 1e
@@ -25445,12 +25460,12 @@ lab_82aa:
 
     set1 mem_fe71.2         ;82b5  2a 71
     mov mem_fe4b,#0x04      ;82b7  11 4b 04
-    call !sub_8861          ;82ba  9a 61 88
+    call !sub_8861_port5    ;82ba  9a 61 88
     ret                     ;82bd  af
 
 lab_82be:
     bf p6.6,lab_82cd        ;82be  31 63 06 0b
-    call !sub_8888          ;82c2  9a 88 88
+    call !sub_8888_port5    ;82c2  9a 88 88
 
     mov a,#0x14             ;82c5  a1 14
     mov !cntr_1_fb18,a      ;82c7  9e 18 fb
@@ -25461,8 +25476,8 @@ lab_82cd:
     ret                     ;82cd  af
 
 lab_82ce:
-    call !sub_892a          ;82ce  9a 2a 89
-    call !sub_887d          ;82d1  9a 7d 88
+    call !sub_892a_port5    ;82ce  9a 2a 89
+    call !sub_887d_port5    ;82d1  9a 7d 88
     clr1 mem_fe71.2         ;82d4  2b 71
     clr1 mem_fe71.3         ;82d6  3b 71
     clr1 mem_fe70.2         ;82d8  2b 70
@@ -25473,21 +25488,21 @@ lab_82ce:
 lab_82e3:
     mov a,!cntr_1_fb18      ;82e3  8e 18 fb
     cmp a,#0x00             ;82e6  4d 00
-    bnz lab_82f5            ;82e8  bd 0b
-    call !sub_8906          ;82ea  9a 06 89
+    bnz lab_82f5_ret        ;82e8  bd 0b
+    call !sub_8906_port5    ;82ea  9a 06 89
     mov a,#0x0a             ;82ed  a1 0a
     mov !cntr_1_fb18,a      ;82ef  9e 18 fb
     mov mem_fe4b,#0x08      ;82f2  11 4b 08
 
-lab_82f5:
+lab_82f5_ret:
     ret                     ;82f5  af
 
 lab_82f6:
     mov a,!cntr_1_fb18      ;82f6  8e 18 fb
     cmp a,#0x00             ;82f9  4d 00
     bnz lab_831f            ;82fb  bd 22
-    call !sub_892a          ;82fd  9a 2a 89
-    call !sub_887d          ;8300  9a 7d 88
+    call !sub_892a_port5    ;82fd  9a 2a 89
+    call !sub_887d_port5    ;8300  9a 7d 88
     clr1 mem_fe71.2         ;8303  2b 71
     clr1 mem_fe71.3         ;8305  3b 71
     clr1 mem_fe70.2         ;8307  2b 70
@@ -25509,7 +25524,7 @@ lab_8320:
     mov a,!cntr_1_fb18      ;8320  8e 18 fb
     cmp a,#0x00             ;8323  4d 00
     bnz lab_832c            ;8325  bd 05
-    call !sub_88ac          ;8327  9a ac 88
+    call !sub_88ac_port5    ;8327  9a ac 88
     br lab_832f             ;832a  fa 03
 
 lab_832c:
@@ -25526,7 +25541,7 @@ lab_8333:
     cmp a,#0x00             ;8336  4d 00
     bz lab_8348             ;8338  ad 0e
     bt p6.7,lab_8347        ;833a  fc 06 0a
-    call !sub_8888          ;833d  9a 88 88
+    call !sub_8888_port5    ;833d  9a 88 88
 
     mov a,#0x14             ;8340  a1 14
     mov !cntr_1_fb18,a      ;8342  9e 18 fb
@@ -25575,8 +25590,8 @@ lab_837b:
 
     cmp a,#0x00             ;8381  4d 00
     bnz lab_8393            ;8383  bd 0e
-    call !sub_887d          ;8385  9a 7d 88
-    call !sub_88be          ;8388  9a be 88
+    call !sub_887d_port5    ;8385  9a 7d 88
+    call !sub_88be_port5    ;8388  9a be 88
 
     mov a,#0x08             ;838b  a1 08
     mov !cntr_1_fb18,a      ;838d  9e 18 fb
@@ -25593,8 +25608,8 @@ lab_8394:
     mov a,#0x00             ;839b  a1 00
     mov !mem_fc80,a         ;839d  9e 80 fc
     clr1 mem_fe70.2         ;83a0  2b 70
-    call !sub_887d          ;83a2  9a 7d 88
-    call !sub_892a          ;83a5  9a 2a 89
+    call !sub_887d_port5    ;83a2  9a 7d 88
+    call !sub_892a_port5    ;83a5  9a 2a 89
     mov mem_fe50,#0x00      ;83a8  11 50 00
     clr1 mem_fe71.2         ;83ab  2b 71
     mov mem_fe4b,#0x00      ;83ad  11 4b 00
@@ -25632,7 +25647,7 @@ lab_83ce:
     mov a,#0x1e             ;83d5  a1 1e
     mov !cntr_2_fb41,a      ;83d7  9e 41 fb
 
-    call !sub_8861          ;83da  9a 61 88
+    call !sub_8861_port5    ;83da  9a 61 88
     mov mem_fe4b,#0x0e      ;83dd  11 4b 0e
     ret                     ;83e0  af
 
@@ -25644,7 +25659,7 @@ lab_83e1:
 
 lab_83eb:
     bt p6.5,lab_8429        ;83eb  dc 06 3b
-    call !sub_8853          ;83ee  9a 53 88
+    call !sub_8853_port5    ;83ee  9a 53 88
 
     mov a,#0x06             ;83f1  a1 06
     mov !cntr_1_fb18,a      ;83f3  9e 18 fb
@@ -25677,12 +25692,12 @@ lab_841c:
     set1 mem_fe6f.3         ;841e  3a 6f
 
 lab_8420:
-    call !sub_88f4          ;8420  9a f4 88
+    call !sub_88f4_port5    ;8420  9a f4 88
     ret                     ;8423  af
 
 lab_8424:
     clr1 mem_fe6f.3         ;8424  3b 6f
-    call !sub_88ac          ;8426  9a ac 88
+    call !sub_88ac_port5    ;8426  9a ac 88
 
 lab_8429:
     ret                     ;8429  af
@@ -25696,7 +25711,7 @@ lab_842a:
     mov !cntr_1_fb18,a      ;8433  9e 18 fb
 
     mov mem_fe4b,#0x10      ;8436  11 4b 10
-    call !sub_892a          ;8439  9a 2a 89
+    call !sub_892a_port5    ;8439  9a 2a 89
     ret                     ;843c  af
 
 lab_843d:
@@ -25712,11 +25727,11 @@ lab_843d:
     bf mem_fe6f.3,lab_8457  ;844f  31 33 6f 04
 
 lab_8453:
-    call !sub_8906          ;8453  9a 06 89
+    call !sub_8906_port5    ;8453  9a 06 89
     ret                     ;8456  af
 
 lab_8457:
-    call !sub_88be          ;8457  9a be 88
+    call !sub_88be_port5    ;8457  9a be 88
 
 lab_845a:
     ret                     ;845a  af
@@ -25730,22 +25745,22 @@ lab_845b:
     cmp mem_fe4f,#0x02      ;8467  c8 4f 02
     bz lab_8475             ;846a  ad 09
     mov mem_fe4b,#0x12      ;846c  11 4b 12
-    call !sub_892a          ;846f  9a 2a 89
-    br !sub_8861            ;8472  9b 61 88
+    call !sub_892a_port5    ;846f  9a 2a 89
+    br !sub_8861_port5      ;8472  9b 61 88
 
 lab_8475:
-    call !sub_887d          ;8475  9a 7d 88
+    call !sub_887d_port5    ;8475  9a 7d 88
 
     mov a,#0x14             ;8478  a1 14
     mov !cntr_2_fb43,a      ;847a  9e 43 fb
 
     bt mem_fe4d.4,lab_848c  ;847d  cc 4d 0c
     bf mem_fe6f.3,lab_8489  ;8480  31 33 6f 05
-    call !sub_88f4          ;8484  9a f4 88
+    call !sub_88f4_port5    ;8484  9a f4 88
     br lab_848c             ;8487  fa 03
 
 lab_8489:
-    call !sub_88ac          ;8489  9a ac 88
+    call !sub_88ac_port5    ;8489  9a ac 88
 
 lab_848c:
     clr1 mem_fe71.3         ;848c  3b 71
@@ -25772,7 +25787,7 @@ lab_84ac:
     br !lab_83ce            ;84b3  9b ce 83
 
 lab_84b6:
-    call !sub_8853          ;84b6  9a 53 88
+    call !sub_8853_port5    ;84b6  9a 53 88
     clr1 mem_fe70.2         ;84b9  2b 70
     clr1 mem_fe70.3         ;84bb  3b 70
     mov a,#0x14             ;84bd  a1 14
@@ -25786,11 +25801,11 @@ lab_84b6:
     bf mem_fe6f.3,lab_84db  ;84d3  31 33 6f 04
 
 lab_84d7:
-   call !sub_8918          ;84d7  9a 18 89
+    call !sub_8918_port5    ;84d7  9a 18 89
     ret                     ;84da  af
 
 lab_84db:
-    call !sub_88d0          ;84db  9a d0 88
+    call !sub_88d0_port5    ;84db  9a d0 88
     ret                     ;84de  af
 
 lab_84df:
@@ -25802,7 +25817,7 @@ lab_84df:
 
     mov mem_fe4b,#0x13      ;84e9  11 4b 13
     bf mem_fe6f.3,lab_84db  ;84ec  31 33 6f eb
-    call !sub_8918          ;84f0  9a 18 89
+    call !sub_8918_port5    ;84f0  9a 18 89
 
 lab_84f3:
     ret                     ;84f3  af
@@ -25811,7 +25826,7 @@ lab_84f4:
     mov a,#0x14             ;84f4  a1 14
     mov !cntr_2_fb41,a      ;84f6  9e 41 fb
 
-    call !sub_886f          ;84f9  9a 6f 88
+    call !sub_886f_port5    ;84f9  9a 6f 88
     mov mem_fe4b,#0x2c      ;84fc  11 4b 2c
     bt mem_fe70.3,lab_852a  ;84ff  bc 70 28
     set1 mem_fe70.3         ;8502  3a 70
@@ -25832,7 +25847,7 @@ lab_8514:
     mov a,#0x1e             ;8517  a1 1e
     mov !cntr_2_fb41,a      ;8519  9e 41 fb
 
-    call !sub_8861          ;851c  9a 61 88
+    call !sub_8861_port5    ;851c  9a 61 88
     mov mem_fe4b,#0x2b      ;851f  11 4b 2b
 
 lab_8522:
@@ -25879,10 +25894,10 @@ lab_855f:
     bt mem_fe6f.6,lab_856a  ;855f  ec 6f 08
     call !sub_7697_snd_cd   ;8562  9a 97 76     Unknown; snd_msg_idx and CD related
     set1 mem_fe7e.6         ;8565  6a 7e
-    call !sub_887d          ;8567  9a 7d 88
+    call !sub_887d_port5    ;8567  9a 7d 88
 
 lab_856a:
-    call !sub_886f          ;856a  9a 6f 88
+    call !sub_886f_port5    ;856a  9a 6f 88
     mov a,#0x3c             ;856d  a1 3c
     mov !cntr_1_fb18,a      ;856f  9e 18 fb
     mov mem_fe4b,#0x15      ;8572  11 4b 15
@@ -25919,7 +25934,7 @@ lab_8595:
     mov a,#0x14             ;859c  a1 14
     mov !cntr_1_fb18,a      ;859e  9e 18 fb
 
-    call !sub_8853          ;85a1  9a 53 88
+    call !sub_8853_port5    ;85a1  9a 53 88
     mov mem_fe4b,#0x17      ;85a4  11 4b 17
     ret                     ;85a7  af
 
@@ -25927,7 +25942,7 @@ lab_85a8:
     mov a,!cntr_1_fb18      ;85a8  8e 18 fb
     cmp a,#0x00             ;85ab  4d 00
     bnz lab_85b5            ;85ad  bd 06
-    call !sub_8861          ;85af  9a 61 88
+    call !sub_8861_port5    ;85af  9a 61 88
     mov mem_fe4b,#0x18      ;85b2  11 4b 18
 
 lab_85b5:
@@ -25941,16 +25956,16 @@ lab_85b6:
 
 lab_85c0:
     bf p6.6,lab_85eb        ;85c0  31 63 06 27
-    call !sub_8853          ;85c4  9a 53 88
+    call !sub_8853_port5    ;85c4  9a 53 88
     btclr mem_fe71.0,lab_85e0 ;85c7  31 01 71 15
     mov a,#0x0a             ;85cb  a1 0a
     mov !cntr_1_fb18,a      ;85cd  9e 18 fb
     bf mem_fe6f.3,lab_85d9  ;85d0  31 33 6f 05
-    call !sub_88d0          ;85d4  9a d0 88
+    call !sub_88d0_port5    ;85d4  9a d0 88
     br lab_85dc             ;85d7  fa 03
 
 lab_85d9:
-    call !sub_8918          ;85d9  9a 18 89
+    call !sub_8918_port5    ;85d9  9a 18 89
 
 lab_85dc:
     mov mem_fe4b,#0x1a      ;85dc  11 4b 1a
@@ -25960,7 +25975,7 @@ lab_85e0:
     mov a,#0x0a             ;85e0  a1 0a
     mov !cntr_1_fb18,a      ;85e2  9e 18 fb
 
-    call !sub_88d0          ;85e5  9a d0 88
+    call !sub_88d0_port5    ;85e5  9a d0 88
     mov mem_fe4b,#0x19      ;85e8  11 4b 19
 
 lab_85eb:
@@ -25974,7 +25989,7 @@ lab_85ec:
     mov a,#0x05             ;85f3  a1 05
     mov !cntr_1_fb18,a      ;85f5  9e 18 fb
 
-    call !sub_8906          ;85f8  9a 06 89
+    call !sub_8906_port5    ;85f8  9a 06 89
     mov mem_fe4b,#0x1a      ;85fb  11 4b 1a
 
 lab_85fe:
@@ -25984,8 +25999,8 @@ lab_85ff:
     mov a,!cntr_1_fb18      ;85ff  8e 18 fb
     cmp a,#0x00             ;8602  4d 00
     bnz lab_860f            ;8604  bd 09
-    call !sub_8888          ;8606  9a 88 88
-    call !sub_8861          ;8609  9a 61 88
+    call !sub_8888_port5    ;8606  9a 88 88
+    call !sub_8861_port5    ;8609  9a 61 88
     mov mem_fe4b,#0x1b      ;860c  11 4b 1b
 
 lab_860f:
@@ -25999,7 +26014,7 @@ lab_8610:
 
 lab_861a:
     bf p6.5,lab_8644        ;861a  31 53 06 26
-    call !sub_892a          ;861e  9a 2a 89
+    call !sub_892a_port5    ;861e  9a 2a 89
     cmp mem_fe4f,#0x04      ;8621  c8 4f 04
     bz lab_863c             ;8624  ad 16
     cmp mem_fe4f,#0x05      ;8626  c8 4f 05
@@ -26008,7 +26023,7 @@ lab_861a:
     mov a,#0x14             ;862b  a1 14
     mov !cntr_1_fb18,a      ;862d  9e 18 fb
 
-    call !sub_8853          ;8630  9a 53 88
+    call !sub_8853_port5    ;8630  9a 53 88
     clr1 mem_fe71.3         ;8633  3b 71
     mov mem_fe50,#0x01      ;8635  11 50 01
     mov mem_fe4b,#0x1d      ;8638  11 4b 1d
@@ -26038,7 +26053,7 @@ lab_8650:
     cmp a,#0x00             ;8653  4d 00
     bnz lab_867e            ;8655  bd 27
 
-    call !sub_887d          ;8657  9a 7d 88
+    call !sub_887d_port5    ;8657  9a 7d 88
     cmp mem_fe4f,#0x01      ;865a  c8 4f 01
     bz lab_8673             ;865d  ad 14
     cmp mem_fe4f,#0x00      ;865f  c8 4f 00
@@ -26049,12 +26064,12 @@ lab_8667:
     mov a,#0x1e             ;8667  a1 1e
     mov !cntr_2_fb41,a      ;8669  9e 41 fb
 
-    call !sub_8861          ;866c  9a 61 88
+    call !sub_8861_port5    ;866c  9a 61 88
     mov mem_fe4b,#0x1e      ;866f  11 4b 1e
     ret                     ;8672  af
 
 lab_8673:
-    call !sub_88be          ;8673  9a be 88
+    call !sub_88be_port5    ;8673  9a be 88
 
     mov a,#0x07             ;8676  a1 07
     mov !cntr_1_fb18,a      ;8678  9e 18 fb
@@ -26072,8 +26087,8 @@ lab_867f:
 
 lab_8689:
     bt p6.5,lab_869a        ;8689  dc 06 0e
-    call !sub_8853          ;868c  9a 53 88
-    call !sub_8906          ;868f  9a 06 89
+    call !sub_8853_port5    ;868c  9a 53 88
+    call !sub_8906_port5    ;868f  9a 06 89
 
     mov a,#0x1e             ;8692  a1 1e
     mov !cntr_1_fb18,a      ;8694  9e 18 fb
@@ -26088,8 +26103,8 @@ lab_869b:
     cmp a,#0x00             ;869e  4d 00
     bnz lab_86ab            ;86a0  bd 09
 
-    call !sub_892a          ;86a2  9a 2a 89
-    call !sub_886f          ;86a5  9a 6f 88
+    call !sub_892a_port5    ;86a2  9a 2a 89
+    call !sub_886f_port5    ;86a5  9a 6f 88
     mov mem_fe4b,#0x20      ;86a8  11 4b 20
 
 lab_86ab:
@@ -26141,7 +26156,7 @@ lab_86e2:
     cmp a,#0x00             ;86e5  4d 00
     bnz lab_86f4            ;86e7  bd 0b
 
-    call !sub_8888          ;86e9  9a 88 88
+    call !sub_8888_port5    ;86e9  9a 88 88
 
     mov a,#0x14             ;86ec  a1 14
     mov !cntr_1_fb18,a      ;86ee  9e 18 fb
@@ -26158,7 +26173,7 @@ lab_86f5:
 
 lab_86fc:
     clr1 mem_fe71.3         ;86fc  3b 71
-    call !sub_8888          ;86fe  9a 88 88
+    call !sub_8888_port5    ;86fe  9a 88 88
 
     mov a,#0x0a             ;8701  a1 0a
     mov !cntr_1_fb18,a      ;8703  9e 18 fb
@@ -26176,7 +26191,7 @@ lab_870e:
     mov a,#0x14             ;8715  a1 14
     mov !cntr_1_fb18,a      ;8717  9e 18 fb
 
-    call !sub_892a          ;871a  9a 2a 89
+    call !sub_892a_port5    ;871a  9a 2a 89
     mov mem_fe4b,#0x24      ;871d  11 4b 24
     ret                     ;8720  af
 
@@ -26203,8 +26218,8 @@ lab_873d:
 lab_873e:
     mov mem_fe50,#0x06      ;873e  11 50 06
     mov mem_fe4f,#0x01      ;8741  11 4f 01
-    call !sub_887d          ;8744  9a 7d 88
-    call !sub_892a          ;8747  9a 2a 89
+    call !sub_887d_port5    ;8744  9a 7d 88
+    call !sub_892a_port5    ;8747  9a 2a 89
     clr1 mem_fe70.2         ;874a  2b 70
     clr1 mem_fe70.3         ;874c  3b 70
     clr1 mem_fe6e.4         ;874e  4b 6e
@@ -26233,19 +26248,19 @@ lab_8773:
 
     bt mem_fe71.2,lab_8783  ;8778  ac 71 08
     clr1 mem_fe71.2         ;877b  2b 71
-    call !sub_886f          ;877d  9a 6f 88
+    call !sub_886f_port5    ;877d  9a 6f 88
     br !lab_81be            ;8780  9b be 81
 
 lab_8783:
     clr1 mem_fe71.2         ;8783  2b 71
-    call !sub_8861          ;8785  9a 61 88
+    call !sub_8861_port5    ;8785  9a 61 88
     mov mem_fe4b,#0x04      ;8788  11 4b 04
 
 lab_878b:
     ret                     ;878b  af
 
 lab_878c:
-    mov a,!mem_f1e9_ee_0048         ;878c  8e e9 f1
+    mov a,!mem_f1e9_ee_0048 ;878c  8e e9 f1
     bf a.2,lab_878b         ;878f  31 2f f9
     bf mem_fe71.1,lab_879a  ;8792  31 13 71 04
     clr1 mem_fe71.1         ;8796  1b 71
@@ -26387,59 +26402,59 @@ lab_8851:
     pop ax                  ;8851  b0
     reti                    ;8852  8f
 
-sub_8853:
-    call !sub_887d          ;8853  9a 7d 88
-    clr1 shadow_p5.0         ;8856  0b cf
-    clr1 shadow_p5.1         ;8858  1b cf
+sub_8853_port5:
+    call !sub_887d_port5    ;8853  9a 7d 88
+    clr1 shadow_p5.0        ;8856  0b cf        P50=0
+    clr1 shadow_p5.1        ;8858  1b cf        P50=1
     push ax                 ;885a  b1
-    mov a,shadow_p5          ;885b  f0 cf
+    mov a,shadow_p5         ;885b  f0 cf
     mov p5,a                ;885d  f2 05
     pop ax                  ;885f  b0
     ret                     ;8860  af
 
-sub_8861:
-    call !sub_887d          ;8861  9a 7d 88
-    set1 shadow_p5.0         ;8864  0a cf
-    clr1 shadow_p5.1         ;8866  1b cf
+sub_8861_port5:
+    call !sub_887d_port5    ;8861  9a 7d 88
+    set1 shadow_p5.0        ;8864  0a cf        P50=1
+    clr1 shadow_p5.1        ;8866  1b cf        P50=0
     push ax                 ;8868  b1
-    mov a,shadow_p5          ;8869  f0 cf
+    mov a,shadow_p5         ;8869  f0 cf
     mov p5,a                ;886b  f2 05
     pop ax                  ;886d  b0
     ret                     ;886e  af
 
-sub_886f:
-    call !sub_887d          ;886f  9a 7d 88
-    clr1 shadow_p5.0         ;8872  0b cf
-    set1 shadow_p5.1         ;8874  1a cf
+sub_886f_port5:
+    call !sub_887d_port5    ;886f  9a 7d 88
+    clr1 shadow_p5.0        ;8872  0b cf        P50=0
+    set1 shadow_p5.1        ;8874  1a cf        P51=1
     push ax                 ;8876  b1
-    mov a,shadow_p5          ;8877  f0 cf
+    mov a,shadow_p5         ;8877  f0 cf
     mov p5,a                ;8879  f2 05
     pop ax                  ;887b  b0
     ret                     ;887c  af
 
-sub_887d:
-    set1 shadow_p5.0         ;887d  0a cf
-    set1 shadow_p5.1         ;887f  1a cf
+sub_887d_port5:
+    set1 shadow_p5.0        ;887d  0a cf        P50=1
+    set1 shadow_p5.1        ;887f  1a cf        P51=1
     push ax                 ;8881  b1
-    mov a,shadow_p5          ;8882  f0 cf
+    mov a,shadow_p5         ;8882  f0 cf
     mov p5,a                ;8884  f2 05
     pop ax                  ;8886  b0
     ret                     ;8887  af
 
-sub_8888:
-    call !sub_892a          ;8888  9a 2a 89
-    clr1 shadow_p5.2        ;888b  2b cf
-    clr1 shadow_p5.3        ;888d  3b cf
-    clr1 shadow_p5.4        ;888f  4b cf
-    clr1 shadow_p5.5        ;8891  5b cf
+sub_8888_port5:
+    call !sub_892a_port5    ;8888  9a 2a 89
+    clr1 shadow_p5.2        ;888b  2b cf        P52=0
+    clr1 shadow_p5.3        ;888d  3b cf        P53=0
+    clr1 shadow_p5.4        ;888f  4b cf        P54=0
+    clr1 shadow_p5.5        ;8891  5b cf        P55=0
     push ax                 ;8893  b1
     mov a,shadow_p5         ;8894  f0 cf
     mov p5,a                ;8896  f2 05
     pop ax                  ;8898  b0
     ret                     ;8899  af
 
-sub_889a:
-    call !sub_892a          ;889a  9a 2a 89
+sub_889a_port5:
+    call !sub_892a_port5          ;889a  9a 2a 89
     clr1 shadow_p5.2        ;889d  2b cf
     set1 shadow_p5.3        ;889f  3a cf
     clr1 shadow_p5.4        ;88a1  4b cf
@@ -26450,8 +26465,8 @@ sub_889a:
     pop ax                  ;88aa  b0
     ret                     ;88ab  af
 
-sub_88ac:
-    call !sub_892a          ;88ac  9a 2a 89
+sub_88ac_port5:
+    call !sub_892a_port5    ;88ac  9a 2a 89
     clr1 shadow_p5.2        ;88af  2b cf
     set1 shadow_p5.3        ;88b1  3a cf
     clr1 shadow_p5.4        ;88b3  4b cf
@@ -26462,8 +26477,8 @@ sub_88ac:
     pop ax                  ;88bc  b0
     ret                     ;88bd  af
 
-sub_88be:
-    call !sub_892a          ;88be  9a 2a 89
+sub_88be_port5:
+    call !sub_892a_port5    ;88be  9a 2a 89
     clr1 shadow_p5.2        ;88c1  2b cf
     set1 shadow_p5.3        ;88c3  3a cf
     set1 shadow_p5.4        ;88c5  4a cf
@@ -26474,8 +26489,8 @@ sub_88be:
     pop ax                  ;88ce  b0
     ret                     ;88cf  af
 
-sub_88d0:
-    call !sub_892a          ;88d0  9a 2a 89
+sub_88d0_port5:
+    call !sub_892a_port5    ;88d0  9a 2a 89
     clr1 shadow_p5.2        ;88d3  2b cf
     set1 shadow_p5.3        ;88d5  3a cf
     set1 shadow_p5.4        ;88d7  4a cf
@@ -26486,8 +26501,8 @@ sub_88d0:
     pop ax                  ;88e0  b0
     ret                     ;88e1  af
 
-lab_88e2:
-    call !sub_892a          ;88e2  9a 2a 89
+lab_88e2_port5:
+    call !sub_892a_port5    ;88e2  9a 2a 89
     set1 shadow_p5.2        ;88e5  2a cf
     clr1 shadow_p5.3        ;88e7  3b cf
     clr1 shadow_p5.4        ;88e9  4b cf
@@ -26498,8 +26513,8 @@ lab_88e2:
     pop ax                  ;88f2  b0
     ret                     ;88f3  af
 
-sub_88f4:
-    call !sub_892a          ;88f4  9a 2a 89
+sub_88f4_port5:
+    call !sub_892a_port5    ;88f4  9a 2a 89
     set1 shadow_p5.2        ;88f7  2a cf
     clr1 shadow_p5.3        ;88f9  3b cf
     clr1 shadow_p5.4        ;88fb  4b cf
@@ -26510,8 +26525,8 @@ sub_88f4:
     pop ax                  ;8904  b0
     ret                     ;8905  af
 
-sub_8906:
-    call !sub_892a          ;8906  9a 2a 89
+sub_8906_port5:
+    call !sub_892a_port5    ;8906  9a 2a 89
     set1 shadow_p5.2        ;8909  2a cf
     clr1 shadow_p5.3        ;890b  3b cf
     set1 shadow_p5.4        ;890d  4a cf
@@ -26522,8 +26537,8 @@ sub_8906:
     pop ax                  ;8916  b0
     ret                     ;8917  af
 
-sub_8918:
-    call !sub_892a          ;8918  9a 2a 89
+sub_8918_port5:
+    call !sub_892a_port5    ;8918  9a 2a 89
     set1 shadow_p5.2        ;891b  2a cf
     clr1 shadow_p5.3        ;891d  3b cf
     set1 shadow_p5.4        ;891f  4a cf
@@ -26534,7 +26549,7 @@ sub_8918:
     pop ax                  ;8928  b0
     ret                     ;8929  af
 
-sub_892a:
+sub_892a_port5:
     set1 shadow_p5.2        ;892a  2a cf
     set1 shadow_p5.3        ;892c  3a cf
     set1 shadow_p5.4        ;892e  4a cf
@@ -26660,8 +26675,10 @@ lab_89e6:
     mov a,shadow_p5         ;89fd  f0 cf
     mov p5,a                ;89ff  f2 05
     pop ax                  ;8a01  b0
-    clr1 pm5.0              ;8a02  71 0b 25
-    clr1 pm5.1              ;8a05  71 1b 25
+
+    clr1 pm5.0              ;8a02  71 0b 25     PM50=output
+    clr1 pm5.1              ;8a05  71 1b 25     PM51=output
+
     set1 shadow_p5.2        ;8a08  2a cf
     set1 shadow_p5.3        ;8a0a  3a cf
     set1 shadow_p5.4        ;8a0c  4a cf
@@ -26670,16 +26687,21 @@ lab_89e6:
     mov a,shadow_p5         ;8a11  f0 cf
     mov p5,a                ;8a13  f2 05
     pop ax                  ;8a15  b0
-    clr1 pm5.2              ;8a16  71 2b 25
-    clr1 pm5.3              ;8a19  71 3b 25
-    clr1 pm5.4              ;8a1c  71 4b 25
-    clr1 pm5.5              ;8a1f  71 5b 25
+
+    clr1 pm5.2              ;8a16  71 2b 25     PM52=output
+    clr1 pm5.3              ;8a19  71 3b 25     PM53=output
+    clr1 pm5.4              ;8a1c  71 4b 25     PM54=output
+    clr1 pm5.5              ;8a1f  71 5b 25     PM55=output
+
     clr1 pu5.6              ;8a22  71 6b 35
-    set1 pm5.6              ;8a25  71 6a 25
+    set1 pm5.6              ;8a25  71 6a 25     PM56=input
+
     clr1 pu0.7              ;8a28  71 7b 30
-    set1 pm0.7              ;8a2b  71 7a 20
+    set1 pm0.7              ;8a2b  71 7a 20     PM07=input
+
     clr1 shadow_p6.4        ;8a2e  4b d0
     clr1 pm6.4              ;8a30  71 4b 26
+
     mov a,#0x20             ;8a33  a1 20
     callt [0x0042]          ;8a35  c3           Calls sub_09b9
     call !sub_8f8f          ;8a36  9a 8f 8f
@@ -26698,15 +26720,19 @@ lab_8a42:
     set1 pm6.6              ;8a4b  71 6a 26
     clr1 pu6.7              ;8a4e  71 7b 36
     set1 pm6.7              ;8a51  71 7a 26
-    clr1 pm5.0              ;8a54  71 0b 25
-    clr1 pm5.1              ;8a57  71 1b 25
-    clr1 pm5.2              ;8a5a  71 2b 25
-    clr1 pm5.3              ;8a5d  71 3b 25
-    clr1 pm5.4              ;8a60  71 4b 25
-    clr1 pm5.5              ;8a63  71 5b 25
+
+    clr1 pm5.0              ;8a54  71 0b 25     PM50 = output
+    clr1 pm5.1              ;8a57  71 1b 25     PM51 = output
+    clr1 pm5.2              ;8a5a  71 2b 25     PM52 = output
+    clr1 pm5.3              ;8a5d  71 3b 25     PM53 = output
+    clr1 pm5.4              ;8a60  71 4b 25     PM54 = output
+    clr1 pm5.5              ;8a63  71 5b 25     PM55 = output
+
     clr1 pm6.4              ;8a66  71 4b 26
+
     clr1 pu5.6              ;8a69  71 6b 35
-    set1 pm5.6              ;8a6c  71 6a 25
+    set1 pm5.6              ;8a6c  71 6a 25     PM56 = output
+
     bf mem_fe2d.0,lab_8a79  ;8a6f  31 03 2d 06
     bt mem_fe6e.6,lab_8a79  ;8a73  ec 6e 03
     call !sub_80cf          ;8a76  9a cf 80

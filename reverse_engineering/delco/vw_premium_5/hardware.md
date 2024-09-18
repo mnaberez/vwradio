@@ -35,16 +35,16 @@
 |Pin 35 |P34/TO00     |Unknown output                                 |
 |Pin 36 |P35/TI000    |Unknown input                                  |
 |Pin 37 |P36/TI010    |Unknown input/output                           |
-|Pin 38 |P50          |                                               |
-|Pin 39 |P51          |                                               |
-|Pin 40 |P52          |                                               |
-|Pin 41 |P53          |                                               |
-|Pin 42 |P54          |                                               |
-|Pin 43 |P55          |                                               |
-|Pin 44 |P56          |                                               |
+|Pin 38 |P50          |Unknown output                                 |
+|Pin 39 |P51          |Unknown output                                 |
+|Pin 40 |P52          |Unknown output                                 |
+|Pin 41 |P53          |Unknown output                                 |
+|Pin 42 |P54          |Unknown output                                 |
+|Pin 43 |P55          |Unknown output                                 |
+|Pin 44 |P56          |Unknown input/output                           |
 |Pin 45 |P57          |CDC DO (inverted; to HEF40106BT pin 5)         |
 |Pin 46 |P20/SI31     |CDC DI (inverted; from HEF40106BT pin 2)       |
-|Pin 47 |P21/SO31     |                                               |
+|Pin 47 |P21/SO31     |Unknown output                                 |
 |Pin 48 |P22/SCK31    |CDC CLK (inverted; from HEF40106BT pin 4)      |
 |Pin 49 |P04/INTP4    |INTP4: POWER key (0=pressed)                   |
 |Pin 50 |P05/INTP5    |uPD16432B KEYREQ (not used in firmware)        |
