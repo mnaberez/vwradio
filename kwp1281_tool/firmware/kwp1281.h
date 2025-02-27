@@ -95,6 +95,7 @@ uint8_t kwp_component_2[16];    // "        0001"
 //                                                                          Premium 4   5
 #define KWP_READ_IDENT          0x00  /* Read Identification                        X   X       */
 #define KWP_READ_RAM            0x01  /* Read RAM                                   X   X       */
+#define KWP_R_GROUP_READ_HEADER 0x02  /* Response to Group Reading: Header                      */
 #define KWP_READ_ROM_EEPROM     0x03  /* Read ROM or EEPROM                         *1  *1      */
 #define KWP_OUTPUT_TESTS        0x04  /* Actuator/Output Tests                      X   X       */
 #define KWP_CLEAR_FAULTS        0x05  /* Clear Faults                               X   X       */
@@ -115,6 +116,7 @@ uint8_t kwp_component_2[16];    // "        0001"
 #define KWP_SECURITY_ACCESS     0xD7  /* Security Access Request                    *3  *3      */
 #define KWP_R_GROUP_READING     0xE7  /* Response to Group Reading                  X   X       */
 #define KWP_SAFE_CODE           0xF0  /* Request or Response to R/W SAFE Code       X           */
+#define KWP_R_GROUP_READ_DATA   0xF4  /* Response to Group Reading: Data                        */
 #define KWP_R_OUTPUT_TEST       0xF5  /* Response to Actuator/Output Tests          X   X       */
 #define KWP_R_ASCII_DATA        0xF6  /* Response with ASCII Data/ID code           X   X       */
 #define KWP_R_WRITE_EEPROM      0xF9  /* Response to Write EEPROM                       X       */

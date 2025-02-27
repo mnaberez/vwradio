@@ -484,6 +484,24 @@ kwp_result_t kwp_read_group(uint8_t group)
     uint8_t block_title = kwp_rx_buf[2];
     if (block_title == KWP_ACK) { return KWP_SUCCESS; }
 
+    // some modules like 043906022E don't return the group reading in
+    // an 0xE7 block.  when such modules receive a 0x29 group reading
+    // request, they first send a 0x02 block with header data that
+    // describes the data that will follow.  each successive 0x29
+    // group reading is then answered with an 0xF4 data block.
+    if (block_title == KWP_R_GROUP_READ_HEADER) {
+        result = kwp_send_group_reading_block(group);
+        if (result != KWP_SUCCESS) { return result; }
+
+        result = kwp_receive_block();
+        if (result != KWP_SUCCESS) { return result; }
+
+        block_title = kwp_rx_buf[2];
+        if (block_title != KWP_R_GROUP_READ_DATA) { return KWP_UNEXPECTED; }
+    }
+
+    if (block_title == KWP_R_GROUP_READ_DATA) { return KWP_SUCCESS; }
+
     /*
      * Handle 0xE7 measurements or string response
      */
