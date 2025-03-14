@@ -221,7 +221,7 @@ kwp_result_t kwp_receive_block_expect(uint8_t title)
     if (kwp_rx_buf[2] == title) { return KWP_SUCCESS; }
 
     uart_flush_tx(UART_DEBUG);
-    printf("\r\n\r\nExpected to receive title 0x%02X, got0x%02X\r\n",
+    printf("\r\n\r\nExpected to receive title 0x%02X, got 0x%02X\r\n",
       title, kwp_rx_buf[2]);
 
     return KWP_UNEXPECTED;
