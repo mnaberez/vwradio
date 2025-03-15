@@ -308,8 +308,9 @@ kwp_result_t kwp_login_safe(uint16_t safe_code)
     return result;
 }
 
-/* Receive all fault blocks.  This is used to handle the responses
- * for both reading faults and clearing faults.
+/* A fault data block is in the receive buffer.  Process it and receive
+ * more fault data blocks if available.  This function is used to handle
+ * the responses for both reading faults and clearing faults.  
  *
  * It has been observed with several modules that if there are no
  * faults, the module will send a faults response block with one
@@ -327,10 +328,11 @@ kwp_result_t kwp_login_safe(uint16_t safe_code)
  * function will make as many requests as needed to retrieve all of
  * the faults.
  */
-static kwp_result_t _receive_all_fault_blocks(void)
+static kwp_result_t _process_fault_block_and_receive_more()
 {
-    kwp_result_t result = kwp_receive_block_expect(KWP_R_FAULTS);
-    if (result != KWP_SUCCESS) { return result; }
+    // the caller should have received the first fault block
+    // already, which is now in the buffer.
+    if (kwp_rx_buf[2] != KWP_R_FAULTS) { return KWP_UNEXPECTED; }
 
     uint8_t faults_count = 0;
 
@@ -386,7 +388,7 @@ static kwp_result_t _receive_all_fault_blocks(void)
         // send an ack block to check for more faults
         // (if the last response returned fewer than 4 faults, we may be
         //  able to stop here, but it seems safer to always do this.)
-        result = _send_ack_block();
+        kwp_result_t result = _send_ack_block();
         if (result != KWP_SUCCESS) { return result; }
         result = kwp_receive_block();
         if (result != KWP_SUCCESS) { return result; }
@@ -401,6 +403,7 @@ static kwp_result_t _receive_all_fault_blocks(void)
         if (faults_count > 200) { return KWP_UNEXPECTED; }
     }
 
+    printf("Module sent %d faults total.\r\n", faults_count);
     return KWP_SUCCESS;
 }
 
@@ -425,7 +428,10 @@ kwp_result_t kwp_read_faults(void)
     kwp_result_t result = _send_read_faults_block();
     if (result != KWP_SUCCESS) { return result; }
 
-    return _receive_all_fault_blocks();
+    result = kwp_receive_block_expect(KWP_R_FAULTS);
+    if (result != KWP_SUCCESS) { return result; }
+
+    return _process_fault_block_and_receive_more(false);
 }
 
 static kwp_result_t _send_clear_faults_block(void)
@@ -451,7 +457,55 @@ kwp_result_t kwp_clear_faults(void)
     kwp_result_t result = _send_clear_faults_block();
     if (result != KWP_SUCCESS) { return result; }
 
-    return _receive_all_fault_blocks();
+    result = kwp_receive_block();
+    if (result != KWP_SUCCESS) { return result; }
+
+    /* Special case: NAK response
+     *
+     * When a clear faults block is sent to the Digifant ECM 037906023AC
+     * made by Siemens with EEPROM markings "FAEB09 001584", NAK seems
+     * to always be returned first.  Sending the clear faults block once
+     * more after the NAK will succeed.  Is this a bug in the ECM?
+     */
+    if (kwp_rx_buf[2] == KWP_NAK) {
+        printf("Received NAK for clear faults; trying once more.\r\n");
+
+        result = _send_clear_faults_block();
+        if (result != KWP_SUCCESS) { return result; }
+
+        kwp_result_t result = kwp_receive_block();
+        if (result != KWP_SUCCESS) { return result; }
+    }
+
+    /* Special case: ACK response
+     *
+     * When a clear faults block is sent to most modules, they will respond
+     * with a fault data block.  The Digifant ECM mentioned above instead
+     * responds with ACK.  To make clearing the faults on that module work
+     * like the others, we detect the ACK and send a read faults block
+     * in order to receive a fault data block.
+     */
+    if (kwp_rx_buf[2] == KWP_ACK) { 
+        printf("Received ACK for clear faults; trying read faults.\r\n");
+
+        result = _send_read_faults_block();
+        if (result != KWP_SUCCESS) { return result; }
+
+        result = kwp_receive_block_expect(KWP_R_FAULTS);
+        if (result != KWP_SUCCESS) { return result; }
+    }
+
+    // However we got here (special cases hit or not), we should
+    // have a fault data block in the receive buffer now.
+    if (kwp_rx_buf[2] != KWP_R_FAULTS) { 
+        return KWP_UNEXPECTED; 
+    }
+
+    result = _process_fault_block_and_receive_more();
+    if (result != KWP_SUCCESS) { return result; }
+
+    printf("Clear faults finished.\r\n");
+    return KWP_SUCCESS;
 }
 
 
