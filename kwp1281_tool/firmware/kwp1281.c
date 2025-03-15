@@ -189,19 +189,27 @@ kwp_result_t kwp_receive_block(void)
                 if (c < 3) { return KWP_BAD_BLK_LENGTH; }
                 bytes_remaining = c;
                 break;
+
             case 2:  // block counter
-                if (kwp_is_first_block) {   // set initial value
-                    kwp_block_counter = c;
-                    kwp_is_first_block = false;
-                } else {
-                    kwp_block_counter++;
-                    // we used to detect a mismatch in the block counter here but had
-                    // to remove the check because the vw rhapsody "1j0035156" radio
-                    // made by technisat has a bug where it does not always send the
-                    // correct block counter.  technisat fixed this bug in the vw
-                    // rhapsody "1j0035156a" radio.
-                }
+                kwp_block_counter = c;  // incremented in kwp_send_block()
                 // fall through
+
+                /* We used to track the block counter and halt on error if the
+                 * module sent a block counter out of sequence.  That had to be
+                 * removed because:
+                 *
+                 * - The VW Rhapsody radio 1J0035156 made by TechniSat has
+                 *   a bug where it does not always send the correct block
+                 *   counter.  TechniSat fixed this bug in the VW Rhapsody
+                 *   radio 1J0035156A.
+                 * 
+                 * - The Digifant ECM 037906023AC made by Siemens with EPROM
+                 *   markings "FAEB09 001584" has broken block number handling.
+                 *   The three identification blocks are always sent with a
+                 *   block counter of 0x01, 0x02, and 0x03 respectively.  Any
+                 *   other block is always sent with block counter of 0xFF.
+                 */
+
             default:
                 bytes_remaining--;
         }
@@ -1019,7 +1027,6 @@ kwp_result_t kwp_recv_address(uint8_t *address)
 kwp_result_t kwp_connect(uint8_t address)
 {
     // Initialize connection state
-    kwp_is_first_block = true;
     memset(kwp_vag_number,  0, sizeof(kwp_vag_number));
     memset(kwp_component_1, 0, sizeof(kwp_component_1));
     memset(kwp_component_2, 0, sizeof(kwp_component_2));
