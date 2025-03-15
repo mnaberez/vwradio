@@ -74,6 +74,7 @@ uint8_t kwp_component_2[16];    // "        0001"
 
 // Module Addresses
 #define KWP_ENGINE        0x01
+#define KWP_AIRBAG        0x15
 #define KWP_CLUSTER       0x17    /* Instrument cluster; standard address */
 #define KWP_IMMOBILIZER   0x25    /* Immobilizer; usually part of cluster, sometimes separate box */
 #define KWP_CLUSTER_SAFE  0x3F    /* Instrument cluster; radio safe mode unlock address */
