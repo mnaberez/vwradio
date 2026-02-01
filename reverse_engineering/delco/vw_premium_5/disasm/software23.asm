@@ -84,12 +84,29 @@ mem_f18c = 0xf18c
 mem_f18d_t30_avg = 0xf18d   ;Terminal 30 (V = value * 0.1) averaged(?)
 mem_f18e = 0xf18e           ;Cookie used to determine whether to cold or warm start
 mem_f18f = 0xf18f
-mem_f190 = 0xf190
+;Target mode during mode transitions
+;  Set by mode handler routines when a mode key is pressed
+;  Mode handlers validate the change and update this if approved
+;  Compared with mem_fe30 at lab_42f8 (0x42F8) to detect mode changes
+;  When mem_f190 != mem_fe30, mem_fe7d.2 flag is set to trigger transition
+;  Example: User presses FM key -> handler sets mem_f190 = 0x01
+mem_f190 = 0xf190                   ;Target mode during transitions
 mem_f191 = 0xf191
 mem_f192 = 0xf192
 mem_f193 = 0xf193
 mem_f194 = 0xf194
-mfsw_key = 0xf197           ;MFSW key code received (0xFF = no key)
+
+;Multi-Function Steering Wheel (MFSW) key code
+;  Received via serial protocol on P00/INTP0 pin
+;  Values:
+;    0xFF = No key pressed
+;    0x00 = Volume Down
+;    0x01 = Volume Up
+;    0x0A = Up (navigation)
+;    0x0B = Down (navigation)
+;  Converted to equivalent faceplate key codes using mfsw_equivs table
+;  Updated by MFSW reception interrupt handler
+mfsw_key = 0xf197           ;MFSW key code (0xFF=none, 0x00=VolDn, 0x01=VolUp, 0x0A/0x0B=Up/Dn)
 mem_f198 = 0xf198
 mem_f199 = 0xf199
 mem_f19a = 0xf19a
@@ -248,10 +265,53 @@ mem_f225_ee_0082 = 0xf225           ;EEPROM 0082  FM1 Current Frequency Index
 mem_f24f_ee_00ac = 0xf24f           ;EEPROM 00AC  
 
 mem_f252_ee_00af_fm1_fm2 = 0xf252   ;EEPROM 00AF  FM1/FM2: 0x00=FM1, 0x01=FM2
-mem_f253_ee_00b0_mode = 0xf253      ;EEPROM 00B0  Mode: 0x00=?, 0x01=FM1/FM2, 0x02=AM
+
+;==============================================================================
+; MODE CONTROL VARIABLES - Primary mode state storage
+;==============================================================================
+; These variables control which mode the radio operates in (FM, AM, CD, Tape)
+; and are critical to understanding mode switching behavior.
+;
+; Mode values:
+;   0x00 = Undefined/Initialization state
+;   0x01 = FM Radio (FM1 or FM2 band selected by mem_f256_ee_00b3)
+;   0x02 = AM Radio
+;   0x03 = CD Mode (requires CDC - CD Changer to be present)
+;   0x04 = Tape Mode (requires tape deck to be present)
+;
+; Mode transition flow:
+;   1. User presses mode key (FM/AM/CD/TAPE button)
+;   2. Key code stored in mem_fe43_key (e.g., 0x17 for FM)
+;   3. Mode handler validates and sets mem_f190 to target mode
+;   4. mem_fe7d.2 flag set to signal mode change pending
+;   5. Main loop compares mem_f190 with mem_fe30 at lab_42f8 (0x42F8)
+;   6. If different, mode transition sequence executes
+;   7. mem_fe30 updated to new mode, then mem_f253_ee_00b0_mode saved
+;
+; Key variables in mode system:
+;   mem_f253_ee_00b0_mode (0xF253): Current mode, persisted to EEPROM
+;   mem_fe30 (0xFE30): Active working mode in RAM
+;   mem_f190 (0xF190): Target mode during transitions
+;   mem_fe7d.2: Mode change pending flag (triggers transition)
+;
+; See also:
+;   - lab_427a (0x427A): Mode key detection code
+;   - lab_42f8 (0x42F8): Critical mode comparison
+;   - mem_b170 (0xB170): Mode handler jump table
+;   - key_matrix (0xB330): Key matrix table
+;==============================================================================
+
+mem_f253_ee_00b0_mode = 0xf253      ;EEPROM 00B0  Current mode (0x01=FM, 0x02=AM, 0x03=CD, 0x04=Tape)
 mem_f254_ee_00b1_onvol = 0xf254     ;EEPROM 00B1  ONVOL
 mem_f255_ee_00b2 = 0xf255           ;EEPROM 00B2  
-mem_f256_ee_00b3 = 0xf256           ;EEPROM 00B3  
+
+;FM Sub-mode selector - Allows two independent FM bands
+;  0x00 = Undefined (defaults to 0x01 on first use)
+;  0x01 = FM1 band (first set of 6 presets + frequency)
+;  0x02 = FM2 band (second set of 6 presets + frequency)
+;  Toggled by pressing FM mode key (0x17) while already in FM mode
+;  Each band maintains independent preset stations and current frequency
+mem_f256_ee_00b3 = 0xf256           ;EEPROM 00B3  FM sub-mode: 0x01=FM1, 0x02=FM2
 mem_f257_ee_00b4_fade = 0xf257      ;EEPROM 00B4  FADE
 mem_f258_ee_00b5_bal = 0xf258       ;EEPROM 00B5  BAL
 mem_f259_ee_00b6_bass = 0xf259      ;EEPROM 00B6  BASS
@@ -471,12 +531,60 @@ mem_fc20 = 0xfc20             ;00854 - Radio Display Output in Dash Panel Insert
 mem_fc21 = 0xfc21             ;00855 - Connection to CD changer                   mem_f214_ee_0071  mem_fc21
 mem_fc22 = 0xfc22             ;00856 - Radio Antenna                              mem_f215_ee_0072  mem_fc22
 
+;==============================================================================
+; KEY CODE STORAGE VARIABLES
+;==============================================================================
+; These variables track which keys are pressed and queue them for processing.
+;
+; Key code flow:
+;   1. sub_56cc_upd_keys (0x56CC) reads uPD16432B via SPI every ~1ms
+;   2. 4-byte scan code compared against key_matrix table (0xB330)
+;   3. Matching entry's key code extracted
+;   4. Key code stored in mem_fc27 with bit 7 set (0x80 = pressed flag)
+;   5. Key debounced and queued in mem_fc24 (4-byte circular queue)
+;   6. sub_911b extracts key from queue
+;   7. Processed key stored in mem_fe43_key
+;   8. Mode-specific handlers check mem_fe43_key to determine action
+;
+; Key codes (from key_matrix table at 0xB330):
+;   0x01-0x06: Preset buttons 1-6
+;   0x07: SCAN button
+;   0x08-0x09: SEEK_UP, SEEK_DOWN
+;   0x0A-0x0B: TUNE_UP, TUNE_DOWN  
+;   0x0C-0x0F: SOUND_FB, SOUND_BASS, SOUND_MID, SOUND_TREB
+;   0x10: MIX_DOLBY
+;   0x13: TAPE_SIDE
+;   0x14-0x17: MODE_CD, MODE_TAPE, MODE_AM, MODE_FM (mode keys)
+;
+; With bit 7 set (pressed):
+;   0x81-0x86: Preset 1-6 pressed
+;   0x97: FM mode key pressed
+;   0x96: AM mode key pressed
+;   etc.
+;==============================================================================
+
 mem_fc23 = 0xfc23
-mem_fc24 = 0xfc24
+;Key queue buffer - Stores up to 4 debounced key codes awaiting processing
+;  Keys are added by key event handler after debouncing
+;  Keys are extracted by sub_911b for mode handler processing
+;  Allows multiple rapid key presses to be buffered and processed in order
+mem_fc24 = 0xfc24                   ;Key queue (4 bytes)
 mem_fc25 = 0xfc25
 mem_fc26 = 0xfc26
-mem_fc27 = 0xfc27
-mem_fc28 = 0xfc28
+
+;Raw key code from uPD16432B or MFSW (Multi-Function Steering Wheel)
+;  Bit 7: Key state flag (1 = pressed, 0 = released)
+;  Bits 6-0: Key code from key_matrix table lookup
+;  Updated by sub_56cc_upd_keys (0x56CC) after key scan and table lookup
+;  Examples: 0x97 = FM key pressed, 0x17 = FM key released
+;           0x81 = PRESET_1 pressed, 0x01 = PRESET_1 released
+mem_fc27 = 0xfc27                   ;Raw key: bit7=pressed, bits6-0=code
+
+;Key queue management index
+;  Used to track position in queue for reading/writing
+;  Value of 0xFF indicates queue is empty
+;  Incremented/decremented as keys are added/removed
+mem_fc28 = 0xfc28                   ;Queue index
 mem_fc29 = 0xfc29
 mem_fc2a = 0xfc2a
 mem_fc2b = 0xfc2b
@@ -566,7 +674,15 @@ mem_fe2c = 0xfe2c
 mem_fe2d = 0xfe2d
 mem_fe2e = 0xfe2e
 mem_fe2f = 0xfe2f
-mem_fe30 = 0xfe30
+;Active working mode variable (RAM copy of mem_f253_ee_00b0_mode)
+;  Same encoding as mem_f253_ee_00b0_mode (0x00-0x04)
+;  This is the "live" mode variable checked by mode-specific code
+;  Updated from mem_f190 when mode transition completes
+;  Compared with mem_f190 at lab_42f8 (0x42F8) to detect mode changes
+;  Example flow: mem_fe30=0x01 (FM), user presses CD key,
+;                handler sets mem_f190=0x03, comparison detects change,
+;                mem_fe30 updated to 0x03, mode switch complete
+mem_fe30 = 0xfe30                   ;Active working mode (cmp with mem_f190 at lab_42f8)
 mem_fe31 = 0xfe31
 mem_fe32 = 0xfe32
 mem_fe34 = 0xfe34
@@ -577,7 +693,19 @@ mem_fe3f = 0xfe3f
 mem_fe40 = 0xfe40
 mem_fe41 = 0xfe41
 mem_fe42 = 0xfe42
-mem_fe43_key = 0xfe43       ;Key being pressed; possibly other uses
+;Processed key code for mode handlers
+;  Extracted from key queue (mem_fc24) by sub_911b
+;  This is what all mode-specific code checks to determine which key was pressed
+;  Unlike mem_fc27, bit 7 is not always set - depends on processing context
+;  Mode handlers at lab_427a (0x427A) compare this against known key codes:
+;    if (mem_fe43_key == 0x17) -> FM mode key
+;    if (mem_fe43_key == 0x16) -> AM mode key
+;    if (mem_fe43_key == 0x14) -> CD mode key
+;    if (mem_fe43_key == 0x15) -> Tape mode key
+;    if (mem_fe43_key == 0x01-0x06) -> Preset keys 1-6
+;    if (mem_fe43_key == 0x08-0x09) -> Seek up/down
+;    etc.
+mem_fe43_key = 0xfe43       ;Processed key for handlers (0x17=FM, 0x16=AM, 0x14=CD, 0x15=Tape)
 mem_fe44 = 0xfe44
 mem_fe45 = 0xfe45           ;Index for mem_b790 lookup (CDC TX related)
 mem_fe46 = 0xfe46
@@ -632,8 +760,40 @@ mem_fe78 = 0xfe78
 mem_fe79 = 0xfe79
 mem_fe7a = 0xfe7a
 mem_fe7b = 0xfe7b
-mem_fe7c = 0xfe7c
-mem_fe7d = 0xfe7d
+;Secondary state flags byte
+;  Bit 0: Set during some operations
+;  Bit 2: Set during initialization
+;  Other bits purpose not fully determined yet
+;  Referenced in various state checking routines
+mem_fe7c = 0xfe7c                   ;Secondary state flags
+
+;CRITICAL state flags byte - Controls major system state transitions
+;  Bit 0: [Unknown state flag]
+;  Bit 1: [Unknown state flag]
+;  Bit 2: Mode change pending flag (MOST IMPORTANT!)
+;         Set at lab_42f8 (0x42F8) when mem_f190 != mem_fe30
+;         Triggers mode transition sequence in main loop
+;         Main loop detects this and executes:
+;           1. Update mem_fe30 = mem_f190
+;           2. Save to mem_f253_ee_00b0_mode (EEPROM)
+;           3. Initialize new mode (tuner config, load presets, etc.)
+;           4. Update display
+;           5. Clear this flag
+;  Bit 3: [Unknown state flag]
+;  Bit 4: [Unknown state flag]
+;  Bit 5: Power/POWER key related flag
+;         Set during POWER key handling
+;         Related to power-on sequence
+;  Bit 6: POWER key event flag
+;         Set by intp4_power_key (0x5904) when POWER key pressed while radio on
+;         Triggers power-on sequence when detected by main loop
+;  Bit 7: STOP/EJECT key event flag
+;         Set by intp6_stop_key (0x593B) when STOP/EJECT key pressed
+;         Triggers mode-specific stop/eject handling:
+;           CD mode: Eject CD via CDC commands
+;           Tape mode: Stop playback, possibly eject tape
+;           Other modes: May be ignored or trigger different actions
+mem_fe7d = 0xfe7d                   ;CRITICAL: bit2=mode chg pending, bit6=POWER, bit7=STOP
 mem_fe7e = 0xfe7e
 mem_fe7f = 0xfe7f
 mem_fe80 = 0xfe80
@@ -4612,72 +4772,137 @@ lab_16a7:
 lab_16af:
     clr1 mem_fe5b.0         ;16af  0b 5b
 
+;==============================================================================
+; PRESET BUTTON HANDLER - SHORT PRESS vs LONG PRESS DETECTION
+;==============================================================================
+; Handles preset buttons 1-6 for FM1, FM2, and AM bands
+;
+; OPERATION:
+;   SHORT PRESS (quick tap): Recalls station from preset
+;   LONG PRESS  (hold ~1s):  Stores current station to preset
+;
+; DETECTION MECHANISM:
+;   The handler runs MULTIPLE TIMES per key press in a loop/state machine.
+;   Each iteration checks if the key is STILL being physically held.
+;
+;   1st iteration: Key still held → mem_f1ab = 0x80 (short press assumed)
+;   2nd+ iterations: Key still held → mem_f1ab stays 0x80
+;   Final iteration: Key released → Check previous state:
+;       - If mem_f1ab was 0x80 (was held): Change to 0xC0 = LONG PRESS
+;       - If this is first check: Set 0xC0 = LONG PRESS
+;
+;   So: LONG PRESS = Key was held across multiple iterations then released
+;       SHORT PRESS = Key released immediately (stays 0x80)
+;
+; PRESET STORAGE (EEPROM):
+;   FM1: 0x0084-0x008E (6 presets + current at 0x0082)
+;   FM2: 0x0092-0x009C (6 presets + current at 0x0090)  
+;   AM:  0x00A0-0x00AA (6 presets + current at 0x009E)
+;   Format: Frequency INDEX (not MHz/kHz), converted using region tables
+;
+; STATE VARIABLES:
+;   mem_fb5a: Last pressed preset number (global, 0x01-0x06)
+;   mem_fb5b: Last pressed preset for FM1 (0x01-0x06)
+;   mem_fb5c: Last pressed preset for FM2 (0x01-0x06)
+;   mem_f1ab: Press type indicator:
+;             0x80 = SHORT PRESS (recall preset)
+;             0xC0 = LONG PRESS (store to preset)
+;   mem_fe5c.2: Preset processing active flag
+;==============================================================================
+
 lab_16b1:
-    bt mem_fe5c.3,lab_16f5  ;16b1  bc 5c 41
-    mov mem_fe21,#0x00      ;16b4  11 21 00
-    call !sub_080b_fm1fm2   ;16b7  9a 0b 08     Return mem_f252_ee_00af_fm1_fm2 in A (FM1/FM2: 0x00=FM1, 0x01=FM2), also copy it into mem_fb57
-    mov b,a                 ;16ba  73
-    movw hl,#mem_fb5b       ;16bb  16 5b fb
-    mov a,mem_fe43_key      ;16be  f0 43
-    sub a,#0x00             ;16c0  1d 00
-    mov !mem_fb5a,a         ;16c2  9e 5a fb
-    mov [hl+b],a            ;16c5  bb
-    set1 mem_fe5c.2         ;16c6  2a 5c
-    cmp mem_fe21,#0x0a      ;16c8  c8 21 0a
-    bz lab_16e9             ;16cb  ad 1c
-    cmp mem_fe21,#0x0b      ;16cd  c8 21 0b
-    bz lab_16e9             ;16d0  ad 17
-    call !sub_a694          ;16d2  9a 94 a6
-    cmp a,#0x00             ;16d5  4d 00
-    mov a,#0x80             ;16d7  a1 80
-    bnz lab_16e6            ;16d9  bd 0b
-    mov a,!mem_f1ab         ;16db  8e ab f1
-    and a,#0x7f             ;16de  5d 7f
-    cmp a,#0x00             ;16e0  4d 00
-    bnz lab_16e9            ;16e2  bd 05
-    mov a,#0xc0             ;16e4  a1 c0
+    bt mem_fe5c.3,lab_16f5  ;16b1  bc 5c 41     Branch if preset processing flag 3 set
+    mov mem_fe21,#0x00      ;16b4  11 21 00     Clear action state
+    call !sub_080b_fm1fm2   ;16b7  9a 0b 08     Get FM1/FM2 band: A=0 (FM1) or 1 (FM2)
+    mov b,a                 ;16ba  73           B = FM band selector (0 or 1)
+    movw hl,#mem_fb5b       ;16bb  16 5b fb     HL = preset storage base address
+    mov a,mem_fe43_key      ;16be  f0 43        A = processed key code (0x01-0x06 for presets)
+    sub a,#0x00             ;16c0  1d 00        (no-op subtraction, just clears flags)
+    mov !mem_fb5a,a         ;16c2  9e 5a fb     Store preset number globally (mem_fb5a)
+    mov [hl+b],a            ;16c5  bb           Store to mem_fb5b (FM1) or mem_fb5c (FM2)
+                            ;                       This remembers WHICH preset button was pressed
+    set1 mem_fe5c.2         ;16c6  2a 5c        Set preset processing active flag
+    cmp mem_fe21,#0x0a      ;16c8  c8 21 0a     Check action state
+    bz lab_16e9             ;16cb  ad 1c        Branch if state is 0x0A
+    cmp mem_fe21,#0x0b      ;16cd  c8 21 0b     Check action state  
+    bz lab_16e9             ;16d0  ad 17        Branch if state is 0x0B
+    
+;------------------------------------------------------------------------------
+; LONG PRESS DETECTION LOGIC
+;------------------------------------------------------------------------------
+; Called repeatedly while key is held. Determines if this is a short tap or
+; long hold based on whether the key is STILL being physically pressed.
+;------------------------------------------------------------------------------
+    call !sub_a694          ;16d2  9a 94 a6     Check if key still physically held
+                            ;                       Returns: 0x00 = released, non-zero = still held
+    cmp a,#0x00             ;16d5  4d 00        Is key released?
+    mov a,#0x80             ;16d7  a1 80        Prepare SHORT PRESS marker
+    bnz lab_16e6            ;16d9  bd 0b        Key STILL HELD -> short press (for now)
+    
+    ; Key has been RELEASED - determine if this was a long hold
+    mov a,!mem_f1ab         ;16db  8e ab f1     Get previous press type state
+    and a,#0x7f             ;16de  5d 7f        Mask off bit 7
+    cmp a,#0x00             ;16e0  4d 00        Was previous state 0x00 (initial)?
+    bnz lab_16e9            ;16e2  bd 05        No -> already determined, skip
+    mov a,#0xc0             ;16e4  a1 c0        Yes -> this was a LONG PRESS
+                            ;                       (Key was held, then released)
 
 lab_16e6:
-    mov !mem_f1ab,a         ;16e6  9e ab f1
+    mov !mem_f1ab,a         ;16e6  9e ab f1     Store press type indicator:
+                            ;                       0x80 = SHORT PRESS (tap)
+                            ;                       0xC0 = LONG PRESS (hold)
 
 lab_16e9:
-    cmp mem_fe20,#0x01      ;16e9  c8 20 01
-    bz lab_16f4             ;16ec  ad 06
-    btclr mem_fe5b.0,lab_16f4 ;16ee  31 01 5b 02
-    br lab_16fb             ;16f2  fa 07
+    cmp mem_fe20,#0x01      ;16e9  c8 20 01     Check processing state
+    bz lab_16f4             ;16ec  ad 06        Branch if state 1
+    btclr mem_fe5b.0,lab_16f4 ;16ee  31 01 5b 02  Branch if flag cleared
+    br lab_16fb             ;16f2  fa 07        Continue to preset action dispatch
 
 lab_16f4:
     ret                     ;16f4  af
 
 lab_16f5:
     mov a,#0x00             ;16f5  a1 00
-    mov !mem_fc2f,a         ;16f7  9e 2f fc
+    mov !mem_fc2f,a         ;16f7  9e 2f fc     Clear timer/counter
     ret                     ;16fa  af
 
+;==============================================================================
+; SHORT PRESS ACTION: RECALL PRESET
+;==============================================================================
+; Loads the frequency stored in the selected preset and tunes to it
+;==============================================================================
 lab_16fb:
-    call !sub_1a82          ;16fb  9a 82 1a
-    mov b,a                 ;16fe  73
-    call !sub_1a43          ;16ff  9a 43 1a
-    call !sub_1a17          ;1702  9a 17 1a
-    mov a,#0x80             ;1705  a1 80
-    mov !mem_f1ab,a         ;1707  9e ab f1
-    br !lab_178e            ;170a  9b 8e 17
+    call !sub_1a82          ;16fb  9a 82 1a     Get which preset was pressed (from mem_fb5b/c)
+                            ;                       Returns preset number 1-6 in B
+    mov b,a                 ;16fe  73           B = preset number
+    call !sub_1a43          ;16ff  9a 43 1a     Load frequency index from EEPROM preset
+    call !sub_1a17          ;1702  9a 17 1a     Tune radio to the recalled frequency
+    mov a,#0x80             ;1705  a1 80        
+    mov !mem_f1ab,a         ;1707  9e ab f1     Confirm SHORT PRESS action
+    br !lab_178e            ;170a  9b 8e 17     Continue processing
 
+;==============================================================================
+; LONG PRESS ACTION: STORE PRESET  
+;==============================================================================
+; Saves the current frequency to the selected preset in EEPROM
+;==============================================================================
 lab_170d:
-    mov a,!mem_fc91         ;170d  8e 91 fc
-    cmp a,#0x00             ;1710  4d 00
-    bnz lab_1716            ;1712  bd 02
-    set1 mem_fe5b.1         ;1714  1a 5b
+    mov a,!mem_fc91         ;170d  8e 91 fc     Get some counter/state variable
+    cmp a,#0x00             ;1710  4d 00        Check if zero
+    bnz lab_1716            ;1712  bd 02        Branch if not zero
+    set1 mem_fe5b.1         ;1714  1a 5b        Set flag bit 1
 
 lab_1716:
-    call !sub_1a82          ;1716  9a 82 1a
-    mov b,a                 ;1719  73
-    call !sub_1a2c          ;171a  9a 2c 1a
+    call !sub_1a82          ;1716  9a 82 1a     Get which preset was pressed (1-6)
+                            ;                       Returns in A and B
+    mov b,a                 ;1719  73           B = preset number  
+    call !sub_1a2c          ;171a  9a 2c 1a     STORE current frequency to EEPROM preset
+                            ;                       Writes freq_idx to preset location
     mov a,#0x80             ;171d  a1 80
-    mov !mem_f1ab,a         ;171f  9e ab f1
-    mov mem_fe21,#0x00      ;1722  11 21 00
-    set1 mem_fe5c.2         ;1725  2a 5c
-    call !sub_a74b          ;1727  9a 4b a7
+    mov !mem_f1ab,a         ;171f  9e ab f1     Confirm action complete
+    mov mem_fe21,#0x00      ;1722  11 21 00     Reset action state
+    set1 mem_fe5c.2         ;1725  2a 5c        Keep preset processing flag set
+    call !sub_a74b          ;1727  9a 4b a7     Update display and commit EEPROM changes
     ret                     ;172a  af
 
 lab_172b:
@@ -5230,14 +5455,27 @@ sub_1a7d:
     movw hl,#mem_f24f_ee_00ac       ;1a7d  16 4f f2
     br lab_1a85             ;1a80  fa 03
 
+;==============================================================================
+; GET PRESSED PRESET NUMBER
+;==============================================================================
+; Retrieves which preset button (1-6) was last pressed for current FM band
+;
+; Returns:
+;   A, B = Preset number (0x01-0x06)
+;
+; Reads from:
+;   mem_fb5b: Last preset pressed for FM1
+;   mem_fb5c: Last preset pressed for FM2
+;   Selects based on current FM1/FM2 band setting
+;==============================================================================
 sub_1a82:
-    movw hl,#mem_fb5b       ;1a82  16 5b fb
+    movw hl,#mem_fb5b       ;1a82  16 5b fb     HL = base address of preset storage
 
 lab_1a85:
-    call !sub_080b_fm1fm2   ;1a85  9a 0b 08
-    mov c,a                 ;1a88  72
-    mov a,[hl+c]            ;1a89  aa
-    mov b,a                 ;1a8a  73
+    call !sub_080b_fm1fm2   ;1a85  9a 0b 08     Get FM1/FM2 selector: 0=FM1, 1=FM2
+    mov c,a                 ;1a88  72           C = band index
+    mov a,[hl+c]            ;1a89  aa           A = mem_fb5b[C] = preset number
+    mov b,a                 ;1a8a  73           B = preset number (return in both A and B)
     ret                     ;1a8b  af
 
 sub_1a8c:
@@ -13009,21 +13247,69 @@ lab_4266:
     bz lab_42a1             ;4276  ad 29
     br lab_42a3             ;4278  fa 29
 
+;==============================================================================
+; MODE KEY DETECTION AND HANDLER DISPATCH
+;==============================================================================
+; This section detects when a mode key (FM/AM/CD/TAPE) is pressed and
+; dispatches to the appropriate mode handler routine.
+;
+; Called from: Main task processing loop during regular operation
+; Frequency: Checked every task cycle when conditions are met
+;
+; Flow:
+;   1. Check if mode changes are currently allowed (state flags)
+;   2. Get current key code from mem_fe43_key (set by sub_911b)
+;   3. Compare against mode key codes:
+;      0x17 = FM mode key (button labeled "FM" on faceplate)
+;      0x16 = AM mode key (button labeled "AM" on faceplate)
+;      0x14 = CD mode key (button labeled "CD" on faceplate)
+;      0x15 = Tape mode key (button labeled "TAPE" on faceplate)
+;      0x48 = Unknown mode key (purpose not identified)
+;   4. If mode key detected:
+;      a. Set A = 0xFF to signal mode change request
+;      b. Look up handler address in mem_b170 table (line 33559)
+;      c. Jump to handler routine
+;      d. Handler validates request (checks hardware availability, etc.)
+;      e. Handler sets mem_f190 to target mode value if valid
+;      f. Handler sets mem_fe7d.2 flag if mode change approved
+;      g. Handler returns to continue processing
+;   5. Compare mem_f190 with mem_fe30 at lab_42f8 (0x42F8)
+;   6. If different, set mem_fe7d.2 flag to trigger transition
+;   7. Mode transition happens in subsequent main loop cycles
+;
+; To add a new mode:
+;   1. Choose unused mode value (e.g., 0x05 for AUX mode)
+;   2. Write handler routine following existing pattern (validate, set mem_f190)
+;   3. Add handler address to mem_b170 table (0xB170)
+;   4. Add key code comparison here at lab_427a (0x427A)
+;   5. Map button to new key code in key_matrix table (0xB330)
+;   6. Implement mode-specific initialization and processing code
+;==============================================================================
+
 lab_427a:
-    bf mem_fe5d.7,lab_42a3  ;427a  31 73 5d 25
-    bf mem_fe5e.0,lab_4291  ;427e  31 03 5e 0f
+    bf mem_fe5d.7,lab_42a3  ;427a  31 73 5d 25  Check state flag
+    bf mem_fe5e.0,lab_4291  ;427e  31 03 5e 0f  Check another flag
+    
+    ;Check for FM mode key
     cmp mem_fe43_key,#0x17  ;4282  c8 43 17     Key = MODE_FM?
-    bz lab_42a1             ;4285  ad 1a
+    bz lab_42a1             ;4285  ad 1a        Yes->signal mode change
+    
+    ;Check for AM mode key
     cmp mem_fe43_key,#0x16  ;4287  c8 43 16     Key = MODE_AM?
-    bz lab_42a1             ;428a  ad 15
-    cmp mem_fe43_key,#0x48  ;428c  c8 43 48
-    bz lab_42a1             ;428f  ad 10
+    bz lab_42a1             ;428a  ad 15        Yes->signal mode change
+    
+    ;Check for unknown mode key 0x48
+    cmp mem_fe43_key,#0x48  ;428c  c8 43 48     Key = unknown mode?
+    bz lab_42a1             ;428f  ad 10        Yes->signal mode change
 
 lab_4291:
+    ;Check for CD mode key
     cmp mem_fe43_key,#0x14  ;4291  c8 43 14     Key = MODE_CD?
-    bz lab_42a1             ;4294  ad 0b
+    bz lab_42a1             ;4294  ad 0b        Yes->signal mode change
+    
+    ;Check for Tape mode key
     cmp mem_fe43_key,#0x15  ;4296  c8 43 15     Key = MODE_TAPE?
-    bz lab_42a1             ;4299  ad 06
+    bz lab_42a1             ;4299  ad 06        Yes->signal mode change
     cmp a,#0x03             ;429b  4d 03
     bz lab_42a1             ;429d  ad 02
     br lab_42a3             ;429f  fa 02
@@ -13077,10 +13363,44 @@ lab_42f0:
     call !sub_4495          ;42f5  9a 95 44
 
 lab_42f8:
-    mov a,!mem_f190         ;42f8  8e 90 f1
-    cmp a,!mem_fe30         ;42fb  48 30 fe
-    bz lab_4302             ;42fe  ad 02
-    set1 mem_fe7d.2         ;4300  2a 7d
+;==============================================================================
+; CRITICAL MODE TRANSITION TRIGGER
+;==============================================================================
+; This comparison is the KEY mechanism that triggers actual mode changes!
+; 
+; If mem_f190 (target mode set by handler) differs from mem_fe30 (current
+; active mode), we set mem_fe7d.2 flag which tells the main loop to execute
+; the mode transition sequence.
+;
+; Mode transition sequence (triggered by mem_fe7d.2):
+;   1. Main loop detects mem_fe7d.2 flag is set
+;   2. Updates mem_fe30 = mem_f190 (activate new mode)
+;   3. Saves mem_fe30 to mem_f253_ee_00b0_mode (persist to EEPROM)
+;   4. Initializes new mode:
+;      a. Configure tuner IC for FM/AM
+;      b. Load saved frequency/preset from EEPROM
+;      c. Send tuning command to tuner
+;      d. Update display buffer with mode name and frequency
+;      e. Send FIS message if instrument cluster connected
+;      f. Initialize mode-specific state variables
+;   5. Clears mem_fe7d.2 flag
+;   6. Mode transition complete!
+;
+; Example: User presses FM key while in AM mode
+;   Before: mem_fe30=0x02 (AM), mem_f190=0x02 (same)
+;   User presses FM key
+;   Handler executes: mem_f190=0x01 (FM)
+;   This code: Compares 0x01 != 0x02, sets mem_fe7d.2
+;   Main loop: Detects flag, switches to FM, clears flag
+;   After: mem_fe30=0x01 (FM), mem_f190=0x01 (same), flag clear
+;==============================================================================
+    mov a,!mem_f190         ;42f8  8e 90 f1     A = target mode (set by handler)
+    cmp a,!mem_fe30         ;42fb  48 30 fe     Compare with current active mode
+    bz lab_4302             ;42fe  ad 02        Same? No change needed, skip
+    
+;Modes are different - trigger transition!
+    set1 mem_fe7d.2         ;4300  2a 7d        Set mode change pending flag
+                            ;                     Main loop will detect and execute transition
 
 lab_4302:
     call !sub_4495          ;4302  9a 95 44
@@ -17734,6 +18054,52 @@ lab_56c3:
 lab_56cb:
     ret                     ;56cb  af
 
+;==============================================================================
+; KEY READING FUNCTION - sub_56cc_upd_keys
+;==============================================================================
+; Primary function that reads key presses from uPD16432B display controller
+; via SPI communication.
+;
+; Called from: Task 0x06 main loop, approximately every 1ms
+;
+; Operation sequence:
+;   1. Check preconditions (state flags must allow key reading)
+;   2. Configure SPI hardware for uPD16432B communication
+;   3. Send "Read Key Data" command (0x4C) to uPD16432B
+;   4. Receive 4 bytes of key scan data via interrupt-driven SPI
+;   5. Mask unused bits using key_mask table (0xB3A7)
+;   6. Compare with previous scan data to detect changes
+;   7. If changed:
+;      a. Search key_matrix table (0xB330) for matching scan pattern
+;      b. Extract key code from first byte of matching entry
+;      c. Set bit 7 if key is currently pressed (0x80 | key_code)
+;      d. Store result in mem_fc27
+;      e. Call sub_0994 to process key event (debouncing, queuing)
+;   8. Update previous scan data for next comparison
+;
+; Hardware interface - SPI to uPD16432B display controller:
+;   P47 (Pin 28): STB - Chip select for uPD16432B (active high)
+;   P32 (Pin 31): SCK30 - SPI clock signal
+;   P31 (Pin 30): SO30 - SPI data out (MCU to uPD16432B)
+;   P30 (Pin 29): SI30 - SPI data in (uPD16432B to MCU)
+;
+; uPD16432B key scan data format:
+;   Returns 4 bytes where each bit represents one button position in matrix
+;   Only one bit should be set at a time (single key press detection)
+;   Byte 0: Masked to 0x00 (not used by this faceplate design)
+;   Byte 1: Key matrix columns 0-7
+;   Byte 2: Key matrix columns 8-15
+;   Byte 3: Key matrix columns 16-23
+;
+; Command byte 0x4C breakdown:
+;   Bits [7:6] = 01: Data Setting Command
+;   Bits [5:4] = 00: Read key data mode
+;   Bit [3]    = 1:  Address auto-increment enabled
+;   Bits [2:0] = 100: Start address = 0
+;
+; Returns: Nothing (updates mem_fc27 global and triggers key event processing)
+;==============================================================================
+
 sub_56cc_upd_keys:
 ;Read uPD16432B key data if ??? conditions are met
     bf mem_fe62.1,lab_56d1  ;56cc  31 13 62 01
@@ -18148,6 +18514,64 @@ lab_58fa:
 lab_5903_ret:
     ret                         ;5903  af
 
+;==============================================================================
+; POWER KEY INTERRUPT HANDLER (INTP4)
+;==============================================================================
+; External interrupt triggered by POWER key on pin P04 (Pin 49 of MCU).
+; Interrupt vector: 0x000E
+;
+; Hardware configuration:
+;   Pin: P04 (physical pin 49 on QFP-80 package)
+;   Logic: 0 = POWER key pressed (active low)
+;          1 = POWER key not pressed (pulled high)
+;   Interrupt: Configured for both edges (rising and falling)
+;   Priority: Can be configured via interrupt priority registers
+;
+; Behavior depends on current power state:
+;
+;   Falling edge (key pressed):
+;     If radio is OFF (mem_fe2d.0 = 0):
+;       - Set mem_fe67.0 flag to trigger power-on sequence
+;       - Clear some state variables
+;       - Clear current key code (mem_fc27)
+;       - Power-on sequence will start in main loop
+;     
+;     If radio is ON (mem_fe2d.0 = 1):
+;       - Set mem_fe7d.6 flag for special POWER key handling
+;       - May trigger menu or special function
+;       - Depends on other state conditions
+;
+;   Rising edge (key released):
+;     - Generally ignored
+;     - Just return from interrupt
+;
+; Power-on sequence (triggered by mem_fe7d.6 flag):
+;   1. Turn on switched 5V supply via P80 pin
+;   2. Initialize all peripherals:
+;      - uPD16432B display controller (send init commands via SPI)
+;      - TEA6840H tuner IC (send config via I2C)
+;      - M24C04 EEPROM (verify communication)
+;      - CDC if present (send wakeup commands)
+;      - FIS interface if connected
+;   3. Restore last mode from mem_f253_ee_00b0_mode (EEPROM)
+;   4. Load saved frequencies/presets from EEPROM
+;      - FM1/FM2 current frequency
+;      - AM current frequency
+;      - All preset stations
+;   5. Update display with mode and frequency
+;   6. Send initial FIS message if instrument cluster connected
+;   7. Begin normal operation
+;   8. Clear power-on flags
+;
+; Special considerations:
+;   - This runs in interrupt context - keep processing minimal
+;   - Main work done by setting flags for main loop to process
+;   - Debouncing handled elsewhere (not in interrupt)
+;==============================================================================
+
+;POWER KEY INTERRUPT (INTP4) - P04 pin, vector 0x000E
+;Falling edge: Sets mem_fe67.0 (radio off) or mem_fe7d.6 (radio on)
+
 ;INTP4 external interrupt
 ;Fires on the rising or falling edge of the POWER key
 ;POWER key is P04 (0=pressed, 1=not pressed)
@@ -18192,6 +18616,64 @@ lab_5924:
 
 lab_593a:
     ret                     ;593a  af
+
+;==============================================================================
+; STOP/EJECT KEY INTERRUPT HANDLER (INTP6)
+;==============================================================================
+; External interrupt triggered by STOP/EJECT key on pin P06 (Pin 51 of MCU).
+; Interrupt vector: 0x0012
+;
+; Hardware configuration:
+;   Pin: P06 (physical pin 51 on QFP-80 package)
+;   Logic: 0 = STOP/EJECT key pressed (active low)
+;          1 = STOP/EJECT key not pressed (pulled high)
+;   Interrupt: Configured for falling edge only (key press)
+;   Priority: Can be configured via interrupt priority registers
+;
+; Behavior:
+;   Simply sets mem_fe7d.7 flag when key is pressed (if allowed by mem_fe62.1)
+;   Actual functionality is implemented in mode-specific code that polls this flag
+;
+; Mode-specific behavior (implemented in main loop code, not in interrupt):
+;
+;   CD mode (mem_fe30 = 0x03):
+;     - Send CDC eject command via serial protocol
+;     - Wait for CDC acknowledgment
+;     - Display "EJECT" or "CD OUT" message
+;     - May auto-switch to radio mode after eject
+;
+;   Tape mode (mem_fe30 = 0x04):
+;     - Stop playback immediately
+;     - May mechanically eject tape (hardware dependent)
+;     - Display "STOP" message
+;     - Motor control via GPIO pins
+;
+;   Radio modes (FM/AM):
+;     - May be ignored
+;     - Or could implement scan stop function
+;     - Behavior is mode-specific
+;
+;   Other modes:
+;     - Check mode-specific code for behavior
+;
+; Important notes:
+;   - This interrupt only sets a flag - it doesn't execute the action
+;   - The actual eject/stop functionality is in mode handler code
+;   - Mode handlers check mem_fe7d.7 and respond accordingly
+;   - Flag must be cleared by the mode handler after processing
+;   - If mem_fe62.1 is set, key press is ignored (safety interlock)
+;
+; Debouncing:
+;   - Hardware or software debouncing may be used
+;   - Mode handlers may add additional delay before acting
+;
+; Safety interlocks:
+;   - mem_fe62.1 flag prevents action during certain operations
+;   - Protects against accidental ejects during critical operations
+;==============================================================================
+
+;STOP/EJECT KEY INTERRUPT (INTP6) - P06 pin, vector 0x0012
+;Sets mem_fe7d.7 flag, mode handlers process (CD eject, tape stop, etc.)
 
 ;INTP6 external interrupt
 ;Fires on the falling edge of the STOP/EJECT key
@@ -22138,136 +22620,305 @@ freq_idx_to_bcd:
     mov a,!freq_idx             ;6ec4  8e 56 fb
     dec a                       ;6ec7  51
 
-    cmp mem_fed6,#0x02          ;6ec8  c8 d6 02
-    bz lab_6f06_am              ;6ecb  ad 39
+;==============================================================================
+; FREQUENCY INDEX TO DISPLAY CONVERSION
+;==============================================================================
+; Converts stored frequency index to actual frequency in MHz/kHz for display
+;
+; Input: A = frequency index (from EEPROM preset or current frequency)
+;        X = region value (from mem_f1e7_ee_0046_region)
+;        mem_fed6 = mode indicator (0x01=FM, 0x02=AM)
+;
+; Output: mem_fed4/mem_fed5 = BCD encoded frequency for display
+;         Example: 88.3 MHz stored as 0x0883 BCD
+;                  530 kHz stored as 0x0530 BCD
+;
+; Frequency Calculation:
+;   FM (most regions): frequency = base + (index * 1) in tenths of MHz
+;      Example: Region 0, index 0x04 = 877 + 4 = 881 = 88.1 MHz
+;   
+;   FM (Region 7 only): frequency = base + (index * 2) in tenths of MHz
+;      Example: Region 7, index 0x04 = 759 + 8 = 767 = 76.7 MHz
+;      Note: This region uses 200 kHz steps instead of 100 kHz
+;
+;   AM (Regions 0,4,5,6,7): frequency = base + (index * 10) in kHz
+;      Example: Region 0, index 0x05 = 530 + 50 = 580 kHz
+;
+;   AM (Regions 1,2,3): frequency = base + (index * 9) in kHz
+;      Example: Region 1, index 0x05 = 522 + 45 = 567 kHz
+;
+; Why different AM steps?
+;   - 9 kHz spacing: ITU Region 1 (Europe, Africa, Asia except Americas)
+;   - 10 kHz spacing: ITU Region 2 (Americas)
+;   This reflects actual broadcast channel allocations worldwide
+;
+; Why Region 7 uses 200 kHz FM steps:
+;   (GUESS: Possibly to cover wider frequency range 75.9-108.1 MHz with
+;    limited number of index values, or for regions with different channel
+;    spacing requirements. The doubling allows more coverage with same
+;    index range.)
+;==============================================================================
 
-    ;FM1/FM2
+    cmp mem_fed6,#0x02          ;6ec8  c8 d6 02     Check if AM mode
+    bz lab_6f06_am              ;6ecb  ad 39        Yes -> AM conversion
 
-    xch a,x                         ;6ecd  30
-    cmp a,#0x01                     ;6ece  4d 01
-    xch a,x                         ;6ed0  30
-    bz lab_6efe_fm_region_1         ;6ed1  ad 2b  Region 1: FM 76.0 - 90.0
+    ;============================================================================
+    ; FM FREQUENCY CONVERSION
+    ;============================================================================
+
+    xch a,x                         ;6ecd  30           Swap A and X
+    cmp a,#0x01                     ;6ece  4d 01        Check if Region 1 (Japan)
+    xch a,x                         ;6ed0  30           Restore A and X
+    bz lab_6efe_fm_region_1         ;6ed1  ad 2b        Region 1: FM 76.0 - 90.0
 
     xch a,x                         ;6ed3  30
-    cmp a,#0x02                     ;6ed4  4d 02
+    cmp a,#0x02                     ;6ed4  4d 02        Check if Region 2
     xch a,x                         ;6ed6  30
-    bz lab_6ef6_fm_region_2_3       ;6ed7  ad 1d  Region 2: FM 87.5 - 108.0
+    bz lab_6ef6_fm_region_2_3       ;6ed7  ad 1d        Region 2: FM 87.5 - 108.0
 
     xch a,x                         ;6ed9  30
-    cmp a,#0x03                     ;6eda  4d 03
+    cmp a,#0x03                     ;6eda  4d 03        Check if Region 3
     xch a,x                         ;6edc  30
-    bz lab_6ef6_fm_region_2_3       ;6edd  ad 17  Region 3: FM 87.5 - 108.0
+    bz lab_6ef6_fm_region_2_3       ;6edd  ad 17        Region 3: FM 87.5 - 108.0
 
     xch a,x                         ;6edf  30
-    cmp a,#0x07                     ;6ee0  4d 07
+    cmp a,#0x07                     ;6ee0  4d 07        Check if Region 7
     xch a,x                         ;6ee2  30
-    bnz lab_6eea_fm_region_0_4_5_6  ;6ee3  bd 05  Region 0: FM 87.7 - 107.9
-                                    ;             Region 4: FM 87.7 - 107.9
-                                    ;             Region 5: FM 87.7 - 107.9
-                                    ;             Region 6: FM 87.7 - 107.9
+    bnz lab_6eea_fm_region_0_4_5_6  ;6ee3  bd 05        Regions 0,4,5,6: FM 87.7 - 107.9
 
-    ;Region 7: FM 75.9 - 108.1
-    movw bc,#0x02f7                 ;6ee5  12 f7 02     BC = 759
+    ;Region 7: FM 75.9 - 108.1 MHz with 200 kHz (0.2 MHz) steps
+    movw bc,#0x02f7                 ;6ee5  12 f7 02     BC = 759 (base = 75.9 MHz)
     br lab_6eed_fm_region_eq_7      ;6ee8  fa 03
 
 lab_6eea_fm_region_0_4_5_6:
-    movw bc,#0x036d                 ;6eea  12 6d 03     BC = 877
+    ;Regions 0, 4, 5, 6: North America - 87.7 - 107.9 MHz, 100 kHz steps
+    movw bc,#0x036d                 ;6eea  12 6d 03     BC = 877 (base = 87.7 MHz)
 
 lab_6eed_fm_region_eq_7:
-    clr1 cy                         ;6eed  21
-    rolc a,1                        ;6eee  27
-    mov x,a                         ;6eef  70
-    mov a,#0x00                     ;6ef0  a1 00
-    addc a,#0x00                    ;6ef2  2d 00
-    br lab_6f37                     ;6ef4  fa 41
+    ;Region 7 special handling: double the index for 200 kHz steps
+    clr1 cy                         ;6eed  21           Clear carry
+    rolc a,1                        ;6eee  27           Rotate left (multiply by 2)
+    mov x,a                         ;6eef  70           X = index * 2
+    mov a,#0x00                     ;6ef0  a1 00        A = 0 (high byte)
+    addc a,#0x00                    ;6ef2  2d 00        Add carry if any
+    br lab_6f37                     ;6ef4  fa 41        -> Convert to BCD
 
 lab_6ef6_fm_region_2_3:
-    movw bc,#0x036b                 ;6ef6  12 6b 03     BC = 875
-    mov x,a                         ;6ef9  70
-    mov a,#0x00                     ;6efa  a1 00
-    br lab_6f37                     ;6efc  fa 39
+    ;Regions 2, 3: Europe - 87.5 - 108.0 MHz, 100 kHz steps
+    movw bc,#0x036b                 ;6ef6  12 6b 03     BC = 875 (base = 87.5 MHz)
+    mov x,a                         ;6ef9  70           X = index (unchanged)
+    mov a,#0x00                     ;6efa  a1 00        A = 0 (high byte)
+    br lab_6f37                     ;6efc  fa 39        -> Convert to BCD
 
 lab_6efe_fm_region_1:
-    movw bc,#0x02f8                 ;6efe  12 f8 02     BC = 760
-    mov x,a                         ;6f01  70
-    mov a,#0x00                     ;6f02  a1 00
-    br lab_6f37                     ;6f04  fa 31
+    ;Region 1: Japan - 76.0 - 90.0 MHz, 100 kHz steps (narrow band)
+    movw bc,#0x02f8                 ;6efe  12 f8 02     BC = 760 (base = 76.0 MHz)
+    mov x,a                         ;6f01  70           X = index (unchanged)
+    mov a,#0x00                     ;6f02  a1 00        A = 0 (high byte)
+    br lab_6f37                     ;6f04  fa 31        -> Convert to BCD
+
+;==============================================================================
+; AM (MEDIUM WAVE) FREQUENCY CONVERSION BY REGION
+;==============================================================================
+; Converts frequency index to actual AM frequency in kHz based on regional
+; broadcast allocations following ITU (International Telecommunication Union)
+; standards.
+;
+; REGIONAL AM BAND ALLOCATIONS:
+;
+; Region 0 (North America - USA/Canada/Mexico):
+;   Base: 530 kHz,  Step: 10 kHz,  Range: 530-1720 kHz*  (*XXX Bug: should be 1710)
+;   Formula: frequency = 530 + (index × 10)
+;   ITU Class: Region 2 (Americas)
+;   Standard: FCC Part 73, Extended AM band (ECAM) to 1705 kHz
+;   Max Index: 0x77 (119) = 1720 kHz XXX Bug: EXCEEDS SPEC (should be 0x76 = 1710)
+;
+; Region 1 (Japan - JDM):
+;   Base: 522 kHz,  Step: 9 kHz,   Range: 522-1638 kHz
+;   Formula: frequency = 522 + (index × 9)
+;   ITU Class: Region 1 (Asia)
+;   Standard: ARIB STD-B1 (Japanese broadcast standard)
+;   Max Index: 0x7C (124) = 1638 kHz
+;   Note: 522 kHz start is UNIQUE to Japan (aligns with 9 kHz grid)
+;
+; Region 2 (Western Europe - EDM):
+;   Base: 531 kHz,  Step: 9 kHz,   Range: 531-1638 kHz
+;   Formula: frequency = 531 + (index × 9)
+;   ITU Class: Region 1 (Europe)
+;   Standard: Geneva Frequency Plan (1975), extended beyond 1602 kHz
+;   Max Index: 0x7B (123) = 1638 kHz
+;   Markets: Germany, France, UK, Netherlands, Belgium, Spain, Italy
+;
+; Region 3 (Eastern Europe / EDM Variant):
+;   Base: 531 kHz,  Step: 9 kHz,   Range: 531-1629 kHz
+;   Formula: frequency = 531 + (index × 9)
+;   ITU Class: Region 1 (Europe)
+;   Max Index: 0x7A (122) = 1629 kHz
+;   Note: EXACTLY 9 kHz (ONE STATION) less than Region 2!
+;   Purpose: Possibly Poland, Czech Rep, Hungary, former East Germany
+;   Reason: Historical allocation? Cross-border interference mitigation?
+;
+; Regions 4, 5, 6 (North America Variants):
+;   IDENTICAL to Region 0 (530-1720* kHz, 10 kHz steps)
+;   Purpose: Possibly different vehicle platforms, model years, or markets
+;   All point to same frequency table to save ROM space
+;
+; Region 7 (Extended - Likely Brazil):
+;   Base: 520 kHz,  Step: 10 kHz,   Range: 520-1710 kHz
+;   Formula: frequency = 520 + (index × 10)
+;   ITU Class: Region 2 (Americas)
+;   Max Index: 0x77 (119) = 1710 kHz
+;   Note: LOWEST base frequency (10 kHz below standard MW band)
+;   Theory: Brazil allows experimental/community stations below 530 kHz
+;
+; ITU CHANNEL SPACING STANDARDS:
+;   9 kHz:  ITU Region 1 (Europe, Africa, Middle East, Asia)
+;           - High population density = more channels needed
+;           - Geneva Plan (1975): 526.5-1606.5 kHz
+;           - Metric system preference
+;
+;   10 kHz: ITU Region 2 (Americas - North/Central/South America)
+;           - Lower population density = fewer stations
+;           - Imperial system legacy
+;           - Standard: 540-1600 kHz, Extended: 1605-1710 kHz
+;
+; PRACTICAL IMPLICATIONS:
+;   Wrong region selection = poor reception:
+;   - 9 kHz region in 10 kHz area: Misses 50% of stations!
+;     Example: Europe setting in USA can tune 540, 549, 558...
+;              but NOT 550, 560, 570... (all the even x10 stations)
+;
+;   - 10 kHz region in 9 kHz area: Off-frequency for most stations
+;     Example: USA setting in Europe tunes 540, 550, 560...
+;              but stations are at 531, 540, 549, 558...
+;
+;   Only overlap: Every 90 kHz (LCM of 9 and 10)
+;   Example: ...450, 540, 630, 720, 810, 900... kHz
+;
+; FREQUENCY VALIDATION:
+;   Function freq_idx_constrain (0x1AD1) ensures index stays within
+;   region's maximum. This prevents the Preset 5 bug (0x77 = 1720 kHz)
+;   from causing crashes - it gets clamped to valid maximum at runtime.
+;
+; TUNER IC CONFIGURATION:
+;   Region 0: Uses mem_bcd3 (0xBCD3) - FCC-optimized
+;   Others:   Use mem_bcde (0xBCDE) - ITU-standard
+;   Differences likely in AGC timing and IF bandwidth for 9/10 kHz spacing
+;==============================================================================
 
 ;AM
 lab_6f06_am:
-    movw bc,#0x020a                 ;6f06  12 0a 02     BC = 522
-    xch a,x                         ;6f09  30           A = mem_f1e7_ee_0046_region
-    cmp a,#0x01                     ;6f0a  4d 01
-    xch a,x                         ;6f0c  30
-    bz lab_6f33_am_region_1_2_3     ;6f0d  ad 24        Region 1: AM 530 - 1710
+    movw bc,#0x020a                 ;6f06  12 0a 02     BC = 522 (base = 522 kHz for Japan)
+    xch a,x                         ;6f09  30           Preserve region in X, get index in A
+    cmp a,#0x01                     ;6f0a  4d 01        Check if Region 1 (Japan)
+    xch a,x                         ;6f0c  30           Restore A=index, X=region
+    bz lab_6f33_am_region_1_2_3     ;6f0d  ad 24        Yes -> Use 9 kHz spacing (ITU Region 1)
 
-    movw bc,#0x0213                 ;6f0f  12 13 02     BC = 531
+    movw bc,#0x0213                 ;6f0f  12 13 02     BC = 531 (base = 531 kHz for Europe)
     xch a,x                         ;6f12  30
-    cmp a,#0x02                     ;6f13  4d 02
+    cmp a,#0x02                     ;6f13  4d 02        Check if Region 2 (Western Europe)
     xch a,x                         ;6f15  30
-    bz lab_6f33_am_region_1_2_3     ;6f16  ad 1b        Region 2: AM 531 - 1629
+    bz lab_6f33_am_region_1_2_3     ;6f16  ad 1b        Yes -> Use 9 kHz spacing
 
-    movw bc,#0x0213                 ;6f18  12 13 02     BC = 531
+    movw bc,#0x0213                 ;6f18  12 13 02     BC = 531 (same base for Eastern Europe)
     xch a,x                         ;6f1b  30
-    cmp a,#0x03                     ;6f1c  4d 03
+    cmp a,#0x03                     ;6f1c  4d 03        Check if Region 3 (Eastern Europe)
     xch a,x                         ;6f1e  30
-    bz lab_6f33_am_region_1_2_3     ;6f1f  ad 12        Region 3: AM 531 - 1620
+    bz lab_6f33_am_region_1_2_3     ;6f1f  ad 12        Yes -> Use 9 kHz spacing
 
-    movw bc,#0x0208                 ;6f21  12 08 02     BC = 520
+    movw bc,#0x0208                 ;6f21  12 08 02     BC = 520 (base = 520 kHz for Region 7)
+                                    ;                       LOWEST base - extends below MW band
     xch a,x                         ;6f24  30
-    cmp a,#0x07                     ;6f25  4d 07
+    cmp a,#0x07                     ;6f25  4d 07        Check if Region 7 (Extended/Brazil?)
     xch a,x                         ;6f27  30
-    bz lab_6f2d                     ;6f28  ad 03        Region 7: AM 520 - 1710
+    bz lab_6f2d                     ;6f28  ad 03        Yes -> Use 10 kHz spacing
 
-    ;Region 0: AM 530 - 1710
-    ;Region 4: AM 530 - 1710
-    ;Region 5: AM 530 - 1710
-    ;Region 6: AM 530 - 1710
-
-    movw bc,#0x0212                 ;6f2a  12 12 02     BC = 530
+    ;Regions 0, 4, 5, 6: North America - 10 kHz channel spacing
+    movw bc,#0x0212                 ;6f2a  12 12 02     BC = 530 (base = 530 kHz for USA/Canada/Mexico)
+                                    ;                       Standard North American AM band
 
 lab_6f2d:
-    mov x,#0x0a                     ;6f2d  a0 0a        X = 10
-    mulu x                          ;6f2f  31 88        AX = A * 10
-    br lab_6f37                     ;6f31  fa 04
+    ;Regions 0, 4, 5, 6, 7: Use 10 kHz spacing (ITU Region 2 - Americas)
+    mov x,#0x0a                     ;6f2d  a0 0a        X = 10 (multiplier for 10 kHz steps)
+    mulu x                          ;6f2f  31 88        AX = index * 10
+                                    ;                       Example: index=5 -> 50 kHz offset
+    br lab_6f37                     ;6f31  fa 04        -> Add base and convert to BCD
 
 lab_6f33_am_region_1_2_3:
-    mov x,#0x09                     ;6f33  a0 09        X = 9
-    mulu x                          ;6f35  31 88        AX = A * 9
+    ;Regions 1, 2, 3: Use 9 kHz spacing (ITU Region 1 - Europe/Africa/Asia)
+    mov x,#0x09                     ;6f33  a0 09        X = 9 (multiplier for 9 kHz steps)
+    mulu x                          ;6f35  31 88        AX = index * 9
+                                    ;                       Example: index=5 -> 45 kHz offset
+                                    ;                       This allows MORE stations in same bandwidth
+                                    ;                       than 10 kHz spacing (high population density)
+
+;============================================================================
+; ADD BASE FREQUENCY AND CONVERT TO BCD
+;============================================================================
+; At this point:
+;   AX = offset from base (in tenths of MHz for FM, or kHz for AM)
+;   BC = base frequency (in tenths of MHz for FM, or kHz for AM)
+;
+; Calculate: frequency = BC + AX
+; Convert result to BCD for display
+;============================================================================
 
 lab_6f37:
-    xch a,x                         ;6f37  30
-    add a,c                         ;6f38  61 0a
-    xch a,x                         ;6f3a  30
-    addc a,b                        ;6f3b  61 2b
-    callf !bin_to_bcd               ;6f3d  2c 7f        Convert AX to BCD, store word in mem_fed4
+    xch a,x                         ;6f37  30           Swap bytes for addition
+    add a,c                         ;6f38  61 0a        Add low byte of base
+    xch a,x                         ;6f3a  30           Swap back
+    addc a,b                        ;6f3b  61 2b        Add high byte of base with carry
+    callf !bin_to_bcd               ;6f3d  2c 7f        Convert AX to BCD -> mem_fed4/fed5
                                     ;                       mem_fed4: BCD low byte
                                     ;                       mem_fed5: BCD high byte
+                                    ;                       Example: 883 (88.3 MHz) -> 0x0883 BCD
     ret                             ;6f3f  af
+
+;==============================================================================
+; FREQUENCY BCD TO DISPLAY CONVERSION
+;==============================================================================
+; Converts BCD frequency to ASCII digits for uPD16432B display
+;
+; Input: mem_fed4 = BCD low byte (e.g., 0x83 for xx.83 or x583)
+;        mem_fed5 = BCD high byte (e.g., 0x08 for 88.xx or 0583)
+;        B = buffer offset (decremented as digits written right-to-left)
+;
+; Output: ASCII digits written to display buffer at [B]
+;         For FM: Decimal point pictograph enabled between MHz and tenths
+;         For AM: No decimal point (integer kHz)
+;
+; Display format examples:
+;   FM: "88.3" (88.3 MHz)
+;   FM: "107.9" (107.9 MHz)
+;   AM: "530" (530 kHz)
+;   AM: "1710" (1710 kHz)
+;==============================================================================
 
 freq_bcd_to_upd_disp:
     push hl                 ;6f40  b7
     mov a,mem_fed4          ;6f41  f0 d4        A = BCD low byte
-    call !write_digit       ;6f43  9a 6c 6f     Write low nib of A in ASCII to buf at offset B, decr B
-    call !sub_0800_mode     ;6f46  9a 00 08     Return mem_f253_ee_00b0_mode in A (0x00=?, 0x01=FM1/FM2, 0x02=AM), also copy it into mem_fb58
-    cmp a,#0x02             ;6f49  4d 02        AM mode?
-    bz lab_6f4f             ;6f4b  ad 02        Branch if AM
-    ;mem_f253_ee_00b0_mode != 0x02 (must be FM mode)
-    set1 upd_pict+4.5       ;6f4d  5a 39        Turn on period pictograph
+    call !write_digit       ;6f43  9a 6c 6f     Write low nibble as ASCII digit
+    call !sub_0800_mode     ;6f46  9a 00 08     Get current mode
+    cmp a,#0x02             ;6f49  4d 02        Check if AM mode
+    bz lab_6f4f             ;6f4b  ad 02        Yes -> skip decimal point
+    
+    ;FM mode: Enable decimal point pictograph
+    set1 upd_pict+4.5       ;6f4d  5a 39        Turn on decimal point on display
+                            ;                       (separates MHz from tenths)
 
 lab_6f4f:
-    mov a,mem_fed4          ;6f4f  f0 d4        A = BCD low byte
-    callf !ror_a_4          ;6f51  2c 9e        A = A >> 4
-    call !write_digit       ;6f53  9a 6c 6f     Write low nib of A in ASCII to buf at offset B, decr B
+    mov a,mem_fed4          ;6f4f  f0 d4        A = BCD low byte again
+    callf !ror_a_4          ;6f51  2c 9e        Shift right 4 bits (get high nibble)
+    call !write_digit       ;6f53  9a 6c 6f     Write as ASCII digit
 
     mov a,mem_fed5          ;6f56  f0 d5        A = BCD high byte
-    call !write_digit       ;6f58  9a 6c 6f     Write low nib of A in ASCII to buf at offset B, decr B
+    call !write_digit       ;6f58  9a 6c 6f     Write low nibble as ASCII
 
-    mov a,mem_fed5          ;6f5b  f0 d5        A = BCD high byte
-    callf !ror_a_4          ;6f5d  2c 9e        A = A >> 4
-    and a,#0x0f             ;6f5f  5d 0f        Mask to leave only low nibble
-    bz lab_6f66_pop_ret     ;6f61  ad 03
-    call !write_digit       ;6f63  9a 6c 6f     Write low nib of A in ASCII to buf at offset B, decr B
+    mov a,mem_fed5          ;6f5b  f0 d5        A = BCD high byte again
+    callf !ror_a_4          ;6f5d  2c 9e        Shift right 4 bits
+    and a,#0x0f             ;6f5f  5d 0f        Mask to keep only low nibble
+    bz lab_6f66_pop_ret     ;6f61  ad 03        If zero, we're done (no leading digit)
+    call !write_digit       ;6f63  9a 6c 6f     Write final digit (hundreds for AM)
 
 lab_6f66_pop_ret:
     pop hl                  ;6f66  b6
@@ -33369,24 +34020,77 @@ mem_b150:
     .byte 0x01              ;b16e  01          DATA 0x01
     .byte 0x00              ;b16f  00          DATA 0x00
 
+;==============================================================================
+; MODE HANDLER JUMP TABLE
+;==============================================================================
+; Dispatches to mode-specific handler routines when mode keys are pressed.
+; Referenced at lab_42ad (0x42AD) during mode key processing.
+;
+; Table structure:
+;   First byte: Number of entries (0x0F = 15 handlers)
+;   Following words: Handler routine addresses
+;
+; Usage:
+;   Input: B register = handler index (determined by mode detection logic)
+;   table_get_word function loads handler address into DE register
+;   Code jumps to handler via "br ax" instruction
+;
+; Handler responsibilities:
+;   1. Validate mode change is currently allowed
+;      - Check various state flags (mem_fe2c, mem_fe2d, etc.)
+;      - Verify system is in correct state for mode change
+;   2. Verify required hardware is present and functional
+;      - CDC (CD Changer) must be present for CD mode
+;      - Tape deck must be present for Tape mode
+;      - Check hardware status flags
+;   3. If valid, set mem_f190 to target mode value
+;      - mem_f190 = 0x01 for FM mode
+;      - mem_f190 = 0x02 for AM mode
+;      - mem_f190 = 0x03 for CD mode
+;      - mem_f190 = 0x04 for Tape mode
+;   4. Set mem_fe7d.2 flag to signal mode change approved
+;   5. Return to caller (mode comparison code at lab_42f8)
+;
+; Important notes:
+;   - Handler index is NOT the same as mode value in mem_f253_ee_00b0_mode!
+;   - The relationship is complex and mediated through other lookup tables
+;   - Some handlers may handle multiple related functions
+;   - Handlers may reject mode changes by not setting mem_f190/mem_fe7d.2
+;
+; To add new mode:
+;   1. Write handler routine following existing pattern:
+;      - Validate conditions
+;      - Check hardware
+;      - Set mem_f190 = new_mode_value
+;      - Set mem_fe7d.2 if approved
+;      - Return
+;   2. Add handler address to this table (increase count byte too)
+;   3. Update mode detection code at lab_427a to call new handler
+;   4. Add mode initialization code that executes when mem_fe7d.2 processed
+;   5. Add mode-specific processing in main loop
+;==============================================================================
+
+;MODE HANDLER TABLE - Jump table for mode-specific handlers
+;Used at lab_42ad (0x42AD). Handler validates and sets mem_f190, mem_fe7d.2
+
 mem_b170:
 ;table of words used with table_get_word
-    .byte 0x0f              ;b170  0f          DATA 0x0f
-    .word lab_4307
-    .word sub_432d
-    .word lab_4370
-    .word lab_4339
-    .word lab_45f7
-    .word lab_45d3
-    .word lab_435a
-    .word lab_45df
-    .word lab_4365
-    .word lab_45eb
-    .word lab_44b5
-    .word lab_4502
-    .word lab_454f
-    .word lab_4603
-    .word lab_4438
+    .byte 0x0f              ;b170  0f          15 handler entries below
+    .word lab_4307          ;Handler 0x00: FM Radio Mode (handles FM1/FM2 toggle)
+    .word sub_432d          ;Handler 0x01: Power Off / Return to Mode 0
+    .word lab_4370          ;Handler 0x02: Next Mode / Mode Cycle
+    .word lab_4339          ;Handler 0x03: AM Radio Mode
+    .word lab_45f7          ;Handler 0x04: AM Mode Entry (with counter clear)
+    .word lab_45d3          ;Handler 0x05: FM Mode Entry (alternate path)
+    .word lab_435a          ;Handler 0x06: Tape Mode (validates tape deck present)
+    .word lab_45df          ;Handler 0x07: Tape Mode Entry (with counter clear)
+    .word lab_4365          ;Handler 0x08: CD Mode (validates CDC present)
+    .word lab_45eb          ;Handler 0x09: CD Mode Entry (with counter clear)
+    .word lab_44b5          ;Handler 0x0A: AM Radio Handler (resets FM2->FM1 if needed)
+    .word lab_4502          ;Handler 0x0B: Exit CD Mode
+    .word lab_454f          ;Handler 0x0C: Exit Tape Mode / CD Mode Variant
+    .word lab_4603          ;Handler 0x0D: Cleanup Handler (no mode change)
+    .word lab_4438          ;Handler 0x0E: Commit Mode Change
 
 ;Table of addresses that are exposed for arbitrary memory read/write
 ;over KWP1281 on address 0x7C using these commands:
@@ -33808,13 +34512,70 @@ kwp_7c_1b_handlers:
     .word call_kwp_7c_1b_31_eeprom_related          ;b32c  cb 4f       VECTOR           B=0x09  Title=0x1b  Subtitle=0x31
     .word call_kwp_7c_1b_32_rom_checksum            ;b32e  d1 4f       VECTOR           B=0x0A  Title=0x1b  Subtitle=0x32
 
+;==============================================================================
+; KEY MATRIX LOOKUP TABLE
+;==============================================================================
+; Translates raw 4-byte scan codes from uPD16432B display controller into
+; logical key codes used by the firmware.
+;
+; Table format: Each entry is 5 bytes
+;   Byte 0: Key code (0x01-0x18) assigned to this button
+;   Bytes 1-4: Scan pattern from uPD16432B (only one bit set across all 4 bytes)
+;
+; The uPD16432B returns 4 bytes where each bit represents one button position
+; in the key matrix. When a button is pressed, exactly one bit is set to 1.
+;
+; Scan byte mapping:
+;   Byte 1: uPD16432B key matrix columns 0-7
+;   Byte 2: uPD16432B key matrix columns 8-15
+;   Byte 3: uPD16432B key matrix columns 16-23
+;   Byte 4: Not used by this faceplate (masked to 0x00)
+;
+; Key code assignments (logical grouping):
+;   0x01-0x06: Radio preset buttons 1-6
+;   0x07:      Scan button
+;   0x08-0x0B: Seek/Tune navigation (up/down/seek/tune)
+;   0x0C-0x0F: Sound adjustment (Fade/Bass/Mid/Treble)
+;   0x10:      Mix/Dolby toggle
+;   0x11-0x12: Unknown function buttons
+;   0x13:      Tape side select
+;   0x14-0x17: Mode selection (CD/Tape/AM/FM)
+;   0x18:      Unknown function button
+;
+; To add a new button:
+;   1. Determine the scan pattern by monitoring uPD16432B output
+;      (use oscilloscope on SPI lines or add debug code)
+;   2. Choose an unused key code (0x19-0x7F available)
+;   3. Add a new 5-byte entry to this table:
+;      .byte <key_code>, <scan_b1>, <scan_b2>, <scan_b3>, <scan_b4>
+;   4. Update key_mask if new bits are used
+;   5. Implement handler code for the new key code in mode handlers
+;
+; To remap a button to different function:
+;   1. Find the entry matching your button's scan pattern
+;   2. Change byte 0 (key code) to the desired function's key code
+;   3. Example: Make PRESET_1 button act like SEEK_UP
+;      Find:   .byte 0x01, 0x00, 0x00, 0x04, 0x00    ;PRESET_1
+;      Change: .byte 0x08, 0x00, 0x00, 0x04, 0x00    ;Now acts as SEEK_UP
+;   4. Reassemble and flash firmware
+;
+; Scan code lookup algorithm (used by sub_56cc_upd_keys):
+;   For each entry in table (24 entries total):
+;     Compare 4 scan bytes with current scan from uPD16432B
+;     If all 4 bytes match:
+;       key_code = entry[0]
+;       key_code |= 0x80 if key is pressed (set bit 7)
+;       Store in mem_fc27
+;       Break (found match)
+;==============================================================================
+
 key_matrix:
 ;b330
 ;On each line, the first byte is an arbitrary number.  The four bytes
 ;are uPD16432B key scan codes (only 1 bit is set in all 4 bytes).
 ;
 ;   <key code>    <uPD16432B key data bytes>
-    .byte 0x01,   0x00, 0x00, 0x04, 0x00    ;PRESET_1
+    .byte 0x01,   0x00, 0x00, 0x04, 0x00    ;PRESET_1 - Short: recall preset, Long: store
     .byte 0x02,   0x00, 0x00, 0x02, 0x00    ;PRESET_2
     .byte 0x03,   0x00, 0x00, 0x01, 0x00    ;PRESET_3
     .byte 0x04,   0x00, 0x00, 0x00, 0x10    ;PRESET_4
@@ -33912,58 +34673,212 @@ mem_b3d2:
     .byte 0x81              ;b3d7  81          DATA 0x81
     .byte 0xa2              ;b3d8  a2          DATA 0xa2
 
+;==============================================================================
+; FM/AM REGION FREQUENCY TABLE
+;==============================================================================
+; Defines frequency ranges and tuning steps for different global regions
+;
+; Table structure:
+;   First byte: Number of region entries (8 regions: 0-7)
+;   Following words: Pointers to region-specific frequency validation tables
+;
+; WHY MULTIPLE REGIONS EXIST:
+;
+; VW's strategy: One firmware binary, multiple global markets
+;   - Single part number reduces manufacturing complexity
+;   - Dealer-programmable via KWP1281 diagnostic protocol
+;   - Allows same radio hardware for different vehicles/markets
+;   - Region stored in EEPROM (mem_f1e7_ee_0046_region)
+;
+; Regional Frequency Allocations and Market Identification:
+;
+; Region 0: North America - NAR (North American Region) PRIMARY
+;   Markets: USA (primary target market)
+;   FM: 87.7 - 107.9 MHz, 100 kHz steps
+;   AM: 530 - 1710 kHz, 10 kHz steps
+;   VW Code: 0x00 (DEFAULT in firmware)
+;   Standard: FCC regulations (ITU Region 2)
+;   SPECIAL: Only region with unique tuner I2C configuration (mem_bcd3)
+;   Note: 87.7 MHz start avoids TV Channel 6 (82-88 MHz) per FCC rules
+;         Gets different TEA6840H tuner config optimized for FCC emissions
+;
+; Region 1: Japan - JDM (Japanese Domestic Market)  
+;   Markets: Japan
+;   FM: 76.0 - 90.0 MHz, 100 kHz steps (narrow band!)
+;   AM: 522 - 1584 kHz, 9 kHz steps
+;   VW Code: 0x01
+;   Standard: Japanese broadcast allocation
+;   Note: UNIQUE 76-90 MHz FM band (lowest start frequency)
+;         Narrow band due to Japanese spectrum allocation
+;         9 kHz AM spacing per ITU Region 1
+;
+; Region 2: Europe (Western) - EDM (European Domestic Market)
+;   Markets: Western Europe (Germany, France, UK, Benelux, etc.)
+;   FM: 87.5 - 108.0 MHz, 100 kHz steps
+;   AM: 531 - 1629 kHz, 9 kHz steps
+;   VW Code: 0x02
+;   Standard: ITU Region 1 (9 kHz AM spacing)
+;   Note: Widest standard FM band (87.5-108.0 MHz)
+;         Main European market configuration
+;
+; Region 3: Europe (Eastern/Variant)
+;   Markets: Eastern Europe (Poland, Czech Republic, former East Germany?)
+;   FM: 87.5 - 108.0 MHz, 100 kHz steps
+;   AM: 531 - 1620 kHz, 9 kHz steps (9 kHz LESS than Region 2!)
+;   VW Code: 0x03
+;   Standard: ITU Region 1 (9 kHz AM spacing)
+;   Note: Identical FM to Region 2
+;         Differs ONLY in AM upper limit (1620 vs 1629 kHz)
+;         Likely legacy from different Eastern European broadcast allocations
+;
+; Region 4: North America Variant 1
+;   Markets: Unknown - Possibly Canada, or specific US vehicle platform
+;   FM/AM: IDENTICAL to Region 0
+;   VW Code: 0x04
+;   Purpose: SPECULATION - Could be:
+;     - Canadian market (bilingual requirements, different soft coding)
+;     - Specific VW platform (Passat vs Golf/Jetta)
+;     - Model year variant (2001-2002?)
+;     - Dealer network differentiation
+;
+; Region 5: North America Variant 2
+;   Markets: Unknown - Possibly Mexico, or different US vehicle platform
+;   FM/AM: IDENTICAL to Region 0
+;   VW Code: 0x05
+;   Purpose: SPECULATION - Could be:
+;     - Mexican market (different dealer network)
+;     - Specific VW platform (New Beetle?)
+;     - Model year variant (2002-2003?)
+;     - Gray market / Central America export
+;
+; Region 6: North America Variant 3
+;   Markets: Unknown NAR sub-market
+;   FM/AM: IDENTICAL to Region 0
+;   VW Code: 0x06
+;   Purpose: SPECULATION - Could be:
+;     - Specific VW platform (GTI/Cabrio?)
+;     - Model year variant (2003+?)
+;     - Future expansion / reserved
+;
+; Region 7: Expanded/Custom - LIKELY BRAZIL
+;   Markets: SPECULATION - Brazil (strongest evidence) or custom
+;   FM: 75.9 - 108.1 MHz, 200 kHz steps (DOUBLE step size!)
+;   AM: 520 - 1710 kHz, 10 kHz steps
+;   VW Code: 0x07
+;   Standard: ITU Region 2 (10 kHz AM), but unusual FM configuration
+;   Note: UNIQUE 200 kHz FM steps - only region with this
+;         Widest FM range (32.2 MHz coverage)
+;         75.9 MHz start is lowest of ANY region (below Japan's 76.0)
+;         THEORY: Brazil has VW manufacturing + unique radio regulations
+;         200 kHz steps may accommodate educational/community radio
+;         or low-density areas with less channel congestion
+;
+; WHY REGION 0 IS SPECIAL:
+;   - DEFAULT region in firmware (0x00)
+;   - Only region tested with (region & 0x07 == 0) - see sub_1c9d_region
+;   - Gets DIFFERENT tuner I2C configuration (mem_bcd3 vs mem_bcde)
+;   - Tuner optimized for strict FCC RF emission requirements
+;   - Primary target market (likely USA - highest volume)
+;   - Special frequency handling at 87.8 MHz (possible NOAA weather avoidance)
+;
+; REGIONAL DIFFERENCES SUMMARY:
+;   Regions 0,4,5,6: North America (10 kHz AM, 87.7-107.9 MHz FM)
+;   Regions 2,3:     Europe (9 kHz AM, 87.5-108.0 MHz FM)
+;   Region 1:        Japan (9 kHz AM, 76.0-90.0 MHz FM - narrow!)
+;   Region 7:        Brazil? (10 kHz AM, 75.9-108.1 MHz FM - 200 kHz steps!)
+;
+; TUNER IC CONFIGURATION:
+;   Region 0: Uses mem_bcd3 I2C data (FCC-optimized)
+;   All others: Use mem_bcde I2C data (ITU-standard)
+;   Difference: TEA6840H tuner chip gets different AGC/IF/bandwidth settings
+;   Purpose: Regulatory compliance for RF emissions
+;
+; Frequency Encoding:
+;   FM: Index 0x00-0x?? where frequency = base_freq + (index * step)
+;       For most regions: step = 100 kHz (0.1 MHz)
+;       For Region 7: step = 200 kHz (0.2 MHz) - DOUBLED!
+;       Base frequencies: 759 (75.9), 760 (76.0), 875 (87.5), 877 (87.7)
+;
+;   AM: Index 0x00-0x?? where frequency = base_freq + (index * step)
+;       Step = 9 kHz (Regions 1, 2, 3) or 10 kHz (Regions 0, 4, 5, 6, 7)
+;       Base frequencies: 520, 522, 530, 531 kHz
+;
+; Special Frequency Tables:
+;   The tables pointed to by mem_b3d9 (mem_b3ea, mem_b3f6, mem_b3f9, mem_b3fc)
+;   contain lists of frequency indices. These are used by table_find_byte to
+;   validate frequencies. The purpose of these specific indices is not fully
+;   determined, but they may represent:
+;     - Band boundaries or sub-band divisions
+;     - Restricted frequencies (aviation, emergency services)
+;     - Special frequencies (weather radio, emergency broadcast)
+;     - Region-specific frequency allocations
+;
+; Note: Region value stored in mem_f1e7_ee_0046_region (EEPROM 0046)
+;       Default value in firmware is 0x00 (North America/NAR/USA)
+;==============================================================================
+
 mem_b3d9:
 ;table of words used with table_get_word
     .byte 0x08              ;b3d9  08          DATA 0x08        8 entries below:
-    .word mem_b3ea+1  ;Region 0: FM 87.7 - 107.9, AM 530 - 1710
-    .word mem_b3f9+1  ;Region 1: FM 76.0 -  90.0, AM 522 - 1584
-    .word mem_b3f6+1  ;Region 2: FM 87.5 - 108.0, AM 531 - 1629
-    .word mem_b3f6+1  ;Region 3: FM 87.5 - 108.0, AM 531 - 1620
-    .word mem_b3ea+1  ;Region 4: FM 87.7 - 107.9, AM 530 - 1710
-    .word mem_b3ea+1  ;Region 5: FM 87.7 - 107.9, AM 530 - 1710
-    .word mem_b3ea+1  ;Region 6: FM 87.7 - 107.9, AM 530 - 1710
-    .word mem_b3fc+1  ;Region 7: FM 75.9 - 108.1, AM 520 - 1710
+    .word mem_b3ea+1  ;Region 0: FM 87.7 - 107.9, AM 530 - 1710     NAR (North America: USA/Canada/Mexico)
+    .word mem_b3f9+1  ;Region 1: FM 76.0 -  90.0, AM 522 - 1584     JDM (Japan) - Narrow 76-90 MHz FM band
+    .word mem_b3f6+1  ;Region 2: FM 87.5 - 108.0, AM 531 - 1629     EDM (Western Europe) - Wide 87.5-108 MHz FM
+    .word mem_b3f6+1  ;Region 3: FM 87.5 - 108.0, AM 531 - 1620     EDM variant (Eastern Europe)
+    .word mem_b3ea+1  ;Region 4: FM 87.7 - 107.9, AM 530 - 1710     NAR variant (purpose unknown)
+    .word mem_b3ea+1  ;Region 5: FM 87.7 - 107.9, AM 530 - 1710     NAR variant (purpose unknown)
+    .word mem_b3ea+1  ;Region 6: FM 87.7 - 107.9, AM 530 - 1710     NAR variant (purpose unknown)
+    .word mem_b3fc+1  ;Region 7: FM 75.9 - 108.1, AM 520 - 1710     Extended (possibly Latin America) - 200 kHz steps
 
+;Regions 0, 4, 5, 6 frequency validation table (North America)
+;11 entries defining special frequency indices (purpose not fully determined)
+;These indices may represent band boundaries, restricted frequencies, or
+;special allocations within the 87.7-107.9 MHz range
+;Used with table_find_byte to validate or mark special frequencies
 mem_b3ea:
-;unknown table
-    .byte 0x0b              ;b3ea  0b          DATA 0x0b        11 entries below:
-    .byte 0x01              ;b3eb  01          DATA 0x01
-    .byte 0x0a              ;b3ec  0a          DATA 0x0a
-    .byte 0x17              ;b3ed  17          DATA 0x17
-    .byte 0x21              ;b3ee  21          DATA 0x21 '!'
-    .byte 0x2b              ;b3ef  2b          DATA 0x2b '+'
-    .byte 0x3b              ;b3f0  3b          DATA 0x3b ';'
-    .byte 0x62              ;b3f1  62          DATA 0x62 'b'
-    .byte 0x63              ;b3f2  63          DATA 0x63 'c'
-    .byte 0x69              ;b3f3  69          DATA 0x69 'i'
-    .byte 0x6f              ;b3f4  6f          DATA 0x6f 'o'
-    .byte 0x75              ;b3f5  75          DATA 0x75 'u'
+    .byte 0x0b              ;b3ea  0b          11 entries below:
+    .byte 0x01              ;b3eb  01          Index  1 = 87.8 MHz
+    .byte 0x0a              ;b3ec  0a          Index 10 = 88.7 MHz
+    .byte 0x17              ;b3ed  17          Index 23 = 90.0 MHz
+    .byte 0x21              ;b3ee  21          Index 33 = 91.0 MHz
+    .byte 0x2b              ;b3ef  2b          Index 43 = 92.0 MHz
+    .byte 0x3b              ;b3f0  3b          Index 59 = 93.6 MHz
+    .byte 0x62              ;b3f1  62          Index 98 = 97.5 MHz
+    .byte 0x63              ;b3f2  63          Index 99 = 97.6 MHz
+    .byte 0x69              ;b3f3  69          Index 105 = 98.2 MHz
+    .byte 0x6f              ;b3f4  6f          Index 111 = 98.8 MHz
+    .byte 0x75              ;b3f5  75          Index 117 = 99.4 MHz
 
+;Regions 2, 3 frequency validation table (Europe)
+;2 entries (possibly band boundaries or key frequencies)
+;Used within the 87.5-108.0 MHz range
 mem_b3f6:
-;unknown table
-    .byte 0x02              ;b3f6  02          DATA 0x02        2 entries below:
-    .byte 0x0d              ;b3f7  0d          DATA 0x0d
-    .byte 0x56              ;b3f8  56          DATA 0x56 'V'
+    .byte 0x02              ;b3f6  02          2 entries below:
+    .byte 0x0d              ;b3f7  0d          Index 13 = 88.8 MHz
+    .byte 0x56              ;b3f8  56          Index 86 = 96.1 MHz
 
+;Region 1 frequency validation table (Japan)
+;2 entries for narrow 76.0-90.0 MHz FM band
+;May represent band boundaries or special frequencies
 mem_b3f9:
-;unknown table
-    .byte 0x02              ;b3f9  02          DATA 0x02        2 entries below:
-    .byte 0x0e              ;b3fa  0e          DATA 0x0e
-    .byte 0x57              ;b3fb  57          DATA 0x57 'W'
+    .byte 0x02              ;b3f9  02          2 entries below:
+    .byte 0x0e              ;b3fa  0e          Index 14 = 77.4 MHz
+    .byte 0x57              ;b3fb  57          Index 87 = 84.7 MHz
 
+;Region 7 frequency validation table (Extended range)
+;11 entries for 75.9-108.1 MHz range with 200 kHz steps
+;Note: Indices are for 200 kHz steps, so actual frequencies differ from R0
 mem_b3fc:
-;unknown table
-    .byte 0x0b              ;b3fc  0b          DATA 0x0b        11 entries below:
-    .byte 0x02              ;b3fd  02          DATA 0x02
-    .byte 0x0b              ;b3fe  0b          DATA 0x0b
-    .byte 0x18              ;b3ff  18          DATA 0x18
-    .byte 0x22              ;b400  22          DATA 0x22 '"'
-    .byte 0x2c              ;b401  2c          DATA 0x2c ','
-    .byte 0x3c              ;b402  3c          DATA 0x3c '<'
-    .byte 0x63              ;b403  63          DATA 0x63 'c'
-    .byte 0x64              ;b404  64          DATA 0x64 'd'
-    .byte 0x6a              ;b405  6a          DATA 0x6a 'j'
-    .byte 0x70              ;b406  70          DATA 0x70 'p'
+    .byte 0x0b              ;b3fc  0b          11 entries below:
+    .byte 0x02              ;b3fd  02          Index  2 = 76.3 MHz (200 kHz step)
+    .byte 0x0b              ;b3fe  0b          Index 11 = 78.1 MHz (200 kHz step)
+    .byte 0x18              ;b3ff  18          Index 24 = 80.7 MHz (200 kHz step)
+    .byte 0x22              ;b400  22          Index 34 = 82.7 MHz (200 kHz step)
+    .byte 0x2c              ;b401  2c          Index 44 = 84.7 MHz (200 kHz step)
+    .byte 0x3c              ;b402  3c          Index 60 = 87.9 MHz (200 kHz step)
+    .byte 0x63              ;b403  63          Index 99 = 95.7 MHz (200 kHz step)
+    .byte 0x64              ;b404  64          Index 100 = 95.9 MHz (200 kHz step)
+    .byte 0x6a              ;b405  6a          Index 106 = 97.1 MHz (200 kHz step)
+    .byte 0x70              ;b406  70          Index 112 = 98.3 MHz (200 kHz step)
     .byte 0x76              ;b407  76          DATA 0x76 'v'
 
 mem_b408:
@@ -36152,6 +37067,39 @@ mem_bccd:
     .byte 0x76              ;bcd0  76          DATA 0x76 'v'
     .byte 0x08              ;bcd1  08          DATA 0x08
     .byte 0x04              ;bcd2  04          DATA 0x04
+
+;==============================================================================
+; TUNER IC: TEA6840H (Philips/NXP)
+;==============================================================================
+; The radio uses a TEA6840H FM/AM tuner IC for RF reception
+;
+; SPECIFICATIONS:
+;   - FM Range: 76-108 MHz (designed for FM broadcast band)
+;   - AM Range: 531-1602 kHz (MW), 150-285 kHz (LW) in some variants
+;   - PLL Tuning: I2C controlled phase-locked loop
+;   - IF Frequency: 10.7 MHz (FM), 450 kHz (AM)
+;   - I2C Address: 0xC2 (write), 0xC3 (read)
+;   - Demodulation: FM (frequency modulation) and AM (amplitude modulation)
+;
+; I2C CONTROL:
+;   - Bit-banged I2C on P7.3 (SCL) and P7.4 (SDA)
+;   - Functions: i2c_tea6840_write (0x5E2A), i2c_tea6840_read (0x5D99)
+;   - Configuration data varies by region (see mem_bcd3 vs mem_bcde)
+;
+; FREQUENCY RANGE LIMITATIONS:
+;   - Hardware VCO designed for 76-108 MHz FM band
+;   - Cannot tune to VHF air band (118-137 MHz) without hardware mods
+;   - PLL divider ratios fixed for FM broadcast frequencies
+;
+; REGIONAL DIFFERENCES:
+;   - Region 0 (North America): Uses mem_bcd3 configuration (0xBCD3)
+;     * Optimized for FCC RF emission compliance
+;     * Different AGC/IF settings than other regions
+;   
+;   - All Other Regions: Use mem_bcde configuration (0xBCDE)
+;     * Optimized for ITU/European standards
+;     * Standard AGC/IF settings
+;==============================================================================
 
 mem_bcd3:
     .byte 0x01              ;bcd3  01          DATA 0x01
