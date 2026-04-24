@@ -27,8 +27,8 @@ mem_f004 = 0xf004
 fis_tx_ptr = 0xf006         ;FIS pointer to 3LB packet buffer used during transmit (2 bytes)
 mem_f008 = 0xf008
 mem_f00a = 0xf00a
-mfsw_rx_buf = 0xf00c        ;MFSW receive buffer (2 bytes)
-mfsw_timer = 0xf00e         ;MFSW timer word (2 bytes)
+mfsw_rx_buf = 0xf00c        ;MFSW 16-bit shift register for receiving (2 bytes)
+mfsw_timer = 0xf00e         ;MFSW TM01 timestamp of previous edge (2 bytes)
 mem_f010 = 0xf010
 mem_f012 = 0xf012
 mem_f014 = 0xf014
@@ -106,8 +106,8 @@ mem_f194 = 0xf194
 ;    0x0B = Down (navigation)
 ;  Converted to equivalent faceplate key codes using mfsw_equivs table
 ;  Updated by MFSW reception interrupt handler
-mfsw_key = 0xf197           ;MFSW key code (0xFF=none, 0x00=VolDn, 0x01=VolUp, 0x0A/0x0B=Up/Dn)
-mem_f198 = 0xf198
+mfsw_key = 0xf197           ;MFSW key code (0xFF=none, 0x00=VolDn, 0x01=VolUp, 0x0A=Up, 0x0B=Dn)
+mfsw_err_count = 0xf198     ;MFSW consecutive error count (wire LOW while idle); reset on wire HIGH
 mem_f199 = 0xf199
 mem_f19a = 0xf19a
 upd_disp = 0xf19a           ;uPD16432B display buffer to send to uPD16432B (11 bytes)
@@ -346,7 +346,7 @@ cntr_0_fb01 = 0xfb01
 cntr_0_fb02 = 0xfb02
 cntr_0_fb03 = 0xfb03
 cntr_0_fb04 = 0xfb04
-cntr_0_fb05 = 0xfb05
+cntr_0_mfsw_timeout = 0xfb05
 cntr_0_fb06 = 0xfb06
 cntr_0_fb07 = 0xfb07
 
@@ -357,7 +357,7 @@ cntr_1_fb0a = 0xfb0a
 cntr_1_fb0b = 0xfb0b
 cntr_1_fb0c = 0xfb0c
 cntr_1_fb0d = 0xfb0d
-cntr_1_mfsw = 0xfb0e     ;MFSW-related; used in intp0_mfsw
+cntr_1_mfsw_debounce = 0xfb0e  ;MFSW idle-line debounce counter
 cntr_1_fb0f = 0xfb0f
 cntr_1_fb10 = 0xfb10
 cntr_1_fb11 = 0xfb11
@@ -685,7 +685,7 @@ mem_fe2f = 0xfe2f
 mem_fe30 = 0xfe30                   ;Active working mode (cmp with mem_f190 at lab_42f8)
 mem_fe31 = 0xfe31
 mem_fe32 = 0xfe32
-mem_fe34 = 0xfe34
+mfsw_state = 0xfe34         ;MFSW receiver state (0x00=idle, 0x01-0x02=start bit, 0x03-0x22=data bits)
 upd_pict = 0xfe35           ;uPD16432B pictograph buffer (8 bytes)
 upd_tick = 0xfe3d           ;Increments on watch timer; used for some uPD updates \ Used as 16-bit pseudorandom
 upd_leds = 0xfe3e           ;Value to write to uPD16432B LED output latch         / number for cluster security
@@ -3767,13 +3767,13 @@ lab_1036:
     mov tmc01,#0x00         ;106a  13 68 00
     set1 mk1l.3             ;106d  71 3a e6     Set TMMK001 (disables INTTM001)
     set1 mk1l.4             ;1070  71 4a e6     Set TMMK011 (disables INTTM011; CDC TX)
-    mov tmc01,#0x04         ;1073  13 68 04
+    mov tmc01,#0x04         ;1073  13 68 04     TM01 free-running at fx=4.19 MHz (used by MFSW)
     set1 mk0l.1             ;1076  71 1a e4     Set PMK0 (disables INTP0)
 
-    mov a,#0x00             ;1079  a1 00
-    mov mem_fe34,a          ;107b  f2 34
-    mov !mem_f198,a         ;107d  9e 98 f1
-    mov !cntr_0_fb05,a      ;1080  9e 05 fb
+    mov a,#0x00                 ;1079  a1 00
+    mov mfsw_state,a            ;107b  f2 34
+    mov !mfsw_err_count,a       ;107d  9e 98 f1
+    mov !cntr_0_mfsw_timeout,a  ;1080  9e 05 fb
 
     clr1 mem_fe67.6         ;1083  6b 67
     clr1 mem_fe67.5         ;1085  5b 67
@@ -3783,11 +3783,11 @@ lab_1036:
 
     clr1 mk0l.1             ;108d  71 1b e4     Clear PMK0 (enables INTP0)
     clr1 pr0l.1             ;1090  71 1b e8     Clear PPR0 (makes INTP0 high priority)
-    clr1 egn.0              ;1093  71 0b 49     Clear EGN0 (disables INTP0 on falling edge)
-    set1 egp.0              ;1096  71 0a 48     Set EGN0 (enables INTP0 on rising edge)
+    clr1 egn.0              ;1093  71 0b 49     MFSW: disable falling edge
+    set1 egp.0              ;1096  71 0a 48     MFSW: enable rising edge (idle, wait for wire LOW)
     ;XXX redundant, sets EGN0 and EGP0 the same again
-    set1 egp.0              ;1099  71 0a 48     Set EGN0 (enables INTP0 on rising edge)
-    clr1 egn.0              ;109c  71 0b 49     Clear EGN0 (disables INTP0 on falling edge)
+    set1 egp.0              ;1099  71 0a 48     (redundant)
+    clr1 egn.0              ;109c  71 0b 49     (redundant)
 
     clr1 pm5.7              ;109f  71 7b 25     PM57 = output (CDC TX)
     set1 shadow_p5.7        ;10a2  7a cf        CDC TX = 1
@@ -4185,7 +4185,7 @@ lab_12e3_task_07_5baud_mfsw:
     bt mem_fe67.6,lab_1326          ;12ea  ec 67 39
     bf mem_fe67.4,lab_12f8_failed   ;12ed  31 43 67 07
 
-    mov a,!cntr_0_fb05              ;12f1  8e 05 fb
+    mov a,!cntr_0_mfsw_timeout              ;12f1  8e 05 fb
     cmp a,#0x00                     ;12f4  4d 00
     bnz lab_131e                    ;12f6  bd 26
 
@@ -18688,159 +18688,175 @@ lab_5940_reti:
 lab_5941_to_mfsw_err:
     br !lab_59fd_mfsw_err   ;5941  9b fd 59
 
-;MFSW receive bit
+;MFSW receive data bit
+;AX = time delta between consecutive wire falling edges (one full bit period)
+;Bit value determined by total period:
+;  0x0831-0x1D7D (501-1802 us) = bit 0
+;  0x1D7D-0x3126 (1802-3003 us) = bit 1
+;Bits shifted into mfsw_rx_buf LSB-first via 16-bit right-rotate-through-carry.
 lab_5944_mfsw_rx_bit:
-    cmpw ax,#0x3126         ;5944  ea 26 31
+    cmpw ax,#0x3126         ;5944  ea 26 31     > 3003 us? Too long
     bnc lab_5941_to_mfsw_err;5947  9d f8
-    cmpw ax,#0x0831         ;5949  ea 31 08
+    cmpw ax,#0x0831         ;5949  ea 31 08     < 501 us? Too short
     bc lab_5941_to_mfsw_err ;594c  8d f3
-    cmpw ax,#0x1d7d         ;594e  ea 7d 1d
-    not1 cy                 ;5951  01
+    cmpw ax,#0x1d7d         ;594e  ea 7d 1d     0/1 threshold (1802 us)
+    not1 cy                 ;5951  01            CY=0 short (bit 0), CY=1 long (bit 1)
     movw ax,!mfsw_rx_buf    ;5952  02 0c f0
-    xch a,x                 ;5955  30
-    rorc a,1                ;5956  25
+    xch a,x                 ;5955  30            16-bit right rotate through carry:
+    rorc a,1                ;5956  25              CY -> low[7], low[0] -> CY
     xch a,x                 ;5957  30
-    rorc a,1                ;5958  25
+    rorc a,1                ;5958  25              CY -> high[7]
     movw !mfsw_rx_buf,ax    ;5959  03 0c f0
-    cmp mem_fe34,#0x12      ;595c  c8 34 12
+    cmp mfsw_state,#0x12    ;595c  c8 34 12     16 bits received? (states 0x03-0x12)
     bnz lab_5969            ;595f  bd 08
-    cmpw ax,#0x8217         ;5961  ea 17 82     0x82 0x17 are first two bytes of MFSW packet
+    cmpw ax,#0x8217         ;5961  ea 17 82     Validate header: A=0x82, X=0x17
     bz lab_596e_got_header  ;5964  ad 08
-    br !lab_59fd_mfsw_err   ;5966  9b fd 59
+    br !lab_59fd_mfsw_err   ;5966  9b fd 59     Header mismatch
 
 lab_5969:
-    cmp mem_fe34,#0x22      ;5969  c8 34 22
-    bz lab_5978_got_2_more  ;596c  ad 0a
+    cmp mfsw_state,#0x22    ;5969  c8 34 22     32 bits received? (states 0x13-0x22)
+    bz lab_5978_got_packet  ;596c  ad 0a
 
-;Header bytes 0x82 and 0x17 received.
-;A=0x82, X=0x17
+;Header validated (A=0x82, X=0x17).  Continue receiving bytes 2-3.
 lab_596e_got_header:
-    inc mem_fe34            ;596e  81 34
+    inc mfsw_state           ;596e  81 34
 
     mov a,#0x05             ;5970  a1 05
-    mov !cntr_0_fb05,a      ;5972  9e 05 fb
+    mov !cntr_0_mfsw_timeout,a ;5972  9e 05 fb
 
-    br !lab_5a0e_pop_reti   ;5975  9b 0e 5a   Branch to pop registers and reti
+    br !lab_5a0e_pop_reti   ;5975  9b 0e 5a
 
-;Got the second two bytes after the header.  The full packet is four bytes:
-;  0x82     0x17      0x0b      0xF4
-;  header1  header2   keycode   checksum
-;The checksum is 0xFF - keycode.
-;
-;A=keycode, X=checksum
-lab_5978_got_2_more:
-    ;Verify checksum
-    xch a,x                 ;5978  30         Swap so that: A=checksum, X=keycode
-    xor a,#0xff             ;5979  7d ff      A = checksum ^ 0xFF (should equal keycode received)
-    cmp a,x                 ;597b  61 48      Compare keycode from checksum (A) with keycode (X)
-    bnz lab_59fd_mfsw_err   ;597d  bd 7e      Branch if not equal (checksum bad)
+;Complete packet: [0x82] [0x17] [key code] [0xFF - key code]
+;A = key code, X = checksum
+;Key codes: 0x00=VolDn, 0x01=VolUp, 0x0A=Up, 0x0B=Down
+lab_5978_got_packet:
+    xch a,x                 ;5978  30           A=checksum, X=key code
+    xor a,#0xff             ;5979  7d ff        A = ~checksum (should equal key code)
+    cmp a,x                 ;597b  61 48        Verify ~checksum == key code
+    bnz lab_59fd_mfsw_err   ;597d  bd 7e        Checksum mismatch
 
-    ;MFSW checksum is good
-    xch a,x                 ;597f  30         XXX This swap is useless, since we know at this
-                            ;                     point that both A and X contain the same value.
-    mov !mfsw_key,a         ;5980  9e 97 f1   Save as MFSW key code received
-    set1 mem_fe67.4         ;5983  4a 67
-    set1 mem_fe67.5         ;5985  5a 67
+    xch a,x                 ;597f  30           (no-op: A and X are equal here)
+    mov !mfsw_key,a         ;5980  9e 97 f1     Store received key code
+    set1 mem_fe67.4         ;5983  4a 67        Key received flag
+    set1 mem_fe67.5         ;5985  5a 67        Key available flag
     clr1 mem_fe67.7         ;5987  7b 67
-    mov mem_fe34,#0x00      ;5989  11 34 00
+    mov mfsw_state,#0x00    ;5989  11 34 00     Reset to idle
 
-    mov a,#0x9f             ;598c  a1 9f
-    mov !cntr_0_fb05,a      ;598e  9e 05 fb
+    mov a,#0x9f             ;598c  a1 9f        Rate limiter
+    mov !cntr_0_mfsw_timeout,a ;598e  9e 05 fb
 
-    br lab_5a0e_pop_reti    ;5991  fa 7b      Branch to pop registers and reti
+    br lab_5a0e_pop_reti    ;5991  fa 7b
 
-;MFSW (Multi-Function Steering Wheel)
+;MFSW (Multi-Function Steering Wheel) Receiver -- INTP0 ISR
 ;
-;Note:
-;  Signal is inverted by HEF40106BT
-;  P0.0 idles low
-;  Grounding MFSW pin makes P0.0 high
+;Single-wire, unidirectional (steering wheel -> radio), active-low protocol.
+;Wire idles HIGH.  Inverted by HEF40106BT Schmitt trigger on PCB:
+;  MFSW pin -> HEF40106BT pin 12 (in) -> pin 13 (out) -> P0.0
+;  Wire LOW = P0.0 HIGH, Wire HIGH = P0.0 LOW
 ;
-;Connections:
-;   MFSW pin at back of radio ->
-;   HEF40106BT inverter pin 12 in ->
-;   HEF40106BT inverter pin 13 out ->
-;   P0.0
+;Timing measured by free-running TM01 at fx=4.19 MHz (1 tick ~= 0.239 us).
+;
+;Packet on wire:
+;  Start: LOW 6-12 ms, HIGH 3-6 ms (new frame) or 1.8-3 ms (repeat)
+;  Data:  32 bits LSB-first = [0x82] [0x17] [key code] [0xFF - key code]
+;  Each bit period (falling edge to falling edge):
+;    Bit 0: 0.5-1.8 ms     Bit 1: 1.8-3.0 ms
+;  Trailing LOW pulse after last data bit (provides 33rd rising edge).
+;
+;Key codes: 0x00=VolDn, 0x01=VolUp, 0x0A=Up, 0x0B=Down
+;
+;State machine (mfsw_state):
+;  0x00      Idle, waiting for start (P0.0 rising edge)
+;  0x01      Got start, waiting for end of start LOW (P0.0 falling edge)
+;  0x02      Got start LOW, waiting for first data bit (P0.0 rising edge)
+;  0x03-0x12 Receiving bits 0-15 (header), validated at state 0x12
+;  Note: state 0x02 consumes one rising edge without processing a bit,
+;        so 33 rising edges are needed for 32 data bits.
+;  0x13-0x22 Receiving bits 16-31 (key+checksum), validated at state 0x22
 ;
 intp0_mfsw:
     push ax                 ;5993  b1
-    movw ax,tm01            ;5994  89 14        Read TM01 as early as possible
+    movw ax,tm01            ;5994  89 14        Capture TM01 immediately
     push bc                 ;5996  b3
     push de                 ;5997  b5
     push hl                 ;5998  b7
-    movw de,ax              ;5999  d4           Save TM01 in DE
-    cmp mem_fe34,#0x23      ;599a  c8 34 23
+    movw de,ax              ;5999  d4           DE = TM01 snapshot
+    cmp mfsw_state,#0x23    ;599a  c8 34 23     State overflow?
     bnc lab_59fd_mfsw_err   ;599d  9d 5e
-    cmp mem_fe34,#0x01      ;599f  c8 34 01
-    bz lab_59a9             ;59a2  ad 05
-    bt p0.0,lab_59c9        ;59a4  8c 00 22
-    br lab_59ad             ;59a7  fa 04
+    cmp mfsw_state,#0x01    ;599f  c8 34 01
+    bz lab_59a9             ;59a2  ad 05        State 1: expect P0.0 falling
+    bt p0.0,lab_59c9        ;59a4  8c 00 22     P0.0 HIGH (wire LOW) -> active edge
+    br lab_59ad             ;59a7  fa 04        P0.0 LOW (wire HIGH) -> idle edge
 
 lab_59a9:
-    bf p0.0,lab_59c9        ;59a9  31 03 00 1c
+    bf p0.0,lab_59c9        ;59a9  31 03 00 1c  State 1: P0.0 LOW = wire HIGH (end of start LOW)
 
+;--- Wire is HIGH (P0.0 LOW): idle/glitch edge ---
 lab_59ad:
-;P0.0 = low
     mov a,#0x00             ;59ad  a1 00
 
-    cmp a,!cntr_1_mfsw      ;59af  48 0e fb
+    cmp a,!cntr_1_mfsw_debounce ;59af  48 0e fb  Debounce counter expired?
     bnz lab_59b7            ;59b2  bd 03
 
-    mov !mem_f198,a         ;59b4  9e 98 f1
+    mov !mfsw_err_count,a   ;59b4  9e 98 f1     Reset error count when debounce expires
 
 lab_59b7:
-    mov a,!mem_f198         ;59b7  8e 98 f1
+    mov a,!mfsw_err_count   ;59b7  8e 98 f1
     inc a                   ;59ba  41
-    mov !mem_f198,a         ;59bb  9e 98 f1
+    mov !mfsw_err_count,a   ;59bb  9e 98 f1
 
-    cmp a,#0x03             ;59be  4d 03
-    bnc lab_59fd_mfsw_err   ;59c0  9d 3b
+    cmp a,#0x03             ;59be  4d 03        3 consecutive idle edges?
+    bnc lab_59fd_mfsw_err   ;59c0  9d 3b        Yes -> error reset
 
-    mov a,#0x64             ;59c2  a1 64
-    mov !cntr_1_mfsw,a      ;59c4  9e 0e fb
+    mov a,#0x64             ;59c2  a1 64        Reset debounce counter
+    mov !cntr_1_mfsw_debounce,a ;59c4  9e 0e fb
 
-    br lab_5a0e_pop_reti    ;59c7  fa 45        Branch to pop registers and reti
+    br lab_5a0e_pop_reti    ;59c7  fa 45
 
+;--- Wire is LOW (P0.0 HIGH): active edge ---
 lab_59c9:
-;P0.0 = high
     mov a,#0x00             ;59c9  a1 00
-    mov !mem_f198,a         ;59cb  9e 98 f1
+    mov !mfsw_err_count,a   ;59cb  9e 98 f1     Clear error count on active edge
 
-    mov a,!cntr_0_fb05      ;59ce  8e 05 fb
+    mov a,!cntr_0_mfsw_timeout ;59ce  8e 05 fb
     cmp a,#0x00             ;59d1  4d 00
-    bz lab_5a23             ;59d3  ad 4e
+    bz lab_5a23             ;59d3  ad 4e        Timeout expired -> treat as new start
 
-    cmp mem_fe34,#0x00      ;59d5  c8 34 00
-    bz lab_5a13             ;59d8  ad 39
+    cmp mfsw_state,#0x00    ;59d5  c8 34 00
+    bz lab_5a13             ;59d8  ad 39        Idle -> rate limit check, then start
 
-    movw ax,de              ;59da  c4           AX = Word saved from TM01
+    ;--- Compute time delta: AX = TM01_now - mfsw_timer ---
+    movw ax,de              ;59da  c4           AX = TM01 snapshot
     xch a,x                 ;59db  30
     sub a,!mfsw_timer       ;59dc  18 0e f0
     xch a,x                 ;59df  30
     subc a,!mfsw_timer+1    ;59e0  38 0f f0
     bnc lab_59e9_nc         ;59e3  9d 04
-    addw ax,#0xffff         ;59e5  ca ff ff
+    addw ax,#0xffff         ;59e5  ca ff ff     Timer wrap handling (no-op in unsigned)
     incw ax                 ;59e8  80
 
 lab_59e9_nc:
-    xchw ax,de              ;59e9  e4
+    xchw ax,de              ;59e9  e4           Save TM01 snapshot as new mfsw_timer
     movw !mfsw_timer,ax     ;59ea  03 0e f0
-    xchw ax,de              ;59ed  e4
-    cmp mem_fe34,#0x02      ;59ee  c8 34 02
-    bc lab_5a3d             ;59f1  8d 4a
-    bz lab_5a58             ;59f3  ad 63
-    cmp mem_fe34,#0x23      ;59f5  c8 34 23
-    bnc lab_59fd_mfsw_err   ;59f8  9d 03
-    br !lab_5944_mfsw_rx_bit ;59fa  9b 44 59
+    xchw ax,de              ;59ed  e4           AX = time delta
 
+    ;--- Dispatch on state ---
+    cmp mfsw_state,#0x02    ;59ee  c8 34 02
+    bc lab_5a3d             ;59f1  8d 4a        State 1: validate start LOW duration
+    bz lab_5a58             ;59f3  ad 63        State 2: validate start HIGH duration
+    cmp mfsw_state,#0x23    ;59f5  c8 34 23
+    bnc lab_59fd_mfsw_err   ;59f8  9d 03
+    br !lab_5944_mfsw_rx_bit ;59fa  9b 44 59    States 3-0x22: receive data bit
+
+;--- Error / reset ---
 lab_59fd_mfsw_err:
     mov a,#0x00             ;59fd  a1 00
-    mov mem_fe34,a          ;59ff  f2 34
-    mov !cntr_0_fb05,a      ;5a01  9e 05 fb
-    clr1 mem_fe67.4         ;5a04  4b 67
-    clr1 mem_fe67.5         ;5a06  5b 67
-    set1 egp.0              ;5a08  71 0a 48     Set EGP0 (enables INTP0 on rising edge; MFSW)
-    clr1 egn.0              ;5a0b  71 0b 49     Clear EGN0 (disables INTP0 on falling edge; MFSW)
+    mov mfsw_state,a        ;59ff  f2 34        State -> idle
+    mov !cntr_0_mfsw_timeout,a ;5a01  9e 05 fb   Clear timeout
+    clr1 mem_fe67.4         ;5a04  4b 67        Clear key received flag
+    clr1 mem_fe67.5         ;5a06  5b 67        Clear key available flag
+    set1 egp.0              ;5a08  71 0a 48     Enable rising edge (wait for wire LOW)
+    clr1 egn.0              ;5a0b  71 0b 49     Disable falling edge
 
 lab_5a0e_pop_reti:
 ;Pop registers and reti
@@ -18851,9 +18867,10 @@ lab_5a0e_pop_reti:
     reti                    ;5a12  8f
 
 
-;mem_fe34 != 0
+;--- State 0 (idle): first active edge detected ---
+;A = cntr_0_mfsw_timeout (rate limiter)
 lab_5a13:
-    cmp a,#0x7a             ;5a13  4d 7a
+    cmp a,#0x7a             ;5a13  4d 7a        Reject if too soon after previous packet
     bnc lab_59fd_mfsw_err   ;5a15  9d e6
     set1 mem_fe67.3         ;5a17  3a 67
     set1 mem_fe67.6         ;5a19  6a 67
@@ -18866,60 +18883,68 @@ lab_5a23:
     clr1 mem_fe67.3         ;5a23  3b 67
     clr1 mem_fe67.6         ;5a25  6b 67
 
+;--- Enter state 1: wait for end of start LOW ---
 lab_5a27:
-    mov mem_fe34,#0x01      ;5a27  11 34 01
-    set1 egn.0              ;5a2a  71 0a 49     Set EGN0 (enables INTP0 on falling edge; MFSW)
-    clr1 egp.0              ;5a2d  71 0b 48     Clear EGP0 (disables INTP0 on rising edge; MFSW)
+    mov mfsw_state,#0x01    ;5a27  11 34 01
+    set1 egn.0              ;5a2a  71 0a 49     Enable falling edge (wait for wire HIGH)
+    clr1 egp.0              ;5a2d  71 0b 48     Disable rising edge
     movw ax,de              ;5a30  c4
-    movw !mfsw_timer,ax     ;5a31  03 0e f0
+    movw !mfsw_timer,ax     ;5a31  03 0e f0     Record start timestamp
 
     mov a,#0x0e             ;5a34  a1 0e
-    mov !cntr_0_fb05,a      ;5a36  9e 05 fb
+    mov !cntr_0_mfsw_timeout,a      ;5a36  9e 05 fb
 
     br lab_5a0e_pop_reti    ;5a39  fa d3        Branch to pop registers and reti
 
 lab_5a3b:
     br lab_59fd_mfsw_err    ;5a3b  fa c0
 
+;--- State 1: validate start LOW duration ---
+;AX = time delta.  Valid: 0x629B-0xC49C (6.0-12.0 ms)
 lab_5a3d:
-    cmpw ax,#0x629b         ;5a3d  ea 9b 62
+    cmpw ax,#0x629b         ;5a3d  ea 9b 62     < 6.0 ms?
     bc lab_59fd_mfsw_err    ;5a40  8d bb
-    cmpw ax,#0xc49c         ;5a42  ea 9c c4
+    cmpw ax,#0xc49c         ;5a42  ea 9c c4     > 12.0 ms?
     bnc lab_59fd_mfsw_err   ;5a45  9d b6
-    mov mem_fe34,#0x02      ;5a47  11 34 02
-    set1 egp.0              ;5a4a  71 0a 48     Set EGP0 (enables INTP0 on rising edge; MFSW)
-    clr1 egn.0              ;5a4d  71 0b 49     Clear EGN0 (disables INTP0 on falling edge; MFSW)
+    mov mfsw_state,#0x02    ;5a47  11 34 02     -> state 2
+    set1 egp.0              ;5a4a  71 0a 48     Enable rising edge (wait for wire LOW)
+    clr1 egn.0              ;5a4d  71 0b 49     Disable falling edge
 
     mov a,#0x07             ;5a50  a1 07
-    mov !cntr_0_fb05,a      ;5a52  9e 05 fb
+    mov !cntr_0_mfsw_timeout,a ;5a52  9e 05 fb
 
-    br !lab_5a0e_pop_reti   ;5a55  9b 0e 5a     Branch to pop registers and reti
+    br !lab_5a0e_pop_reti   ;5a55  9b 0e 5a
 
+;--- State 2: validate start HIGH duration ---
+;AX = time delta.  Valid: 0x1D7D-0x629B (1.8-6.0 ms)
+;  >= 0x3126 (3.0 ms): new data frame -> state 3
+;  <  0x3126 (3.0 ms): repeat code -> reuse last key
 lab_5a58:
-    cmpw ax,#0x1d7d         ;5a58  ea 7d 1d
+    cmpw ax,#0x1d7d         ;5a58  ea 7d 1d     < 1.8 ms?
     bc lab_59fd_mfsw_err    ;5a5b  8d a0
-    cmpw ax,#0x629b         ;5a5d  ea 9b 62
+    cmpw ax,#0x629b         ;5a5d  ea 9b 62     > 6.0 ms?
     bnc lab_59fd_mfsw_err   ;5a60  9d 9b
-    cmpw ax,#0x3126         ;5a62  ea 26 31
+    cmpw ax,#0x3126         ;5a62  ea 26 31     < 3.0 ms? (repeat code)
     bc lab_5a74             ;5a65  8d 0d
-    mov mem_fe34,#0x03      ;5a67  11 34 03
+    mov mfsw_state,#0x03    ;5a67  11 34 03     New frame -> begin data bits
     set1 mem_fe68.0         ;5a6a  0a 68
 
     mov a,#0x05             ;5a6c  a1 05
-    mov !cntr_0_fb05,a      ;5a6e  9e 05 fb
+    mov !cntr_0_mfsw_timeout,a ;5a6e  9e 05 fb
 
-    br !lab_5a0e_pop_reti   ;5a71  9b 0e 5a     Branch to pop registers and reti
+    br !lab_5a0e_pop_reti   ;5a71  9b 0e 5a
 
+;--- Repeat code: short start HIGH, reuse last key code ---
 lab_5a74:
-    mov mem_fe34,#0x00      ;5a74  11 34 00
-    set1 mem_fe67.4         ;5a77  4a 67
-    set1 mem_fe67.5         ;5a79  5a 67
+    mov mfsw_state,#0x00    ;5a74  11 34 00     Reset to idle
+    set1 mem_fe67.4         ;5a77  4a 67        Key received flag
+    set1 mem_fe67.5         ;5a79  5a 67        Key available flag
     clr1 mem_fe67.7         ;5a7b  7b 67
 
     mov a,#0xd7             ;5a7d  a1 d7
-    mov !cntr_0_fb05,a      ;5a7f  9e 05 fb
+    mov !cntr_0_mfsw_timeout,a ;5a7f  9e 05 fb
 
-    br !lab_5a0e_pop_reti   ;5a82  9b 0e 5a     Branch to pop registers and reti
+    br !lab_5a0e_pop_reti   ;5a82  9b 0e 5a
 
 ;CDC TX related
 sub_5a85_cdc_tx:
@@ -34607,24 +34632,21 @@ key_mask:
     .byte 0x00, 0xFF, 0xFF, 0xFF
 
 mfsw_codes:
-;MFSW key codes supported by the radio
-;table used with table_find_byte
-;value comes from mfsw_key
+;MFSW key codes received in packets (table used with table_find_byte)
     .byte 0x04              ;b3ac  04          DATA 0x04        4 entries below:
-    .byte 0x00  ;MFSW Key Code: Volume Down
-    .byte 0x01  ;MFSW Key Code: Volume Up
-    .byte 0x0a  ;MFSW Key Code: Up
-    .byte 0x0b  ;MFSW Key Code: Down
+    .byte 0x00  ;Volume Down
+    .byte 0x01  ;Volume Up
+    .byte 0x0a  ;Up (seek up on radio)
+    .byte 0x0b  ;Down (seek down on radio)
 
 mfsw_equivs:
-;table used with table_get_byte
-;indexed by a value from mfsw_codes table above
-;value | 0x80 is stored in mem_fc26
+;Faceplate-equivalent key codes for each mfsw_codes entry
+;(table used with table_get_byte; value | 0x80 stored in mem_fc26)
     .byte 0x04              ;b3b1  04          DATA 0x04        4 entries below:
-    .byte 0x1f  ;Volume Down
-    .byte 0x1e  ;Volume Up
-    .byte 0x21  ;Up
-    .byte 0x20  ;Down
+    .byte 0x1f  ;Volume Down -> Faceplate Volume Down
+    .byte 0x1e  ;Volume Up   -> Faceplate Volume Up
+    .byte 0x21  ;Up          -> Faceplate Seek Up
+    .byte 0x20  ;Down        -> Faceplate Seek Down
 
 mem_b3b6:
 ;unknown table
