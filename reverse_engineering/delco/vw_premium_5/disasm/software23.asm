@@ -27,7 +27,7 @@ mem_f004 = 0xf004
 fis_tx_ptr = 0xf006         ;FIS pointer to 3LB packet buffer used during transmit (2 bytes)
 mem_f008 = 0xf008
 mem_f00a = 0xf00a
-mfsw_rx_buf = 0xf00c        ;MFSW 16-bit shift register for receiving (2 bytes)
+mfsw_rx_buf = 0xf00c        ;MFSW 16-bit shift register to receive 2 bytes at a time (2 bytes)
 mfsw_timer = 0xf00e         ;MFSW TM01 timestamp of previous edge (2 bytes)
 mem_f010 = 0xf010
 mem_f012 = 0xf012
@@ -189,8 +189,8 @@ mem_f1ff_ee_005e = 0xf1ff               ;EEPROM 005E  (Protected)
 mem_f200_ee_005f = 0xf200               ;EEPROM 005F  (Protected)
 mem_f201_ee_0060 = 0xf201               ;EEPROM 0060  (Protected)
 
-mem_f202_ee_0061_csum1_lo = 0xf202      ;EEPROM 0061  Checksum for mem_f1b3_ee_0010 - mem_f201_ee_0060 (EEPROM 0010 - 0060) low byte
-mem_f203_ee_0062_csum1_hi = 0xf203      ;EEPROM 0062  Checksum for mem_f1b3_ee_0010 - mem_f201_ee_0060 (EEPROM 0010 - 0060) high byte
+mem_f202_ee_0061_csum_b_lo = 0xf202     ;EEPROM 0061  Checksum B lo: covers EEPROM 0046 - 0060 (27 bytes)
+mem_f203_ee_0062_csum_b_hi = 0xf203     ;EEPROM 0062  Checksum B hi: covers EEPROM 0046 - 0060 (27 bytes)
 
 mem_f204 = 0xf204
 mem_f205 = 0xf205
@@ -332,9 +332,9 @@ mem_f265_ee_00c2_eq4_treb = 0xf267  ;EEPROM 00C4  EQ#4 TREB
 mem_f268_ee_00c5 = 0xf268           ;EEPROM 00C5  
 mem_f269_ee_00c6 = 0xf269           ;EEPROM 00C6  
 
-mem_f26b_ee_00c8 = 0xf26b           ;EEPROM 00C8  
-mem_f26c_ee_00c9_csum2_lo = 0xf26c  ;EEPROM 00C9  Checksum for mem_f206_ee_0063 - mem_f26b_ee_00c8 (EEPROM 0063 - 00C8) low byte
-mem_f26d_ee_00ca_csum2_hi = 0xf26d  ;EEPROM 00CA  Checksum for mem_f206_ee_0063 - mem_f26b_ee_00c8 (EEPROM 0063 - 00C8) high byte
+mem_f26b_ee_00c8 = 0xf26b            ;EEPROM 00C8  
+mem_f26c_ee_00c9_csum_c_lo = 0xf26c  ;EEPROM 00C9  Checksum C lo: covers EEPROM 0063 - 00C8 (102 bytes)
+mem_f26d_ee_00ca_csum_c_hi = 0xf26d  ;EEPROM 00CA  Checksum C hi: covers EEPROM 0063 - 00C8 (102 bytes)
 
 ;0xF26E - 0xF7FF in Expansion RAM is completely unused
 
@@ -2255,11 +2255,11 @@ lab_09db:
     mov mem_fe2d,a          ;09e3  f2 2d
     ret                     ;09e5  af
 
-subtr_f1b3_from_f202:
-;Subtract RAM locations corresponding to EEPROM 0010 - 0060
-;HL = #mem_f1b3_ee_0010, DE = #mem_f202_ee_0061_csum1_lo, A = DE - HL
+subtr_csum_a_b_ranges:
+;Subtract RAM locations for checksummed area A+B (EEPROM 0010-0043, 0046-0060)
+;HL = #mem_f1b3_ee_0010, DE = #mem_f202_ee_0061_csum_b_lo, A = DE - HL
     movw hl,#mem_f1b3_ee_0010               ;09e6  16 b3 f1
-    movw de,#mem_f202_ee_0061_csum1_lo      ;09e9  14 02 f2
+    movw de,#mem_f202_ee_0061_csum_b_lo     ;09e9  14 02 f2
     callf !subtr_hl_from_de                 ;09ec  1c ef      Subtract HL from DE, return A=low, X=high
     ret                                     ;09ee  af
 
@@ -2302,8 +2302,8 @@ lab_0a0c_ret:
 
 eeram_f206_get_size:
 ;Get number of bytes in checksummed EEPROM area (always 0x66)
-;A=0x66, mem_fed6=0x66 (difference of #mem_f26c_ee_00c9_csum2_lo - #mem_f206_ee_0063)
-    movw ax,#mem_f26c_ee_00c9_csum2_lo  ;0a0d  10 6c f2  AX = address of last checksummed byte + 1
+;A=0x66 = size of checksum C area (mem_f26c_ee_00c9_csum_c_lo - mem_f206_ee_0063)
+    movw ax,#mem_f26c_ee_00c9_csum_c_lo  ;0a0d  10 6c f2  AX = address of last checksummed byte + 1
     subw ax,#mem_f206_ee_0063           ;0a10  da 06 f2  Subtract address of first checksummed byte
     mov a,x                             ;0a13  60
     mov mem_fed6,a                      ;0a14  f2 d6
@@ -2325,7 +2325,7 @@ eeram_copy_f1b3_defaults:
 ;
 ;Copy 0x4F bytes from mem_0080_ee_0010_defaults to mem_f1b3_ee_0010
     movw hl,#mem_f1b3_ee_0010           ;0a1c  16 b3 f1
-    movw de,#mem_f202_ee_0061_csum1_lo  ;0a1f  14 02 f2
+    movw de,#mem_f202_ee_0061_csum_b_lo ;0a1f  14 02 f2
     callf !subtr_hl_from_de             ;0a22  1c ef        Subtract HL from DE, return A=low, X=high
                                         ;                   Results in A=0x4F
     movw hl,#mem_0080_ee_0010_defaults  ;0a24  16 80 00     HL = source address
@@ -2408,8 +2408,8 @@ eeram_f206_copy_presets_and_sound_data_if_needed:
     ;Copy 0x47 bytes from mem_00ee_ee_0082_defaults to mem_f225_ee_0082
     movw hl,#mem_00ee_ee_0082_defaults  ;0a6a  16 ee 00     HL = source address
     movw de,#mem_f225_ee_0082           ;0a6d  14 25 f2     DE = destination address (mem_f225_ee_0082 = EEPROM 0082)
-    movw ax,#mem_f26c_ee_00c9_csum2_lo  ;0a70  10 6c f2     AX = #mem_f26c_ee_00c9_csum2_lo
-    subw ax,#mem_f225_ee_0082           ;0a73  da 25 f2     AX = #mem_f26c_ee_00c9_csum2_lo - #mem_f225_ee_0082 = 0x47
+    movw ax,#mem_f26c_ee_00c9_csum_c_lo  ;0a70  10 6c f2     AX = #mem_f26c_ee_00c9_csum_c_lo
+    subw ax,#mem_f225_ee_0082           ;0a73  da 25 f2     AX = #mem_f26c_ee_00c9_csum_c_lo - #mem_f225_ee_0082 = 0x47
     mov a,x                             ;0a76  60           A = number of bytes to copy (0x47)
     callf !copy                         ;0a77  4c 9e        Copy A bytes from [HL] to [DE]
 
@@ -3770,10 +3770,10 @@ lab_1036:
     mov tmc01,#0x04         ;1073  13 68 04     TM01 free-running at fx=4.19 MHz (used by MFSW)
     set1 mk0l.1             ;1076  71 1a e4     Set PMK0 (disables INTP0)
 
-    mov a,#0x00                 ;1079  a1 00
-    mov mfsw_state,a            ;107b  f2 34
-    mov !mfsw_err_count,a       ;107d  9e 98 f1
-    mov !cntr_0_mfsw_timeout,a  ;1080  9e 05 fb
+    mov a,#0x00                ;1079  a1 00
+    mov mfsw_state,a           ;107b  f2 34
+    mov !mfsw_err_count,a      ;107d  9e 98 f1
+    mov !cntr_0_mfsw_timeout,a ;1080  9e 05 fb
 
     clr1 mem_fe67.6         ;1083  6b 67
     clr1 mem_fe67.5         ;1085  5b 67
@@ -4185,7 +4185,7 @@ lab_12e3_task_07_5baud_mfsw:
     bt mem_fe67.6,lab_1326          ;12ea  ec 67 39
     bf mem_fe67.4,lab_12f8_failed   ;12ed  31 43 67 07
 
-    mov a,!cntr_0_mfsw_timeout              ;12f1  8e 05 fb
+    mov a,!cntr_0_mfsw_timeout      ;12f1  8e 05 fb
     cmp a,#0x00                     ;12f4  4d 00
     bnz lab_131e                    ;12f6  bd 26
 
@@ -8503,7 +8503,7 @@ lab_2a10:
     movw mem_fed4,ax                        ;2a55  99 d4
 
     pop bc                                  ;2a57  b2           BC = Pop sum of 9 bytes at mem_f1f9_ee_0058_softcode_hi
-    movw hl,#mem_f202_ee_0061_csum1_lo      ;2a58  16 02 f2
+    movw hl,#mem_f202_ee_0061_csum_b_lo     ;2a58  16 02 f2
     call !sub_2df8                          ;2a5b  9a f8 2d     Word [HL] = Word [HL] - BC + DE
 
 lab_2a5e:
@@ -8611,7 +8611,7 @@ login_56_success:
     movw de,ax                              ;2aea  d4
     movw mem_fed4,ax                        ;2aeb  99 d4
     pop bc                                  ;2aed  b2           Pop sum of 9 bytes at mem_f1f9_ee_0058_softcode_hi
-    movw hl,#mem_f202_ee_0061_csum1_lo      ;2aee  16 02 f2
+    movw hl,#mem_f202_ee_0061_csum_b_lo     ;2aee  16 02 f2
     call !sub_2df8                          ;2af1  9a f8 2d     Word [HL] = Word [HL] - BC + DE
 
 lab_2af4_loop:
@@ -12635,9 +12635,9 @@ lab_3f2f:
     bnc lab_3f2e_ret        ;3f37  9d f5        Branch to just return if not available
 
     callf !sub_099c              ;3f39  1c 9c
-    callf !subtr_f1b3_from_f202  ;3f3b  1c e6   Subtract RAM locations corresponding to EEPROM 0010 - 0060     
+    callf !subtr_csum_a_b_ranges  ;3f3b  1c e6   Subtract RAM locations for checksummed area A+B (EEPROM 0010-0043, 0046-0060)     
                                  ;              HL = #mem_f1b3_ee_0010 (EEPROM 0010), 
-                                 ;              DE = #mem_f202_ee_0061_csum1_lo (EEPROM 0060+1), 
+                                 ;              DE = #mem_f202_ee_0061_csum_b_lo, 
                                  ;              A = DE - HL
     callf !eeram_csum_no_update  ;3f3d  4c 0d
     bz lab_3f43                  ;3f3f  ad 02
@@ -12840,7 +12840,7 @@ eeram_csum_f206_update:
     push hl                             ;4053  b7
     push de                             ;4054  b5
     movw hl,#mem_f206_ee_0063           ;4055  16 06 f2
-    movw de,#mem_f26c_ee_00c9_csum2_lo  ;4058  14 6c f2
+    movw de,#mem_f26c_ee_00c9_csum_c_lo  ;4058  14 6c f2
     callf !eeram_f206_get_size          ;405b  2c 0d      A = Number of bytes in checksummed EEPROM area (always 0x66)
     mov b,a                             ;405d  73
     callf !eeram_csum_update            ;405e  4c 12      Calculate checksum of RAM area mirroring EEPROM, update checksum
@@ -12867,7 +12867,7 @@ eeram_csum_f206_no_update:
     push hl                             ;4076  b7
     push de                             ;4077  b5
     movw hl,#mem_f206_ee_0063           ;4078  16 06 f2
-    movw de,#mem_f26c_ee_00c9_csum2_lo  ;407b  14 6c f2
+    movw de,#mem_f26c_ee_00c9_csum_c_lo  ;407b  14 6c f2
     callf !eeram_f206_get_size          ;407e  2c 0d        A = Number of bytes in checksummed EEPROM area (always 0x66)
     mov b,a                             ;4080  73
     callf !eeram_csum_no_update         ;4081  4c 0d
@@ -12935,22 +12935,22 @@ lab_40ac_out_of_range:
 
 lab_40b1_in_range:
 ;HL+B is within range of #mem_f206_ee_0063 - #mem_f26b_ee_00c8 (EEPROM 0063 - 00C8) (inclusive)
-    mov a,!mem_f26c_ee_00c9_csum2_lo ;40b1  8e 6c f2
+    mov a,!mem_f26c_ee_00c9_csum_c_lo ;40b1  8e 6c f2
     sub a,[hl+b]                     ;40b4  31 1b
     mov c,a                          ;40b6  72
-    mov a,!mem_f26d_ee_00ca_csum2_hi ;40b7  8e 6d f2
+    mov a,!mem_f26d_ee_00ca_csum_c_hi ;40b7  8e 6d f2
     subc a,#0x00                     ;40ba  3d 00
-    mov !mem_f26d_ee_00ca_csum2_hi,a ;40bc  9e 6d f2
+    mov !mem_f26d_ee_00ca_csum_c_hi,a ;40bc  9e 6d f2
 
     pop ax                           ;40bf  b0           Pop value to write to [HL+B]
     mov [hl+b],a                     ;40c0  bb           Store A in [HL+B]
          
     xch a,c                          ;40c1  32
     add a,c                          ;40c2  61 0a
-    mov !mem_f26c_ee_00c9_csum2_lo,a ;40c4  9e 6c f2
-    mov a,!mem_f26d_ee_00ca_csum2_hi ;40c7  8e 6d f2
+    mov !mem_f26c_ee_00c9_csum_c_lo,a ;40c4  9e 6c f2
+    mov a,!mem_f26d_ee_00ca_csum_c_hi ;40c7  8e 6d f2
     addc a,#0x00                     ;40ca  2d 00
-    mov !mem_f26d_ee_00ca_csum2_hi,a ;40cc  9e 6d f2
+    mov !mem_f26d_ee_00ca_csum_c_hi,a ;40cc  9e 6d f2
     mov a,c                          ;40cf  62
 
     clr1 mem_fe63.6                  ;40d0  6b 63
@@ -13031,10 +13031,10 @@ kwp_7c_1b_30_eeprom_csum_related:
 
 lab_4114:
     xch a,!mem_f204                     ;4114  ce 04 f2
-    mov a,!mem_f202_ee_0061_csum1_lo    ;4117  8e 02 f2
+    mov a,!mem_f202_ee_0061_csum_b_lo   ;4117  8e 02 f2
     xch a,!mem_f204                     ;411a  ce 04 f2
     xch a,!mem_f205                     ;411d  ce 05 f2
-    mov a,!mem_f203_ee_0062_csum1_hi    ;4120  8e 03 f2
+    mov a,!mem_f203_ee_0062_csum_b_hi   ;4120  8e 03 f2
     xch a,!mem_f205                     ;4123  ce 05 f2
 
     movw hl,#0x0010                     ;4126  16 10 00     HL = Source address in EEPROM
@@ -13047,10 +13047,10 @@ lab_4114:
     call !eeprom_range_into_ram         ;4135  9a df 40     Read range from physical EEPROM into RAM
     push ax                             ;4138  b1
 
-    movw hl,#0x0044                     ;4139  16 44 00     HL = Source address in EEPROM
-    movw de,#mem_fed7                   ;413c  14 d7 fe     DE = Destination address in RAM
-    mov a,#0x02                         ;413f  a1 02
-    call !eeprom_range_into_ram         ;4141  9a df 40     Read range from physical EEPROM into RAM
+    movw hl,#0x0044                     ;4139  16 44 00     HL = EEPROM 0044 (checksum A)
+    movw de,#mem_fed7                   ;413c  14 d7 fe     DE = temp buffer in RAM
+    mov a,#0x02                         ;413f  a1 02        A = 2 bytes (checksum A lo + hi)
+    call !eeprom_range_into_ram         ;4141  9a df 40     Read checksum A from EEPROM into temp
 
     pop ax                              ;4144  b0
     movw hl,#mem_f1b3_ee_0010           ;4145  16 b3 f1     mem_f1b3_ee_0010 = EEPROM 0010
@@ -13080,7 +13080,7 @@ lab_4165:
     call !eeprom_range_into_ram         ;4173  9a df 40     Read range from physical EEPROM into RAM
     push de                             ;4176  b5
     pop hl                              ;4177  b6
-    movw de,#mem_f202_ee_0061_csum1_lo  ;4178  14 02 f2
+    movw de,#mem_f202_ee_0061_csum_b_lo ;4178  14 02 f2
     sub a,#0x02                         ;417b  1d 02
     bz lab_41a1                         ;417d  ad 22
     push ax                             ;417f  b1
@@ -13107,12 +13107,12 @@ lab_41a1:
     clr1 mem_fe63.4                     ;41a1  4b 63
     mov a,#0x55                         ;41a3  a1 55
     mov !mem_fb9a,a                     ;41a5  9e 9a fb
-    callf !subtr_f1b3_from_f202         ;41a8  1c e6        Subtract RAM locations corresponding to EEPROM 0010 - 0060
+    callf !subtr_csum_a_b_ranges        ;41a8  1c e6        Subtract RAM locations for checksummed area A+B (EEPROM 0010-0043, 0046-0060)
                                         ;                   HL = #mem_f1b3_ee_0010 (EEPROM 0010), 
-                                        ;                   DE = #mem_f202_ee_0061_csum1_lo (EEPROM 0060+1), 
+                                        ;                   DE = #mem_f202_ee_0061_csum_b_lo, 
                                         ;                   A = DE - HL
     callf !eeram_csum_update            ;41aa  4c 12        Calculate checksum of RAM area mirroring EEPROM, update checksum
-    movw hl,#mem_f202_ee_0061_csum1_lo  ;41ac  16 02 f2     HL = pointer to first buffer
+    movw hl,#mem_f202_ee_0061_csum_b_lo ;41ac  16 02 f2     HL = pointer to first buffer
     movw de,#mem_f204                   ;41af  14 04 f2     DE = pointer to second buffer
     mov a,#0x02                         ;41b2  a1 02        A = 2 bytes to compare
     clr1 mem_fe63.3                     ;41b4  3b 63
@@ -13182,7 +13182,7 @@ lab_41ff:
     callf !subtr_hl_from_de                 ;4205  1c ef        Subtract HL from DE, return A=low, X=high
     push ax                                 ;4207  b1
     movw hl,#mem_f1e7_ee_0046_region        ;4208  16 e7 f1
-    movw de,#mem_f202_ee_0061_csum1_lo      ;420b  14 02 f2
+    movw de,#mem_f202_ee_0061_csum_b_lo     ;420b  14 02 f2
     push hl                                 ;420e  b7
     callf !eeram_csum_update                ;420f  4c 12        Calculate checksum of RAM area mirroring EEPROM, update checksum
     pop hl                                  ;4211  b6
@@ -18721,7 +18721,7 @@ lab_5969:
 lab_596e_got_header:
     inc mfsw_state           ;596e  81 34
 
-    mov a,#0x05             ;5970  a1 05
+    mov a,#0x05                ;5970  a1 05
     mov !cntr_0_mfsw_timeout,a ;5972  9e 05 fb
 
     br !lab_5a0e_pop_reti   ;5975  9b 0e 5a
