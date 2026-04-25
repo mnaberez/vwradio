@@ -38,7 +38,9 @@ jobs:
 
     - name: Run all tests
       run: |
-        python faceplate_emulator/host/setup.py test -q
+        pip3 install pyserial
+        python3 -m unittest discover -s faceplate_emulator/host
+
         make -C faceplate_emulator/firmware
         make -C kwp1281_tool/firmware
         make -C reverse_engineering/clarion/vw_premium_4/disasm/pu1666a_mainmcu
