@@ -34636,8 +34636,8 @@ mfsw_codes:
     .byte 0x04              ;b3ac  04          DATA 0x04        4 entries below:
     .byte 0x00  ;Volume Down
     .byte 0x01  ;Volume Up
-    .byte 0x0a  ;Up (seek up on radio)
-    .byte 0x0b  ;Down (seek down on radio)
+    .byte 0x0a  ;Down (seek down on radio)
+    .byte 0x0b  ;Up (seek up on radio)
 
 mfsw_equivs:
 ;Faceplate-equivalent key codes for each mfsw_codes entry
@@ -34645,8 +34645,8 @@ mfsw_equivs:
     .byte 0x04              ;b3b1  04          DATA 0x04        4 entries below:
     .byte 0x1f  ;Volume Down -> Faceplate Volume Down
     .byte 0x1e  ;Volume Up   -> Faceplate Volume Up
-    .byte 0x21  ;Up          -> Faceplate Seek Up
-    .byte 0x20  ;Down        -> Faceplate Seek Down
+    .byte 0x21  ;Down        -> Faceplate Seek Down
+    .byte 0x20  ;Up          -> Faceplate Seek Up
 
 mem_b3b6:
 ;unknown table
