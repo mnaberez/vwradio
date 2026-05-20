@@ -20,8 +20,8 @@
 |Pin 17 |P85/ANI51    |Unknown input                                  |
 |Pin 18 |P86/ANI61    |Unknown input                                  |
 |Pin 19 |P87/ANI71    |Unknown input/output                           |
-|Pin 21 |P40          |Unknown input                                  |
-|Pin 22 |P41          |Unknown input                                  |
+|Pin 21 |P40          |Volume knob rotary encoder phase A input       |
+|Pin 22 |P41          |Volume knob rotary encoder phase B input       |
 |Pin 23 |P42          |Unknown input                                  |
 |Pin 24 |P43          |Unknown output                                 |
 |Pin 25 |P44          |FIS ENA out                                    |
